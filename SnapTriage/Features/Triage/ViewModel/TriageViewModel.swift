@@ -37,7 +37,7 @@ final class TriageViewModel {
     private let router: TriageRouter
 
     private enum TaskKind { case load }
-    private nonisolated(unsafe) var tasks: [TaskKind: Task<Void, Never>] = [:]
+    @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
 
     init(
         requestAccess: RequestPhotoAccessUseCase,
