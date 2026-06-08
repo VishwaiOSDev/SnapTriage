@@ -10,6 +10,19 @@
 		0A0A00010000000000000001 /* SnapTriageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A00100000000000000001 /* SnapTriageApp.swift */; };
 		0A0A00020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A00110000000000000001 /* ContentView.swift */; };
 		0A0A00030000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A0A00120000000000000001 /* Assets.xcassets */; };
+		0A0A1B010000000000000001 /* Screenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A010000000000000001 /* Screenshot.swift */; };
+		0A0A1B020000000000000001 /* PhotoLibraryAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A020000000000000001 /* PhotoLibraryAuthorization.swift */; };
+		0A0A1B030000000000000001 /* TriageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A030000000000000001 /* TriageError.swift */; };
+		0A0A1B040000000000000001 /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A040000000000000001 /* PhotoLibraryService.swift */; };
+		0A0A1B050000000000000001 /* RequestPhotoAccessUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A050000000000000001 /* RequestPhotoAccessUseCase.swift */; };
+		0A0A1B060000000000000001 /* LoadScreenshotsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A060000000000000001 /* LoadScreenshotsUseCase.swift */; };
+		0A0A1B070000000000000001 /* TriageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A070000000000000001 /* TriageViewModel.swift */; };
+		0A0A1B080000000000000001 /* TriageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A080000000000000001 /* TriageView.swift */; };
+		0A0A1B090000000000000001 /* ScreenshotThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A090000000000000001 /* ScreenshotThumbnailView.swift */; };
+		0A0A1B100000000000000001 /* TriageRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A100000000000000001 /* TriageRouter.swift */; };
+		0A0A1B110000000000000001 /* TriageComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A110000000000000001 /* TriageComposition.swift */; };
+		0A0A1B120000000000000001 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A120000000000000001 /* Strings.swift */; };
+		0A0A1B130000000000000001 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A130000000000000001 /* Spacing.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -17,6 +30,19 @@
 		0A0A00110000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0A0A00120000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A0A00130000000000000001 /* SnapTriage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapTriage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0A1A010000000000000001 /* Screenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screenshot.swift; sourceTree = "<group>"; };
+		0A0A1A020000000000000001 /* PhotoLibraryAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryAuthorization.swift; sourceTree = "<group>"; };
+		0A0A1A030000000000000001 /* TriageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageError.swift; sourceTree = "<group>"; };
+		0A0A1A040000000000000001 /* PhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryService.swift; sourceTree = "<group>"; };
+		0A0A1A050000000000000001 /* RequestPhotoAccessUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestPhotoAccessUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A060000000000000001 /* LoadScreenshotsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadScreenshotsUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A070000000000000001 /* TriageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageViewModel.swift; sourceTree = "<group>"; };
+		0A0A1A080000000000000001 /* TriageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageView.swift; sourceTree = "<group>"; };
+		0A0A1A090000000000000001 /* ScreenshotThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotThumbnailView.swift; sourceTree = "<group>"; };
+		0A0A1A100000000000000001 /* TriageRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageRouter.swift; sourceTree = "<group>"; };
+		0A0A1A110000000000000001 /* TriageComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageComposition.swift; sourceTree = "<group>"; };
+		0A0A1A120000000000000001 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
+		0A0A1A130000000000000001 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +69,8 @@
 			children = (
 				0A0A00100000000000000001 /* SnapTriageApp.swift */,
 				0A0A00110000000000000001 /* ContentView.swift */,
+				0A0A1C010000000000000001 /* Features */,
+				0A0A1C100000000000000001 /* Common */,
 				0A0A00120000000000000001 /* Assets.xcassets */,
 			);
 			path = SnapTriage;
@@ -54,6 +82,105 @@
 				0A0A00130000000000000001 /* SnapTriage.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0A0A1C010000000000000001 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1C020000000000000001 /* Triage */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		0A0A1C020000000000000001 /* Triage */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1C030000000000000001 /* Model */,
+				0A0A1C040000000000000001 /* Service */,
+				0A0A1C050000000000000001 /* UseCase */,
+				0A0A1C060000000000000001 /* ViewModel */,
+				0A0A1C070000000000000001 /* View */,
+				0A0A1C080000000000000001 /* Router */,
+				0A0A1C090000000000000001 /* Composition */,
+			);
+			path = Triage;
+			sourceTree = "<group>";
+		};
+		0A0A1C030000000000000001 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A010000000000000001 /* Screenshot.swift */,
+				0A0A1A020000000000000001 /* PhotoLibraryAuthorization.swift */,
+				0A0A1A030000000000000001 /* TriageError.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0A0A1C040000000000000001 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A040000000000000001 /* PhotoLibraryService.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
+		0A0A1C050000000000000001 /* UseCase */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A050000000000000001 /* RequestPhotoAccessUseCase.swift */,
+				0A0A1A060000000000000001 /* LoadScreenshotsUseCase.swift */,
+			);
+			path = UseCase;
+			sourceTree = "<group>";
+		};
+		0A0A1C060000000000000001 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A070000000000000001 /* TriageViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		0A0A1C070000000000000001 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A080000000000000001 /* TriageView.swift */,
+				0A0A1A090000000000000001 /* ScreenshotThumbnailView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		0A0A1C080000000000000001 /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A100000000000000001 /* TriageRouter.swift */,
+			);
+			path = Router;
+			sourceTree = "<group>";
+		};
+		0A0A1C090000000000000001 /* Composition */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A110000000000000001 /* TriageComposition.swift */,
+			);
+			path = Composition;
+			sourceTree = "<group>";
+		};
+		0A0A1C100000000000000001 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1C110000000000000001 /* DesignSystem */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		0A0A1C110000000000000001 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A120000000000000001 /* Strings.swift */,
+				0A0A1A130000000000000001 /* Spacing.swift */,
+			);
+			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,6 +254,19 @@
 			files = (
 				0A0A00010000000000000001 /* SnapTriageApp.swift in Sources */,
 				0A0A00020000000000000001 /* ContentView.swift in Sources */,
+				0A0A1B010000000000000001 /* Screenshot.swift in Sources */,
+				0A0A1B020000000000000001 /* PhotoLibraryAuthorization.swift in Sources */,
+				0A0A1B030000000000000001 /* TriageError.swift in Sources */,
+				0A0A1B040000000000000001 /* PhotoLibraryService.swift in Sources */,
+				0A0A1B050000000000000001 /* RequestPhotoAccessUseCase.swift in Sources */,
+				0A0A1B060000000000000001 /* LoadScreenshotsUseCase.swift in Sources */,
+				0A0A1B070000000000000001 /* TriageViewModel.swift in Sources */,
+				0A0A1B080000000000000001 /* TriageView.swift in Sources */,
+				0A0A1B090000000000000001 /* ScreenshotThumbnailView.swift in Sources */,
+				0A0A1B100000000000000001 /* TriageRouter.swift in Sources */,
+				0A0A1B110000000000000001 /* TriageComposition.swift in Sources */,
+				0A0A1B120000000000000001 /* Strings.swift in Sources */,
+				0A0A1B130000000000000001 /* Spacing.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +404,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SnapTriage;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapTriage reads your screenshots so it can help you review, keep, or delete them. Your photos never leave your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -294,6 +435,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SnapTriage;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapTriage reads your screenshots so it can help you review, keep, or delete them. Your photos never leave your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
