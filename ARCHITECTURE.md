@@ -1,7 +1,7 @@
 # SnapTriage — Architecture
 
 A SwiftUI app built with a **feature-first, lightweight unidirectional architecture**.
-Target: **iOS 17+** (so we standardize on `@Observable`).
+Target: **iOS 18+** (so we standardize on `@Observable` and the new Vision Swift API).
 
 ---
 
