@@ -10,4 +10,5 @@ import Foundation
 enum TriageError: Error, Equatable {
     case photoAccessDenied
     case photoAccessRestricted
+    case ocrFailed
 }
