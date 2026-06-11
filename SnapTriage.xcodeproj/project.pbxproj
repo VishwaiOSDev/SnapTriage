@@ -120,6 +120,8 @@
 				0A0A1A010000000000000001 /* Screenshot.swift */,
 				0A0A1A020000000000000001 /* PhotoLibraryAuthorization.swift */,
 				0A0A1A030000000000000001 /* TriageError.swift */,
+				0A0A1A140000000000000001 /* OCRLine.swift */,
+				0A0A1A150000000000000001 /* OCRResult.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -128,6 +130,7 @@
 			isa = PBXGroup;
 			children = (
 				0A0A1A040000000000000001 /* PhotoLibraryService.swift */,
+				0A0A1A160000000000000001 /* TextRecognitionService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -137,6 +140,7 @@
 			children = (
 				0A0A1A050000000000000001 /* RequestPhotoAccessUseCase.swift */,
 				0A0A1A060000000000000001 /* LoadScreenshotsUseCase.swift */,
+				0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */,
 			);
 			path = UseCase;
 			sourceTree = "<group>";
