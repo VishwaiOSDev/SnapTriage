@@ -11,9 +11,11 @@ enum TriageComposition {
     @MainActor
     static func make(router: TriageRouter) -> TriageViewModel {
         let service = PhotoKitLibraryService()
+        let recognizer = VisionTextRecognitionService()
         return TriageViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
             loadScreenshots: LoadScreenshotsUseCase(service: service),
+            recognizeText: RecognizeScreenshotTextUseCase(imageLoader: service, recognizer: recognizer),
             imageLoader: service,
             router: router
         )
