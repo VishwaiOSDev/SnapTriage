@@ -13,6 +13,7 @@ protocol PhotoLibraryService: Sendable {
     func requestAuthorization() async -> PhotoLibraryAuthorization
     func fetchScreenshots() async -> [Screenshot]
     func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage?
+    func cgImage(for id: Screenshot.ID, longEdge: CGFloat) async -> CGImage?
 }
 
 // @unchecked Sendable: only stored state is PHCachingImageManager, internally thread-safe.
