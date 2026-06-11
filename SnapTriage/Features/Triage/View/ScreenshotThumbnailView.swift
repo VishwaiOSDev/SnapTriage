@@ -10,6 +10,7 @@ import SwiftUI
 struct ScreenshotThumbnailView: View {
     let screenshot: Screenshot
     let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
+    let onSelect: () -> Void
 
     @Environment(\.displayScale) private var displayScale
     @State private var image: UIImage?
@@ -19,6 +20,8 @@ struct ScreenshotThumbnailView: View {
             thumbnail
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .clipShape(RoundedRectangle(cornerRadius: Spacing.thumbnailCornerRadius))
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onSelect)
                 .task(id: screenshot.id) {
                     // Request in pixels, not points, so PhotoKit downscales to the right size.
                     let target = CGSize(
