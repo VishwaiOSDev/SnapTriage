@@ -25,6 +25,7 @@ final class TriageViewModel {
     enum Input {
         case onAppear
         case retry
+        case recognize(Screenshot.ID)
         case openSettings
         case clearError
     }
@@ -33,20 +34,23 @@ final class TriageViewModel {
 
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadScreenshots: LoadScreenshotsUseCase
+    private let recognizeText: RecognizeScreenshotTextUseCase
     private let imageLoader: PhotoLibraryService
     private let router: TriageRouter
 
-    private enum TaskKind { case load }
+    private enum TaskKind { case load, ocr }
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
 
     init(
         requestAccess: RequestPhotoAccessUseCase,
         loadScreenshots: LoadScreenshotsUseCase,
+        recognizeText: RecognizeScreenshotTextUseCase,
         imageLoader: PhotoLibraryService,
         router: TriageRouter
     ) {
         self.requestAccess = requestAccess
         self.loadScreenshots = loadScreenshots
+        self.recognizeText = recognizeText
         self.imageLoader = imageLoader
         self.router = router
     }
@@ -55,6 +59,8 @@ final class TriageViewModel {
         switch input {
         case .onAppear, .retry:
             loadFlow()
+        case .recognize(let id):
+            recognizeFlow(id: id)
         case .openSettings:
             router.openSettings()
         case .clearError:
