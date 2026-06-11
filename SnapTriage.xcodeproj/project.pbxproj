@@ -23,6 +23,10 @@
 		0A0A1B110000000000000001 /* TriageComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A110000000000000001 /* TriageComposition.swift */; };
 		0A0A1B120000000000000001 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A120000000000000001 /* Strings.swift */; };
 		0A0A1B130000000000000001 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A130000000000000001 /* Spacing.swift */; };
+		0A0A1B140000000000000001 /* OCRLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A140000000000000001 /* OCRLine.swift */; };
+		0A0A1B150000000000000001 /* OCRResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A150000000000000001 /* OCRResult.swift */; };
+		0A0A1B160000000000000001 /* TextRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A160000000000000001 /* TextRecognitionService.swift */; };
+		0A0A1B170000000000000001 /* RecognizeScreenshotTextUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +47,10 @@
 		0A0A1A110000000000000001 /* TriageComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageComposition.swift; sourceTree = "<group>"; };
 		0A0A1A120000000000000001 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		0A0A1A130000000000000001 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
+		0A0A1A140000000000000001 /* OCRLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRLine.swift; sourceTree = "<group>"; };
+		0A0A1A150000000000000001 /* OCRResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRResult.swift; sourceTree = "<group>"; };
+		0A0A1A160000000000000001 /* TextRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionService.swift; sourceTree = "<group>"; };
+		0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeScreenshotTextUseCase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -267,6 +275,10 @@
 				0A0A1B110000000000000001 /* TriageComposition.swift in Sources */,
 				0A0A1B120000000000000001 /* Strings.swift in Sources */,
 				0A0A1B130000000000000001 /* Spacing.swift in Sources */,
+				0A0A1B140000000000000001 /* OCRLine.swift in Sources */,
+				0A0A1B150000000000000001 /* OCRResult.swift in Sources */,
+				0A0A1B160000000000000001 /* TextRecognitionService.swift in Sources */,
+				0A0A1B170000000000000001 /* RecognizeScreenshotTextUseCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
