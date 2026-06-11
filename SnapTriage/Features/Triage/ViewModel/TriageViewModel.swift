@@ -101,6 +101,20 @@ final class TriageViewModel {
         }
     }
 
+    private func recognizeFlow(id: Screenshot.ID) {
+        run(.ocr) { [weak self] in
+            guard let self else { return }
+            do {
+                let result = try await self.recognizeText.execute(screenshotID: id)
+                self.logOCR(result)
+            } catch is CancellationError {
+                // superseded by a newer tap
+            } catch {
+                print("[OCR] failed for \(id): \(error)")
+            }
+        }
+    }
+
     // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
     private func run(_ kind: TaskKind, _ operation: @escaping () async -> Void) {
         tasks[kind]?.cancel()
