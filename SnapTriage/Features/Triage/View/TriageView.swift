@@ -58,7 +58,8 @@ struct TriageView: View {
                         screenshot: screenshot,
                         loadThumbnail: { id, size in
                             await viewModel.thumbnail(for: id, targetSize: size)
-                        }
+                        },
+                        onSelect: { viewModel.send(.recognize(screenshot.id)) }
                     )
                 }
             }
