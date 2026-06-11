@@ -115,6 +115,17 @@ final class TriageViewModel {
         }
     }
 
+    // Stage 2 validation only: log the transcript to confirm OCR quality before Stage 3
+    // builds caching and categorization on top. No domain state is mutated yet.
+    private func logOCR(_ result: OCRResult) {
+        print("""
+        ──────── OCR \(result.screenshotID) ────────
+        lines: \(result.lines.count)
+        \(result.isEmpty ? "(no text recognized)" : result.transcript)
+        ─────────────────────────────────────────────
+        """)
+    }
+
     // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
     private func run(_ kind: TaskKind, _ operation: @escaping () async -> Void) {
         tasks[kind]?.cancel()
