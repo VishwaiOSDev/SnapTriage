@@ -77,6 +77,38 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
             }
         }
     }
+
+    func cgImage(for id: Screenshot.ID, longEdge: CGFloat) async -> CGImage? {
+        let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
+        guard let asset = fetch.firstObject else { return nil }
+
+        let longestSide = CGFloat(max(asset.pixelWidth, asset.pixelHeight))
+        let scale = min(longEdge / longestSide, 1)   // never upscale
+        let target = CGSize(
+            width: CGFloat(asset.pixelWidth) * scale,
+            height: CGFloat(asset.pixelHeight) * scale
+        )
+
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .highQualityFormat
+        options.resizeMode = .exact
+        options.isNetworkAccessAllowed = false        // local-only; don't stall on iCloud
+        options.isSynchronous = false
+
+        return await withCheckedContinuation { continuation in
+            let once = ResumeOnce()
+            imageManager.requestImage(
+                for: asset,
+                targetSize: target,
+                contentMode: .aspectFit,
+                options: options
+            ) { image, info in
+                // PhotoKit may fire a degraded interim image first; wait for the final one.
+                if let degraded = info?[PHImageResultIsDegradedKey] as? Bool, degraded { return }
+                once.run { continuation.resume(returning: image?.cgImage) }
+            }
+        }
+    }
 }
 
 private extension PhotoLibraryAuthorization {
