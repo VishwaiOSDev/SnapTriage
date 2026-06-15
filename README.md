@@ -84,7 +84,8 @@ The core ideas, in brief:
 - **`@Observable`, iOS 18+.** Views own their ViewModel via `@State`; no
   `ObservableObject`.
 
-> The full rationale, rules, and modularization roadmap live in
+> The full rationale — navigation‑as‑state, cancellable async work, typed error
+> mapping, domain vs UI state, and the modularization roadmap — lives in
 > [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ### Project structure
