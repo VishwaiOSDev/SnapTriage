@@ -3,7 +3,7 @@
 An iOS app for triaging and organizing screenshots — keep, delete, or act on them fast.
 
 SnapTriage scans your photo library for screenshots, lays them out in a fast,
-scrollable grid, and reads the text inside each one on‑device so you can quickly
+scrollable grid, and reads the text inside each one on-device so you can quickly
 decide what to do with the pile of screenshots that quietly builds up over time.
 
 Everything runs locally on the device. No screenshots, images, or recognized
@@ -18,11 +18,11 @@ text ever leave your phone.
   works on a fresh device), newest first.
 - **Fast, adaptive grid.** A `LazyVGrid` of thumbnails that loads images lazily
   at the exact pixel size each cell needs, backed by a `PHCachingImageManager`.
-- **On‑device text recognition (OCR).** Tap a screenshot and SnapTriage runs
+- **On-device text recognition (OCR).** Tap a screenshot and SnapTriage runs
   Apple's Vision text recognizer over a downscaled copy of the image, producing
-  a confidence‑filtered transcript in reading order.
+  a confidence-filtered transcript in reading order.
 - **Graceful permission handling.** Clear states for *not determined*, *denied*,
-  *restricted*, *limited*, and *authorized*, with a one‑tap shortcut to the
+  *restricted*, *limited*, and *authorized*, with a one-tap shortcut to the
   system Settings when access is missing.
 
 ### Project status
@@ -30,7 +30,7 @@ text ever leave your phone.
 SnapTriage is in active early development.
 
 - **Stage 1 — Library + grid:** ✅ screenshot discovery, thumbnails, permissions.
-- **Stage 2 — OCR validation:** ✅ on‑device recognition; the transcript is
+- **Stage 2 — OCR validation:** ✅ on-device recognition; the transcript is
   printed to the console for now, to validate OCR quality. Nothing is persisted
   yet — that comes in Stage 3.
 - **Stage 3 — Caching & categorization:** 🚧 planned. Persist recognized text and
@@ -43,7 +43,7 @@ SnapTriage is in active early development.
 - **iOS 18+** — the app standardizes on the `@Observable` macro and the modern
   Vision Swift API (`RecognizeTextRequest`).
 - **Xcode 16+** with a recent Swift toolchain.
-- **No third‑party dependencies** — only Apple frameworks (SwiftUI, PhotoKit,
+- **No third-party dependencies** — only Apple frameworks (SwiftUI, PhotoKit,
   Vision, UIKit).
 
 ---
@@ -57,7 +57,7 @@ open SnapTriage.xcodeproj
 ```
 
 Then select a device or simulator and run (`⌘R`). On first launch the app
-requests photo‑library access; grant it to see your screenshots.
+requests photo-library access; grant it to see your screenshots.
 
 > Screenshot detection relies on real screenshots existing in the library. On
 > the Simulator, add a few (e.g. `⌘S`) so the grid has something to show.
@@ -66,7 +66,7 @@ requests photo‑library access; grant it to see your screenshots.
 
 ## Architecture & coding patterns
 
-SnapTriage is built with a **feature‑first, lightweight unidirectional
+SnapTriage is built with a **feature-first, lightweight unidirectional
 architecture** — an MVVM core extended with explicit **UseCase** and **Service**
 layers. The guiding rule is *the View renders state, the View sends intent, and
 the ViewModel is the only place state mutates*.
@@ -80,12 +80,12 @@ The core ideas, in brief:
   business rules; Services do I/O and pure transforms. Models are plain value
   types (`struct` / `enum`).
 - **Faked at the boundaries.** System Services (`PhotoLibraryService`,
-  `TextRecognitionService`) sit behind protocols, assembled by a per‑feature
+  `TextRecognitionService`) sit behind protocols, assembled by a per-feature
   Composition root. Features never import each other.
 - **`@Observable`, iOS 18+.** Views own their ViewModel via `@State`; no
   `ObservableObject`.
 
-> The full rationale — navigation‑as‑state, cancellable async work, typed error
+> The full rationale — navigation-as-state, cancellable async work, typed error
 > mapping, domain vs UI state, and the modularization roadmap — lives in
 > [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
@@ -108,7 +108,7 @@ SnapTriage/
         └── Composition/         # TriageComposition — assembles the object graph
 ```
 
-### High‑level architecture
+### High-level architecture
 
 ```mermaid
 flowchart TD
@@ -158,7 +158,7 @@ flowchart TD
 `send(_:)` → the ViewModel launches a tracked `Task` and sets a loading phase →
 a UseCase applies business rules and calls Services → a Service performs I/O or a
 pure transform → the result normalizes back through the UseCase → the ViewModel
-assigns domain state and a `loaded`/`failed` phase → SwiftUI re‑renders.
+assigns domain state and a `loaded`/`failed` phase → SwiftUI re-renders.
 
 ---
 
