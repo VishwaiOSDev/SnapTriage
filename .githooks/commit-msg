@@ -1,0 +1,8 @@
+#!/bin/sh
+
+message_file=$1
+
+if grep -Eiq 'noreply@anthropic\.com|Co-Authored-By: .*anthropic\.com|Generated with \[[^]]*\]\(https://claude\.ai/code\)' "$message_file"; then
+  echo "Commit message contains assistant attribution. Remove it before committing." >&2
+  exit 1
+fi
