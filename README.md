@@ -70,33 +70,19 @@ architecture** — an MVVM core extended with explicit **UseCase** and **Service
 layers. The guiding rule is *the View renders state, the View sends intent, and
 the ViewModel is the only place state mutates*.
 
-The patterns we follow:
+The core ideas, in brief:
 
 - **Unidirectional data flow.** Views render from `viewModel.state` and send
   user intent through a single `send(_:)` entry point. State is `private(set)`,
-  so nothing outside the ViewModel can mutate it.
+  so only the ViewModel mutates it.
 - **MVVM + UseCase + Service layering.** ViewModels orchestrate; UseCases hold
   business rules; Services do I/O and pure transforms. Models are plain value
   types (`struct` / `enum`).
-- **`@Observable` everywhere.** Views own their ViewModel via `@State`; no
-  `ObservableObject`. (iOS 17+ observation, targeting iOS 18+.)
-- **Dependency injection via a Composition root.** Each feature exposes a factory
-  (`TriageComposition.make`) that assembles the object graph; the app wires it
-  together. Features never import each other.
-- **Protocol‑backed I/O boundaries.** Services that touch the system
-  (`PhotoLibraryService`, `TextRecognitionService`) sit behind protocols so they
-  can be faked in tests. Pure logic is injected as plain values, not protocols.
-- **Domain state vs UI/transient state.** Domain state (screenshots,
-  authorization) is only assigned from UseCase results; UI/transient state
-  (`phase`, `errorMessage`) is managed directly by the ViewModel.
-- **Navigation is state.** A per‑feature `Router` protocol owns transitions
-  (e.g. opening system Settings) instead of imperative push/present from views.
-- **Cancellable, tracked async work.** Every async input runs in a `Task` keyed
-  by kind, so a newer request cancels the stale one and `CancellationError` is
-  swallowed rather than surfaced.
-- **Typed errors, mapped at the boundary.** Services throw typed
-  `TriageError`s (no user‑facing strings). The ViewModel maps them to presentable
-  copy pulled from the design system at the very edge.
+- **Faked at the boundaries.** System Services (`PhotoLibraryService`,
+  `TextRecognitionService`) sit behind protocols, assembled by a per‑feature
+  Composition root. Features never import each other.
+- **`@Observable`, iOS 18+.** Views own their ViewModel via `@State`; no
+  `ObservableObject`.
 
 > The full rationale, rules, and modularization roadmap live in
 > [`ARCHITECTURE.md`](ARCHITECTURE.md).
