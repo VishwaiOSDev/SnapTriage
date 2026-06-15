@@ -33,8 +33,8 @@ SnapTriage is in active early development.
 - **Stage 2 — OCR validation:** ✅ on‑device recognition; the transcript is
   printed to the console for now, to validate OCR quality. Nothing is persisted
   yet — that comes in Stage 3.
-- **Stage 3 — Caching & categorization:** 🚧 planned (caching recognized text and
-  categorizing screenshots build on top of Stage 2).
+- **Stage 3 — Caching & categorization:** 🚧 planned. Persist recognized text and
+  categorize screenshots, building on Stage 2.
 
 ---
 
