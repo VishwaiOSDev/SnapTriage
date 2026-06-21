@@ -40,6 +40,9 @@ enum Strings {
         static let travel = "Travel"
         static let event = "Event"
         static let email = "Email"
+        static let identity = "ID"
+        static let document = "Document"
+        static let photo = "Photo"
         static let other = "Other"
     }
 
