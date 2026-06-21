@@ -34,6 +34,10 @@
 		0A0A1B1D0000000000000001 /* FallbackScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */; };
 		0A0A1B1E0000000000000001 /* ImageContentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */; };
 		0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */; };
+		0A0A0D810000000000000001 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D010000000000000001 /* TestTags.swift */; };
+		0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */; };
+		0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */; };
+		0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +69,11 @@
 		0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentClassifier.swift; sourceTree = "<group>"; };
 		0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
+		0A0A0E000000000000000001 /* SnapTriageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapTriageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0A0D010000000000000001 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
+		0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
+		0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCaseTests.swift; sourceTree = "<group>"; };
+		0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,13 +84,39 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0A0A0E040000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		0A0A0E090000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A0A00410000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A0A00400000000000000001;
+			remoteInfo = SnapTriage;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		0A0A0E0A0000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A0A00400000000000000001 /* SnapTriage */;
+			targetProxy = 0A0A0E090000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXGroup section */
 		0A0A00300000000000000001 = {
 			isa = PBXGroup;
 			children = (
 				0A0A00310000000000000001 /* SnapTriage */,
+				0A0A0E0B0000000000000001 /* SnapTriageTests */,
 				0A0A00320000000000000001 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -102,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				0A0A00130000000000000001 /* SnapTriage.app */,
+			0A0A0E000000000000000001 /* SnapTriageTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -224,6 +260,25 @@
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
+		0A0A0E0B0000000000000001 /* SnapTriageTests */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A0E0C0000000000000001 /* Support */,
+				0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */,
+				0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */,
+			);
+			path = SnapTriageTests;
+			sourceTree = "<group>";
+		};
+		0A0A0E0C0000000000000001 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A0D010000000000000001 /* TestTags.swift */,
+				0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -244,6 +299,24 @@
 			productReference = 0A0A00130000000000000001 /* SnapTriage.app */;
 			productType = "com.apple.product-type.application";
 		};
+		0A0A0E020000000000000001 /* SnapTriageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A0A0E060000000000000001 /* Build configuration list for PBXNativeTarget "SnapTriageTests" */;
+			buildPhases = (
+				0A0A0E030000000000000001 /* Sources */,
+				0A0A0E040000000000000001 /* Frameworks */,
+				0A0A0E050000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0A0A0E0A0000000000000001 /* PBXTargetDependency */,
+			);
+			name = SnapTriageTests;
+			productName = SnapTriageTests;
+			productReference = 0A0A0E000000000000000001 /* SnapTriageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -256,6 +329,10 @@
 				TargetAttributes = {
 					0A0A00400000000000000001 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					0A0A0E020000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 0A0A00400000000000000001;
 					};
 				};
 			};
@@ -273,6 +350,7 @@
 			projectRoot = "";
 			targets = (
 				0A0A00400000000000000001 /* SnapTriage */,
+				0A0A0E020000000000000001 /* SnapTriageTests */,
 			);
 		};
 /* End PBXProject section */
@@ -283,6 +361,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A0A00030000000000000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A0A0E050000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,6 +404,17 @@
 				0A0A1B1D0000000000000001 /* FallbackScreenshotCategorizer.swift in Sources */,
 				0A0A1B1E0000000000000001 /* ImageContentClassifier.swift in Sources */,
 				0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A0A0E030000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0A0D810000000000000001 /* TestTags.swift in Sources */,
+				0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */,
+				0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */,
+				0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,6 +604,42 @@
 			};
 			name = Release;
 		};
+		0A0A0E070000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5Q2G7C7C3U;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.vishwaiosdev.SnapTriageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapTriage.app/SnapTriage";
+			};
+			name = Debug;
+		};
+		0A0A0E080000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5Q2G7C7C3U;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.vishwaiosdev.SnapTriageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapTriage.app/SnapTriage";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -525,6 +657,15 @@
 			buildConfigurations = (
 				0A0A00700000000000000001 /* Debug */,
 				0A0A00710000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A0A0E060000000000000001 /* Build configuration list for PBXNativeTarget "SnapTriageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A0A0E070000000000000001 /* Debug */,
+				0A0A0E080000000000000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
