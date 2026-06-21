@@ -27,6 +27,7 @@
 		0A0A1B150000000000000001 /* OCRResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A150000000000000001 /* OCRResult.swift */; };
 		0A0A1B160000000000000001 /* TextRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A160000000000000001 /* TextRecognitionService.swift */; };
 		0A0A1B170000000000000001 /* RecognizeScreenshotTextUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */; };
+		0A0A1B180000000000000001 /* OCRStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A180000000000000001 /* OCRStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +52,7 @@
 		0A0A1A150000000000000001 /* OCRResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRResult.swift; sourceTree = "<group>"; };
 		0A0A1A160000000000000001 /* TextRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionService.swift; sourceTree = "<group>"; };
 		0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeScreenshotTextUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A180000000000000001 /* OCRStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				0A0A1C070000000000000001 /* View */,
 				0A0A1C080000000000000001 /* Router */,
 				0A0A1C090000000000000001 /* Composition */,
+				0A0A1C0A0000000000000001 /* Store */,
 			);
 			path = Triage;
 			sourceTree = "<group>";
@@ -176,6 +179,14 @@
 				0A0A1A110000000000000001 /* TriageComposition.swift */,
 			);
 			path = Composition;
+			sourceTree = "<group>";
+		};
+		0A0A1C0A0000000000000001 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A180000000000000001 /* OCRStore.swift */,
+			);
+			path = Store;
 			sourceTree = "<group>";
 		};
 		0A0A1C100000000000000001 /* Common */ = {
@@ -283,6 +294,7 @@
 				0A0A1B150000000000000001 /* OCRResult.swift in Sources */,
 				0A0A1B160000000000000001 /* TextRecognitionService.swift in Sources */,
 				0A0A1B170000000000000001 /* RecognizeScreenshotTextUseCase.swift in Sources */,
+				0A0A1B180000000000000001 /* OCRStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
