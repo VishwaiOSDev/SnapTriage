@@ -15,17 +15,26 @@ final class TriageViewModel {
 
     enum Phase: Equatable { case idle, loading, loaded, failed }
 
+    enum Recognition: Equatable {
+        case idle
+        case recognizing(Screenshot.ID)
+        case ready(OCRResult)
+        case failed(Screenshot.ID)
+    }
+
     struct State: Equatable {
         var authorization: PhotoLibraryAuthorization = .notDetermined
         var screenshots: [Screenshot] = []
         var phase: Phase = .idle
         var errorMessage: String?
+        var recognition: Recognition = .idle
     }
 
     enum Input {
         case onAppear
         case retry
         case recognize(Screenshot.ID)
+        case dismissRecognition
         case openSettings
         case clearError
     }
@@ -61,6 +70,8 @@ final class TriageViewModel {
             loadFlow()
         case .recognize(let id):
             recognizeFlow(id: id)
+        case .dismissRecognition:
+            state.recognition = .idle
         case .openSettings:
             router.openSettings()
         case .clearError:
