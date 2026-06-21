@@ -116,12 +116,13 @@ final class TriageViewModel {
     }
 
     private func recognizeFlow(id: Screenshot.ID) {
+        categorize.prewarm()    // warm the model now; it loads while OCR runs
         run(.ocr) { [weak self] in
             guard let self else { return }
             self.state.recognition = .recognizing(id)
             do {
                 let result = try await self.recognizeText.execute(screenshotID: id)
-                let category = self.categorize.execute(result)
+                let category = await self.categorize.execute(result)
                 self.state.recognition = .ready(result, category)
             } catch is CancellationError {
                 // superseded by a newer tap; leave recognition as-is

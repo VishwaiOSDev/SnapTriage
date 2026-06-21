@@ -9,7 +9,13 @@ import Foundation
 import NaturalLanguage
 
 protocol ScreenshotCategorizer: Sendable {
-    func category(for result: OCRResult) -> ScreenshotCategory
+    func category(for result: OCRResult) async -> ScreenshotCategory
+    /// Loads any expensive backing model ahead of the first real call. No-op by default.
+    func prewarm()
+}
+
+extension ScreenshotCategorizer {
+    func prewarm() {}
 }
 
 /// On-device, no-network classifier. Lemmatizes the transcript (so `followers`
@@ -17,8 +23,9 @@ protocol ScreenshotCategorizer: Sendable {
 /// (money, dates, codes, handles…), then scores every category against a single
 /// declarative rule table. Falls back to `.other` when nothing clears the bar.
 ///
-/// Rules are data, not code: adding a category is one row in `rules`, and the
-/// same table is the feature spec for a future Core ML classifier.
+/// Rules are data, not code: adding a category is one row in `rules`. Serves as
+/// the offline fallback when the foundation model is unavailable (iOS < 26,
+/// Apple Intelligence off, or model not yet downloaded).
 struct HeuristicScreenshotCategorizer: ScreenshotCategorizer {
 
     private let minimumScore: Double
@@ -27,7 +34,7 @@ struct HeuristicScreenshotCategorizer: ScreenshotCategorizer {
         self.minimumScore = minimumScore
     }
 
-    func category(for result: OCRResult) -> ScreenshotCategory {
+    func category(for result: OCRResult) async -> ScreenshotCategory {
         guard !result.transcript.isEmpty else { return .other }
 
         let features = Features(text: result.transcript)
@@ -115,6 +122,16 @@ private extension HeuristicScreenshotCategorizer {
             terms: ["inbox", "reply", "forward", "unsubscribe", "sender", "draft"],
             signals: [.link: 0.3],
             phrases: ["subject:": 2, "to:": 1, "cc:": 1, "from:": 1, "unsubscribe": 1.5]
+        ),
+        CategoryRule(
+            category: .identity,
+            terms: ["aadhaar", "aadhar", "uidai", "passport", "license", "licence", "pan", "identification", "nationality", "issued", "expiry"],
+            phrases: ["government of india": 3, "date of birth": 1.5, "unique identification": 3, "id no": 1.5]
+        ),
+        CategoryRule(
+            category: .document,
+            terms: ["policy", "insurance", "insured", "premium", "contract", "agreement", "certificate", "holder", "coverage", "beneficiary"],
+            phrases: ["policy number": 2.5, "terms and conditions": 1.5, "valid till": 1, "sum insured": 3]
         ),
     ]
 }

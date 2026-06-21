@@ -9,9 +9,14 @@ import Foundation
 
 struct CategorizeScreenshotUseCase {
 
-    let categorizer: ScreenshotCategorizer
+    let textCategorizer: ScreenshotCategorizer
 
-    func execute(_ result: OCRResult) -> ScreenshotCategory {
-        categorizer.category(for: result)
+    /// Warms the text model while OCR is still running, hiding model load behind it.
+    func prewarm() {
+        textCategorizer.prewarm()
+    }
+
+    func execute(_ result: OCRResult) async -> ScreenshotCategory {
+        await textCategorizer.category(for: result)
     }
 }
