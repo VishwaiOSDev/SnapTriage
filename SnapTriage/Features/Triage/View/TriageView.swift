@@ -95,6 +95,49 @@ private struct PhotoAccessUnavailableView: View {
     }
 }
 
+private struct TranscriptSheet: View {
+    let recognition: TriageViewModel.Recognition
+    let onDone: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            content
+                .navigationTitle(Strings.Transcript.title)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(Strings.Transcript.done, action: onDone)
+                    }
+                }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch recognition {
+        case .idle, .recognizing:
+            ProgressView(Strings.Transcript.recognizing)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+        case .ready(let result):
+            if result.isEmpty {
+                ContentUnavailableView(Strings.Transcript.empty, systemImage: "text.viewfinder")
+            } else {
+                ScrollView {
+                    Text(result.transcript)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                }
+            }
+
+        case .failed:
+            ContentUnavailableView(Strings.Transcript.failed, systemImage: "exclamationmark.triangle")
+        }
+    }
+}
+
 private struct EmptyScreenshotsView: View {
     var body: some View {
         ContentUnavailableView {
