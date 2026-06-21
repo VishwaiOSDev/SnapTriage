@@ -32,6 +32,7 @@
 		0A0A1B1B0000000000000001 /* ScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1B0000000000000001 /* ScreenshotCategorizer.swift */; };
 		0A0A1B1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift */; };
 		0A0A1B1D0000000000000001 /* FallbackScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */; };
+		0A0A1B1E0000000000000001 /* ImageContentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */; };
 		0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */; };
 /* End PBXBuildFile section */
 
@@ -62,6 +63,7 @@
 		0A0A1A1B0000000000000001 /* ScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		0A0A1A1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
+		0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentClassifier.swift; sourceTree = "<group>"; };
 		0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -148,6 +150,7 @@
 				0A0A1A1B0000000000000001 /* ScreenshotCategorizer.swift */,
 				0A0A1A1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift */,
 				0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */,
+				0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -314,6 +317,7 @@
 				0A0A1B1B0000000000000001 /* ScreenshotCategorizer.swift in Sources */,
 				0A0A1B1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift in Sources */,
 				0A0A1B1D0000000000000001 /* FallbackScreenshotCategorizer.swift in Sources */,
+				0A0A1B1E0000000000000001 /* ImageContentClassifier.swift in Sources */,
 				0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
