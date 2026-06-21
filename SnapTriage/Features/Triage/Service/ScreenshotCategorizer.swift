@@ -94,9 +94,9 @@ private extension HeuristicScreenshotCategorizer {
         ),
         CategoryRule(
             category: .otp,
-            terms: ["code", "otp", "verification", "passcode", "verify", "authentication", "security"],
-            signals: [.digitCode: 1.5],
-            phrases: ["verification code": 3, "one-time": 2, "do not share": 2]
+            terms: ["otp", "passcode"],
+            signals: [.otpCode: 2.5],
+            phrases: ["verification code": 3, "one-time": 2.5, "do not share": 2.5, "security code": 2, "your code is": 3]
         ),
         CategoryRule(
             category: .travel,
@@ -122,7 +122,7 @@ private extension HeuristicScreenshotCategorizer {
 // MARK: - Signals
 
 private enum Signal {
-    case money, date, phone, link, address, handle, hashtag, code, digitCode
+    case money, date, phone, link, address, handle, hashtag, code, otpCode
     case chatLines, proseLines
 }
 
@@ -171,7 +171,8 @@ private struct Features {
             .address:   Double(addresses),
             .handle:    Double(Self.count(Self.handle, in: text)),
             .hashtag:   Double(Self.count(Self.hashtag, in: text)),
-            .digitCode: Double(Self.count(Self.digitCode, in: text)),
+            // Capped 0/1: presence of a code-word adjacent to digits, not a count of all numbers.
+            .otpCode:   Self.count(Self.otpCode, in: text) > 0 ? 1 : 0,
             .code:      Double(Self.codeSignals(in: text)),
             .chatLines: isChat ? 1 : 0,
             .proseLines: isProse ? 1 : 0,
@@ -186,7 +187,8 @@ private struct Features {
     private static let money = regex(#"[$£€₹]\s?\d[\d,]*(\.\d{1,2})?"#)
     private static let handle = regex(#"(?:^|\s)@\w{2,}"#)
     private static let hashtag = regex(#"(?:^|\s)#\w{2,}"#)
-    private static let digitCode = regex(#"(?<!\d)\d{4,8}(?!\d)"#)
+    // A code-word adjacent to a 3–8 digit run, in either order — the shape of a real OTP message.
+    private static let otpCode = regex(#"(?i)(?:otp|passcode|one[\s-]?time|verification|security)[^\d\n]{0,20}\b\d{3,8}\b|\b\d{3,8}\b[^\d\n]{0,20}(?:otp|passcode|verification|code)"#)
 
     private static func regex(_ pattern: String) -> NSRegularExpression? {
         try? NSRegularExpression(pattern: pattern)
