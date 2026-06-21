@@ -17,7 +17,7 @@ enum TriageComposition {
             requestAccess: RequestPhotoAccessUseCase(service: service),
             loadScreenshots: LoadScreenshotsUseCase(service: service),
             recognizeText: RecognizeScreenshotTextUseCase(imageLoader: service, recognizer: recognizer, store: ocrStore),
-            categorize: CategorizeScreenshotUseCase(categorizer: HeuristicScreenshotCategorizer()),
+            categorize: CategorizeScreenshotUseCase(textCategorizer: FallbackScreenshotCategorizer()),
             imageLoader: service,
             router: router
         )
