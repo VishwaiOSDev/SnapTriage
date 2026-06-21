@@ -74,6 +74,7 @@ final class TriageViewModel {
         case .recognize(let id):
             recognizeFlow(id: id)
         case .dismissRecognition:
+            tasks[.ocr]?.cancel()
             state.recognition = .idle
         case .openSettings:
             router.openSettings()
@@ -122,10 +123,12 @@ final class TriageViewModel {
             self.state.recognition = .recognizing(id)
             do {
                 let result = try await self.recognizeText.execute(screenshotID: id)
+                try Task.checkCancellation()
                 let category = await self.categorize.execute(result)
+                try Task.checkCancellation()
                 self.state.recognition = .ready(result, category)
             } catch is CancellationError {
-                // superseded by a newer tap; leave recognition as-is
+                // superseded by a newer tap or dismissed; leave recognition as-is
             } catch {
                 self.state.recognition = .failed(id)
             }
