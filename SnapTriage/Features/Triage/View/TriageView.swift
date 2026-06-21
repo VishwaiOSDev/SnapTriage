@@ -136,15 +136,23 @@ private struct TranscriptSheet: View {
             ProgressView(Strings.Transcript.recognizing)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-        case .ready(let result):
-            if result.isEmpty {
-                ContentUnavailableView(Strings.Transcript.empty, systemImage: "text.viewfinder")
-            } else {
-                ScrollView {
-                    Text(result.transcript)
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
+        case .ready(let result, let category):
+            VStack(alignment: .leading, spacing: 0) {
+                Label(category.title, systemImage: category.systemImage)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+                    .padding(.vertical, Spacing.gridSpacing)
+                Divider()
+                if result.isEmpty {
+                    ContentUnavailableView(Strings.Transcript.empty, systemImage: "text.viewfinder")
+                } else {
+                    ScrollView {
+                        Text(result.transcript)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                    }
                 }
             }
 
