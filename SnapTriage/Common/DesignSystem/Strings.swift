@@ -36,6 +36,10 @@ enum Strings {
         static let article = "Article"
         static let social = "Social"
         static let location = "Location"
+        static let otp = "Verification Code"
+        static let travel = "Travel"
+        static let event = "Event"
+        static let email = "Email"
         static let other = "Other"
     }
 
