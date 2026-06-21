@@ -14,7 +14,7 @@ protocol ScreenshotCategorizer: Sendable {
 
 /// On-device, no-network classifier. Lemmatizes the transcript (so `followers`
 /// matches `follower`), mines structural signals via `NSDataDetector` and regex
-/// (money, dates, handles…), then scores every category against a single
+/// (money, dates, codes, handles…), then scores every category against a single
 /// declarative rule table. Falls back to `.other` when nothing clears the bar.
 ///
 /// Rules are data, not code: adding a category is one row in `rules`, and the
@@ -64,7 +64,7 @@ private extension HeuristicScreenshotCategorizer {
         CategoryRule(
             category: .receipt,
             terms: ["total", "subtotal", "tax", "receipt", "invoice", "order", "amount", "qty", "payment", "change", "cash", "card"],
-            signals: [.money: 2, .date: 0.5]
+            signals: [.money: 2, .amount: 0.75, .date: 0.5]
         ),
         CategoryRule(
             category: .code,
@@ -122,7 +122,7 @@ private extension HeuristicScreenshotCategorizer {
 // MARK: - Signals
 
 private enum Signal {
-    case money, date, phone, link, address, handle, hashtag, code, otpCode
+    case money, amount, date, phone, link, address, handle, hashtag, code, otpCode
     case chatLines, proseLines
 }
 
@@ -165,6 +165,7 @@ private struct Features {
 
         counts = [
             .money:     Double(Self.count(Self.money, in: text)),
+            .amount:    Double(Self.count(Self.amount, in: text)),
             .date:      Double(dates),
             .phone:     Double(phones),
             .link:      Double(links),
@@ -185,6 +186,7 @@ private struct Features {
         types: NSTextCheckingResult.CheckingType([.date, .phoneNumber, .link, .address]).rawValue
     )
     private static let money = regex(#"[$£€₹]\s?\d[\d,]*(\.\d{1,2})?"#)
+    private static let amount = regex(#"(?<!\d)\d{1,3}(?:,\d{3})*\.\d{2}(?!\d)"#)
     private static let handle = regex(#"(?:^|\s)@\w{2,}"#)
     private static let hashtag = regex(#"(?:^|\s)#\w{2,}"#)
     // A code-word adjacent to a 3–8 digit run, in either order — the shape of a real OTP message.
