@@ -18,7 +18,7 @@ final class TriageViewModel {
     enum Recognition: Equatable {
         case idle
         case recognizing(Screenshot.ID)
-        case ready(OCRResult)
+        case ready(OCRResult, ScreenshotCategory)
         case failed(Screenshot.ID)
     }
 
@@ -44,6 +44,7 @@ final class TriageViewModel {
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadScreenshots: LoadScreenshotsUseCase
     private let recognizeText: RecognizeScreenshotTextUseCase
+    private let categorize: CategorizeScreenshotUseCase
     private let imageLoader: PhotoLibraryService
     private let router: TriageRouter
 
@@ -54,12 +55,14 @@ final class TriageViewModel {
         requestAccess: RequestPhotoAccessUseCase,
         loadScreenshots: LoadScreenshotsUseCase,
         recognizeText: RecognizeScreenshotTextUseCase,
+        categorize: CategorizeScreenshotUseCase,
         imageLoader: PhotoLibraryService,
         router: TriageRouter
     ) {
         self.requestAccess = requestAccess
         self.loadScreenshots = loadScreenshots
         self.recognizeText = recognizeText
+        self.categorize = categorize
         self.imageLoader = imageLoader
         self.router = router
     }
@@ -118,7 +121,8 @@ final class TriageViewModel {
             self.state.recognition = .recognizing(id)
             do {
                 let result = try await self.recognizeText.execute(screenshotID: id)
-                self.state.recognition = .ready(result)
+                let category = self.categorize.execute(result)
+                self.state.recognition = .ready(result, category)
             } catch is CancellationError {
                 // superseded by a newer tap; leave recognition as-is
             } catch {
