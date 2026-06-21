@@ -24,6 +24,22 @@ struct TriageView: View {
                 .navigationTitle(Strings.Triage.title)
         }
         .task { viewModel.send(.onAppear) }
+        .sheet(isPresented: isRecognitionPresented) {
+            TranscriptSheet(
+                recognition: viewModel.state.recognition,
+                onDone: { viewModel.send(.dismissRecognition) }
+            )
+        }
+    }
+
+    // Drive the sheet from the recognition state; dismissal routes back through send.
+    private var isRecognitionPresented: Binding<Bool> {
+        Binding(
+            get: { viewModel.state.recognition != .idle },
+            set: { presented in
+                if !presented { viewModel.send(.dismissRecognition) }
+            }
+        )
     }
 
     @ViewBuilder
