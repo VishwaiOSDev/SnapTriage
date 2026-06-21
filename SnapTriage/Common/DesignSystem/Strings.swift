@@ -29,6 +29,16 @@ enum Strings {
         static let done = "Done"
     }
 
+    enum Category {
+        static let receipt = "Receipt"
+        static let code = "Code"
+        static let conversation = "Conversation"
+        static let article = "Article"
+        static let social = "Social"
+        static let location = "Location"
+        static let other = "Other"
+    }
+
     enum Error {
         static let accessDenied = "SnapTriage needs access to your photos to find and triage your screenshots. You can grant access in Settings."
         static let accessRestricted = "Photo access is restricted on this device, so screenshots can't be loaded."
