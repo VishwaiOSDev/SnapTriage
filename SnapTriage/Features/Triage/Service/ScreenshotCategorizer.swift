@@ -92,13 +92,37 @@ private extension HeuristicScreenshotCategorizer {
             signals: [.address: 3],
             phrases: ["open now": 1.5, "directions": 1.5]
         ),
+        CategoryRule(
+            category: .otp,
+            terms: ["code", "otp", "verification", "passcode", "verify", "authentication", "security"],
+            signals: [.digitCode: 1.5],
+            phrases: ["verification code": 3, "one-time": 2, "do not share": 2]
+        ),
+        CategoryRule(
+            category: .travel,
+            terms: ["boarding", "gate", "seat", "flight", "departure", "arrival", "terminal", "passenger", "ticket", "baggage", "airline"],
+            signals: [.date: 0.5],
+            phrases: ["boarding pass": 3]
+        ),
+        CategoryRule(
+            category: .event,
+            terms: ["rsvp", "invite", "invited", "event", "calendar", "attend", "agenda", "meeting"],
+            signals: [.date: 1],
+            phrases: ["add to calendar": 3]
+        ),
+        CategoryRule(
+            category: .email,
+            terms: ["inbox", "reply", "forward", "unsubscribe", "sender", "draft"],
+            signals: [.link: 0.3],
+            phrases: ["subject:": 2, "to:": 1, "cc:": 1, "from:": 1, "unsubscribe": 1.5]
+        ),
     ]
 }
 
 // MARK: - Signals
 
 private enum Signal {
-    case money, date, phone, link, address, handle, hashtag, code
+    case money, date, phone, link, address, handle, hashtag, code, digitCode
     case chatLines, proseLines
 }
 
@@ -147,6 +171,7 @@ private struct Features {
             .address:   Double(addresses),
             .handle:    Double(Self.count(Self.handle, in: text)),
             .hashtag:   Double(Self.count(Self.hashtag, in: text)),
+            .digitCode: Double(Self.count(Self.digitCode, in: text)),
             .code:      Double(Self.codeSignals(in: text)),
             .chatLines: isChat ? 1 : 0,
             .proseLines: isProse ? 1 : 0,
@@ -161,6 +186,7 @@ private struct Features {
     private static let money = regex(#"[$£€₹]\s?\d[\d,]*(\.\d{1,2})?"#)
     private static let handle = regex(#"(?:^|\s)@\w{2,}"#)
     private static let hashtag = regex(#"(?:^|\s)#\w{2,}"#)
+    private static let digitCode = regex(#"(?<!\d)\d{4,8}(?!\d)"#)
 
     private static func regex(_ pattern: String) -> NSRegularExpression? {
         try? NSRegularExpression(pattern: pattern)
