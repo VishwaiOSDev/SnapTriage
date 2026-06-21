@@ -14,6 +14,10 @@ enum ScreenshotCategory: String, CaseIterable, Sendable, Equatable {
     case article
     case social
     case location
+    case otp
+    case travel
+    case event
+    case email
     case other
 
     var title: String {
@@ -24,6 +28,10 @@ enum ScreenshotCategory: String, CaseIterable, Sendable, Equatable {
         case .article:      Strings.Category.article
         case .social:       Strings.Category.social
         case .location:     Strings.Category.location
+        case .otp:          Strings.Category.otp
+        case .travel:       Strings.Category.travel
+        case .event:        Strings.Category.event
+        case .email:        Strings.Category.email
         case .other:        Strings.Category.other
         }
     }
@@ -36,6 +44,10 @@ enum ScreenshotCategory: String, CaseIterable, Sendable, Equatable {
         case .article:      "doc.text"
         case .social:       "heart"
         case .location:     "mappin.and.ellipse"
+        case .otp:          "lock.shield"
+        case .travel:       "airplane"
+        case .event:        "calendar"
+        case .email:        "envelope"
         case .other:        "square.dashed"
         }
     }
