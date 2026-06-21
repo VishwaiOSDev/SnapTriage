@@ -21,6 +21,14 @@ enum Strings {
         static let retry = "Try Again"
     }
 
+    enum Transcript {
+        static let title = "Recognized Text"
+        static let recognizing = "Reading text…"
+        static let empty = "No text was recognized in this screenshot."
+        static let failed = "Couldn't read text from this screenshot."
+        static let done = "Done"
+    }
+
     enum Error {
         static let accessDenied = "SnapTriage needs access to your photos to find and triage your screenshots. You can grant access in Settings."
         static let accessRestricted = "Photo access is restricted on this device, so screenshots can't be loaded."
