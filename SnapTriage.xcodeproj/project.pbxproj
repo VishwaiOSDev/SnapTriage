@@ -30,6 +30,7 @@
 		0A0A1B180000000000000001 /* OCRStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A180000000000000001 /* OCRStore.swift */; };
 		0A0A1B190000000000000001 /* ScreenshotCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A190000000000000001 /* ScreenshotCategory.swift */; };
 		0A0A1B1B0000000000000001 /* ScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1B0000000000000001 /* ScreenshotCategorizer.swift */; };
+		0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +58,7 @@
 		0A0A1A180000000000000001 /* OCRStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRStore.swift; sourceTree = "<group>"; };
 		0A0A1A190000000000000001 /* ScreenshotCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategory.swift; sourceTree = "<group>"; };
 		0A0A1A1B0000000000000001 /* ScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategorizer.swift; sourceTree = "<group>"; };
+		0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +152,7 @@
 				0A0A1A050000000000000001 /* RequestPhotoAccessUseCase.swift */,
 				0A0A1A060000000000000001 /* LoadScreenshotsUseCase.swift */,
 				0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */,
+				0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */,
 			);
 			path = UseCase;
 			sourceTree = "<group>";
@@ -303,6 +306,7 @@
 				0A0A1B180000000000000001 /* OCRStore.swift in Sources */,
 				0A0A1B190000000000000001 /* ScreenshotCategory.swift in Sources */,
 				0A0A1B1B0000000000000001 /* ScreenshotCategorizer.swift in Sources */,
+				0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
