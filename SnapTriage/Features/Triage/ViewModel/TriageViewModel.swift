@@ -115,26 +115,16 @@ final class TriageViewModel {
     private func recognizeFlow(id: Screenshot.ID) {
         run(.ocr) { [weak self] in
             guard let self else { return }
+            self.state.recognition = .recognizing(id)
             do {
                 let result = try await self.recognizeText.execute(screenshotID: id)
-                self.logOCR(result)
+                self.state.recognition = .ready(result)
             } catch is CancellationError {
-                // superseded by a newer tap
+                // superseded by a newer tap; leave recognition as-is
             } catch {
-                print("[OCR] failed for \(id): \(error)")
+                self.state.recognition = .failed(id)
             }
         }
-    }
-
-    // Stage 2 validation only: log the transcript to confirm OCR quality before Stage 3
-    // builds caching and categorization on top. No domain state is mutated yet.
-    private func logOCR(_ result: OCRResult) {
-        print("""
-        ──────── OCR \(result.screenshotID) ────────
-        lines: \(result.lines.count)
-        \(result.isEmpty ? "(no text recognized)" : result.transcript)
-        ─────────────────────────────────────────────
-        """)
     }
 
     // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
