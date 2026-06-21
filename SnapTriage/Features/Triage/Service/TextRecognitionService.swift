@@ -32,6 +32,9 @@ struct VisionTextRecognitionService: TextRecognitionService {
                 )
             }
         } catch {
+            if error is CancellationError || Task.isCancelled {
+                throw CancellationError()
+            }
             throw TriageError.ocrFailed
         }
     }
