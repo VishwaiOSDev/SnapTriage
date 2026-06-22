@@ -34,6 +34,15 @@
 		0A0A1B1D0000000000000001 /* FallbackScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */; };
 		0A0A1B1E0000000000000001 /* ImageContentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */; };
 		0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */; };
+		0A0A1B200000000000000001 /* TriageStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A200000000000000001 /* TriageStat.swift */; };
+		0A0A1B210000000000000001 /* OverviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A210000000000000001 /* OverviewViewModel.swift */; };
+		0A0A1B220000000000000001 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A220000000000000001 /* OverviewView.swift */; };
+		0A0A1B230000000000000001 /* OverviewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A230000000000000001 /* OverviewRouter.swift */; };
+		0A0A1B240000000000000001 /* OverviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A240000000000000001 /* OverviewComposition.swift */; };
+		0A0A1B250000000000000001 /* ScreenshotDisposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A250000000000000001 /* ScreenshotDisposition.swift */; };
+		0A0A1B260000000000000001 /* CategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A260000000000000001 /* CategoryStore.swift */; };
+		0A0A1B270000000000000001 /* ClassifyLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */; };
+		0A0A1B280000000000000001 /* HeroMetricText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A280000000000000001 /* HeroMetricText.swift */; };
 		0A0A0D810000000000000001 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D010000000000000001 /* TestTags.swift */; };
 		0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */; };
 		0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */; };
@@ -69,6 +78,15 @@
 		0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentClassifier.swift; sourceTree = "<group>"; };
 		0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A200000000000000001 /* TriageStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageStat.swift; sourceTree = "<group>"; };
+		0A0A1A210000000000000001 /* OverviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewViewModel.swift; sourceTree = "<group>"; };
+		0A0A1A220000000000000001 /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
+		0A0A1A230000000000000001 /* OverviewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewRouter.swift; sourceTree = "<group>"; };
+		0A0A1A240000000000000001 /* OverviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewComposition.swift; sourceTree = "<group>"; };
+		0A0A1A250000000000000001 /* ScreenshotDisposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDisposition.swift; sourceTree = "<group>"; };
+		0A0A1A260000000000000001 /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
+		0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassifyLibraryUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A280000000000000001 /* HeroMetricText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroMetricText.swift; sourceTree = "<group>"; };
 		0A0A0E000000000000000001 /* SnapTriageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapTriageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A0A0D010000000000000001 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
 		0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
@@ -146,8 +164,79 @@
 			isa = PBXGroup;
 			children = (
 				0A0A1C020000000000000001 /* Triage */,
+				0A0A1C200000000000000001 /* Overview */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		0A0A1C200000000000000001 /* Overview */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1C210000000000000001 /* Model */,
+				0A0A1C270000000000000001 /* UseCase */,
+				0A0A1C220000000000000001 /* ViewModel */,
+				0A0A1C230000000000000001 /* View */,
+				0A0A1C240000000000000001 /* Router */,
+				0A0A1C250000000000000001 /* Composition */,
+				0A0A1C260000000000000001 /* Store */,
+			);
+			path = Overview;
+			sourceTree = "<group>";
+		};
+		0A0A1C260000000000000001 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A260000000000000001 /* CategoryStore.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		0A0A1C270000000000000001 /* UseCase */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */,
+			);
+			path = UseCase;
+			sourceTree = "<group>";
+		};
+		0A0A1C210000000000000001 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A200000000000000001 /* TriageStat.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0A0A1C220000000000000001 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A210000000000000001 /* OverviewViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		0A0A1C230000000000000001 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A220000000000000001 /* OverviewView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		0A0A1C240000000000000001 /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A230000000000000001 /* OverviewRouter.swift */,
+			);
+			path = Router;
+			sourceTree = "<group>";
+		};
+		0A0A1C250000000000000001 /* Composition */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A240000000000000001 /* OverviewComposition.swift */,
+			);
+			path = Composition;
 			sourceTree = "<group>";
 		};
 		0A0A1C020000000000000001 /* Triage */ = {
@@ -174,6 +263,7 @@
 				0A0A1A140000000000000001 /* OCRLine.swift */,
 				0A0A1A150000000000000001 /* OCRResult.swift */,
 				0A0A1A190000000000000001 /* ScreenshotCategory.swift */,
+				0A0A1A250000000000000001 /* ScreenshotDisposition.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -256,6 +346,7 @@
 			children = (
 				0A0A1A120000000000000001 /* Strings.swift */,
 				0A0A1A130000000000000001 /* Spacing.swift */,
+				0A0A1A280000000000000001 /* HeroMetricText.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -404,6 +495,15 @@
 				0A0A1B1D0000000000000001 /* FallbackScreenshotCategorizer.swift in Sources */,
 				0A0A1B1E0000000000000001 /* ImageContentClassifier.swift in Sources */,
 				0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */,
+				0A0A1B200000000000000001 /* TriageStat.swift in Sources */,
+				0A0A1B210000000000000001 /* OverviewViewModel.swift in Sources */,
+				0A0A1B220000000000000001 /* OverviewView.swift in Sources */,
+				0A0A1B230000000000000001 /* OverviewRouter.swift in Sources */,
+				0A0A1B240000000000000001 /* OverviewComposition.swift in Sources */,
+				0A0A1B250000000000000001 /* ScreenshotDisposition.swift in Sources */,
+				0A0A1B260000000000000001 /* CategoryStore.swift in Sources */,
+				0A0A1B270000000000000001 /* ClassifyLibraryUseCase.swift in Sources */,
+				0A0A1B280000000000000001 /* HeroMetricText.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
