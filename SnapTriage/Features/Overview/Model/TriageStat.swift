@@ -22,6 +22,28 @@ struct TriageStat: Identifiable, Equatable {
     let indicator: Indicator
 }
 
+struct FeatureHighlight: Identifiable, Equatable {
+    let id = UUID()
+    let systemImage: String
+    let title: String
+    let subtitle: String
+}
+
+extension FeatureHighlight {
+    static let defaults: [FeatureHighlight] = [
+        FeatureHighlight(
+            systemImage: "shield.lefthalf.filled",
+            title: Strings.Overview.onDeviceTitle,
+            subtitle: Strings.Overview.onDeviceSubtitle
+        ),
+        FeatureHighlight(
+            systemImage: "sparkles",
+            title: Strings.Overview.intelligentTitle,
+            subtitle: Strings.Overview.intelligentSubtitle
+        )
+    ]
+}
+
 struct OverviewSummary: Equatable {
     var usefulCount = 0
     var usefulBytes = 0
