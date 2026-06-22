@@ -12,4 +12,5 @@ struct Screenshot: Identifiable, Equatable, Sendable {
     let pixelWidth: Int
     let pixelHeight: Int
     let creationDate: Date?
+    let byteSize: Int
 }
