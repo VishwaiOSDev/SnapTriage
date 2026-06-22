@@ -48,11 +48,22 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
                     id: asset.localIdentifier,
                     pixelWidth: asset.pixelWidth,
                     pixelHeight: asset.pixelHeight,
-                    creationDate: asset.creationDate
+                    creationDate: asset.creationDate,
+                    byteSize: Self.byteSize(for: asset)
                 )
             )
         }
         return screenshots
+    }
+
+    // PHAsset exposes no public size; resource `fileSize` (KVC) is the standard read.
+    // Falls back to a 4-bytes-per-pixel estimate when the resource is unavailable (e.g. iCloud-only).
+    private static func byteSize(for asset: PHAsset) -> Int {
+        let resources = PHAssetResource.assetResources(for: asset)
+        if let bytes = resources.compactMap({ $0.value(forKey: "fileSize") as? Int64 }).max() {
+            return Int(bytes)
+        }
+        return asset.pixelWidth * asset.pixelHeight * 4
     }
     
     func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? {
