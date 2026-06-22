@@ -42,6 +42,17 @@ enum ScreenshotCategory: String, CaseIterable, Sendable, Equatable {
         }
     }
 
+    /// Default keep/delete judgement per category. Records, credentials, and
+    /// travel/event docs are worth keeping; ephemeral content is safe to delete.
+    var disposition: ScreenshotDisposition {
+        switch self {
+        case .receipt, .otp, .identity, .travel, .event, .document, .email:
+            .useful
+        case .code, .conversation, .article, .social, .location, .photo, .other:
+            .safeToDelete
+        }
+    }
+
     var systemImage: String {
         switch self {
         case .receipt:      "receipt"
