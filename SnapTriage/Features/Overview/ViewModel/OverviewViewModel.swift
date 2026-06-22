@@ -11,6 +11,7 @@ import Observation
 @MainActor
 @Observable
 final class OverviewViewModel {
+
     enum Phase: Equatable { case idle, loading, loaded, failed }
 
     struct State: Equatable {
@@ -97,7 +98,9 @@ final class OverviewViewModel {
                 )
                 self.state.summary.totalCount = screenshots.count
                 self.state.phase = .loaded
+                self.classifyFlow(screenshots)
             } catch is CancellationError {
+                // superseded by a newer load
             } catch {
                 self.state.errorMessage = self.present(error)
                 self.state.phase = .failed
@@ -105,6 +108,27 @@ final class OverviewViewModel {
         }
     }
 
+    private func classifyFlow(_ screenshots: [Screenshot]) {
+        guard !screenshots.isEmpty else { return }
+        run(.classify) { [weak self] in
+            guard let self else { return }
+            for await progress in self.classifyLibrary.execute(screenshots) {
+                if Task.isCancelled { break }
+                self.state.classifiedCount = progress.completed
+                guard let id = progress.id else { continue }
+                if let category = progress.category {
+                    self.state.summary.add(
+                        bytes: self.sizes[id] ?? 0,
+                        disposition: category.disposition
+                    )
+                } else {
+                    self.state.summary.unknownCount += 1
+                }
+            }
+        }
+    }
+
+    // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
     private func run(_ kind: TaskKind, _ operation: @escaping () async -> Void) {
         tasks[kind]?.cancel()
         tasks[kind] = Task { await operation() }
