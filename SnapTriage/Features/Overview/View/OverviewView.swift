@@ -29,8 +29,10 @@ struct OverviewView: View {
         switch viewModel.state.phase {
         case .idle, .loading:
             chrome { ProgressView(Strings.Triage.loading) }
+
         case .failed:
             chrome { failure }
+
         case .loaded:
             if viewModel.state.summary.totalCount == 0 {
                 chrome { EmptyOverviewView() }
@@ -40,6 +42,7 @@ struct OverviewView: View {
         }
     }
 
+    // Keeps the header pinned while a centered status view fills the rest.
     private func chrome<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
         VStack(spacing: Metrics.sectionSpacing) {
             header
@@ -52,11 +55,14 @@ struct OverviewView: View {
 
     private var loaded: some View {
         ScrollView {
-            VStack(spacing: Metrics.sectionSpacing) {
-                header
-                PrivacyPillView()
-                hero
-                summaryCard
+            glassContainer {
+                VStack(spacing: Metrics.sectionSpacing) {
+                    header
+                    PrivacyPillView()
+                    hero
+                    summaryCard
+                    featureCard
+                }
             }
             .padding(.horizontal, Metrics.screenPadding)
             .padding(.top, Metrics.screenPadding)
@@ -64,6 +70,16 @@ struct OverviewView: View {
             .animation(.default, value: viewModel.state.summary)
         }
         .scrollIndicators(.hidden)
+    }
+
+    // Lets neighboring glass elements sample and blend one another (iOS 26+).
+    @ViewBuilder
+    private func glassContainer<C: View>(@ViewBuilder _ content: () -> C) -> some View {
+        if #available(iOS 26.0, *) {
+            GlassEffectContainer(spacing: Metrics.sectionSpacing, content: content)
+        } else {
+            content()
+        }
     }
 
     private var header: some View {
@@ -147,6 +163,25 @@ struct OverviewView: View {
         }
     }
 
+    private var featureCard: some View {
+        GlassCard {
+            VStack(spacing: 0) {
+                let features = viewModel.state.features
+                ForEach(Array(features.enumerated()), id: \.element.id) { index, feature in
+                    FeatureRowView(feature: feature) {
+                        viewModel.send(.selectFeature(feature.id))
+                    }
+                    if index < features.count - 1 {
+                        Divider()
+                            .overlay(Color.white.opacity(0.06))
+                            .padding(.leading, 64)
+                    }
+                }
+            }
+            .padding(.vertical, 6)
+        }
+    }
+
     private var failure: some View {
         ContentUnavailableView {
             Label(Strings.Access.title, systemImage: "lock.fill")
@@ -161,17 +196,38 @@ struct OverviewView: View {
         }
     }
 
+    // Offer Settings only after an actual denial, not while the prompt is undetermined.
     private var showsOpenSettings: Bool {
         let auth = viewModel.state.authorization
         return !auth.canAccessLibrary && auth != .notDetermined
     }
 
+    // MARK: - Display
+
     private var stats: [TriageStat] {
         let summary = viewModel.state.summary
         return [
-            TriageStat(id: .useful, value: countText(summary.usefulCount), title: Strings.Overview.usefulTitle, detail: sizeText(summary.usefulBytes), indicator: .icon("checkmark.circle.fill")),
-            TriageStat(id: .safeToDelete, value: countText(summary.safeCount), title: Strings.Overview.safeToDeleteTitle, detail: sizeText(summary.safeBytes), indicator: .icon("square.3.layers.3d")),
-            TriageStat(id: .reclaimable, value: "\(Int((summary.reclaimableRatio * 100).rounded()))%", title: Strings.Overview.reclaimableTitle, detail: nil, indicator: .progress(summary.reclaimableRatio))
+            TriageStat(
+                id: .useful,
+                value: countText(summary.usefulCount),
+                title: Strings.Overview.usefulTitle,
+                detail: sizeText(summary.usefulBytes),
+                indicator: .icon("checkmark.circle.fill")
+            ),
+            TriageStat(
+                id: .safeToDelete,
+                value: countText(summary.safeCount),
+                title: Strings.Overview.safeToDeleteTitle,
+                detail: sizeText(summary.safeBytes),
+                indicator: .icon("square.3.layers.3d")
+            ),
+            TriageStat(
+                id: .reclaimable,
+                value: "\(Int((summary.reclaimableRatio * 100).rounded()))%",
+                title: Strings.Overview.reclaimableTitle,
+                detail: nil,
+                indicator: .progress(summary.reclaimableRatio)
+            )
         ]
     }
 
@@ -190,6 +246,8 @@ struct OverviewView: View {
     }()
 }
 
+// MARK: - Design tokens
+
 private enum Metrics {
     static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
     static let accent = Color.blue
@@ -201,6 +259,44 @@ private enum Metrics {
     static let surfaceFill = Color.white.opacity(0.05)
 }
 
+// MARK: - Liquid Glass
+
+/// One surface treatment for every glass element. On iOS 26 it's the real
+/// `glassEffect` — it samples, reflects, and refracts whatever sits behind and
+/// beside it. Older systems fall back to a translucent material + hairline border.
+private struct LiquidGlassModifier<S: InsettableShape>: ViewModifier {
+    let shape: S
+    var tint: Color?
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.glassEffect(resolvedGlass, in: shape)
+        } else {
+            content
+                .background(Metrics.surfaceFill, in: shape)
+                .background(.ultraThinMaterial, in: shape)
+                .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private var resolvedGlass: Glass {
+        if let tint {
+            Glass.regular.tint(tint.opacity(0.5))
+        } else {
+            .regular
+        }
+    }
+}
+
+private extension View {
+    func liquidGlass<S: InsettableShape>(in shape: S, tint: Color? = nil) -> some View {
+        modifier(LiquidGlassModifier(shape: shape, tint: tint))
+    }
+}
+
+// MARK: - Reusable surfaces
+
 private struct GlassCard<Content: View>: View {
     var cornerRadius: CGFloat = Metrics.cardCornerRadius
     @ViewBuilder var content: Content
@@ -208,8 +304,7 @@ private struct GlassCard<Content: View>: View {
     var body: some View {
         content
             .frame(maxWidth: .infinity)
-            .background(Metrics.surfaceFill, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous).strokeBorder(Metrics.cardStroke, lineWidth: 1))
+            .liquidGlass(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
     }
 }
 
@@ -234,12 +329,14 @@ private struct CircularIconButton: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
                 .frame(width: 38, height: 38)
-                .background(Metrics.surfaceFill, in: Circle())
+                .liquidGlass(in: Circle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
     }
 }
+
+// MARK: - Privacy pill
 
 private struct PrivacyPillView: View {
     var body: some View {
@@ -256,7 +353,7 @@ private struct PrivacyPillView: View {
         .font(.footnote)
         .padding(.vertical, 8)
         .padding(.horizontal, 14)
-        .background(Metrics.surfaceFill, in: Capsule())
+        .liquidGlass(in: Capsule())
     }
 
     private var privacyTrailing: String {
@@ -265,16 +362,29 @@ private struct PrivacyPillView: View {
     }
 }
 
+// MARK: - Stat card
+
 private struct OverviewStatCard: View {
     let stat: TriageStat
 
     var body: some View {
         VStack(spacing: 8) {
-            indicator.frame(height: 30)
-            Text(stat.value).font(.title2.weight(.bold)).foregroundStyle(.white).lineLimit(1).minimumScaleFactor(0.7).contentTransition(.numericText())
-            Text(stat.title).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            indicator
+                .frame(height: 30)
+            Text(stat.value)
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .contentTransition(.numericText())
+            Text(stat.title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
             if let detail = stat.detail {
-                Text(detail).font(.caption2).foregroundStyle(.tertiary)
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
         }
     }
@@ -283,9 +393,12 @@ private struct OverviewStatCard: View {
     private var indicator: some View {
         switch stat.indicator {
         case .icon(let name):
-            Image(systemName: name).font(.system(size: 24, weight: .regular)).foregroundStyle(Metrics.accent)
+            Image(systemName: name)
+                .font(.system(size: 24, weight: .regular))
+                .foregroundStyle(Metrics.accent)
         case .progress(let value):
-            ProgressRing(progress: value).frame(width: 30, height: 30)
+            ProgressRing(progress: value)
+                .frame(width: 30, height: 30)
         }
     }
 }
@@ -295,11 +408,55 @@ private struct ProgressRing: View {
 
     var body: some View {
         ZStack {
-            Circle().stroke(Color.white.opacity(0.12), lineWidth: 5)
-            Circle().trim(from: 0, to: progress).stroke(Metrics.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round)).rotationEffect(.degrees(-90))
+            Circle()
+                .stroke(Color.white.opacity(0.12), lineWidth: 5)
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(Metrics.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .rotationEffect(.degrees(-90))
         }
     }
 }
+
+// MARK: - Feature row
+
+private struct FeatureRowView: View {
+    let feature: FeatureHighlight
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: feature.systemImage)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Metrics.accent)
+                    .frame(width: 34, height: 34)
+                    .background(Metrics.surfaceFill, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(feature.title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(feature.subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, Metrics.cardPadding)
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Empty state
 
 private struct EmptyOverviewView: View {
     var body: some View {
