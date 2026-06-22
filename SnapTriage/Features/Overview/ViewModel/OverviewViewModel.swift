@@ -40,6 +40,10 @@ final class OverviewViewModel {
     private let classifyLibrary: ClassifyLibraryUseCase
     private let router: OverviewRouter
 
+    private enum TaskKind { case load, classify }
+    @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
+    @ObservationIgnored private var sizes: [Screenshot.ID: Int] = [:]
+
     init(
         requestAccess: RequestPhotoAccessUseCase,
         loadScreenshots: LoadScreenshotsUseCase,
@@ -54,10 +58,83 @@ final class OverviewViewModel {
 
     func send(_ input: Input) {
         switch input {
+        case .onAppear:
+            if state.phase == .idle { loadFlow() }
+        case .retry:
+            loadFlow()
         case .openSettings:
             router.openSettings()
-        case .onAppear, .retry, .selectFeature:
+        case .selectFeature:
             break
         }
     }
+
+    private func loadFlow() {
+        run(.load) { [weak self] in
+            guard let self else { return }
+            self.tasks[.classify]?.cancel()
+            self.state.phase = .loading
+            self.state.errorMessage = nil
+            self.state.summary = .empty
+            self.state.classifiedCount = 0
+
+            let authorization = await self.requestAccess.execute()
+            if Task.isCancelled { return }
+            self.state.authorization = authorization
+
+            guard authorization.canAccessLibrary else {
+                self.state.errorMessage = self.presentAuth(authorization)
+                self.state.phase = .failed
+                return
+            }
+
+            do {
+                let screenshots = try await self.loadScreenshots.execute()
+                try Task.checkCancellation()
+                self.sizes = Dictionary(
+                    screenshots.map { ($0.id, $0.byteSize) },
+                    uniquingKeysWith: { first, _ in first }
+                )
+                self.state.summary.totalCount = screenshots.count
+                self.state.phase = .loaded
+            } catch is CancellationError {
+            } catch {
+                self.state.errorMessage = self.present(error)
+                self.state.phase = .failed
+            }
+        }
+    }
+
+    private func run(_ kind: TaskKind, _ operation: @escaping () async -> Void) {
+        tasks[kind]?.cancel()
+        tasks[kind] = Task { await operation() }
+    }
+
+    private func present(_ error: Error) -> String {
+        switch error {
+        case TriageError.photoAccessDenied:     return Strings.Error.accessDenied
+        case TriageError.photoAccessRestricted: return Strings.Error.accessRestricted
+        default:                                return Strings.Error.generic
+        }
+    }
+
+    private func presentAuth(_ authorization: PhotoLibraryAuthorization) -> String {
+        switch authorization {
+        case .denied:     return Strings.Error.accessDenied
+        case .restricted: return Strings.Error.accessRestricted
+        default:          return Strings.Error.generic
+        }
+    }
+
+    deinit {
+        tasks.values.forEach { $0.cancel() }
+    }
+
+    #if DEBUG
+    func seedForPreview(_ summary: OverviewSummary) {
+        state.phase = .loaded
+        state.summary = summary
+        state.classifiedCount = summary.totalCount
+    }
+    #endif
 }
