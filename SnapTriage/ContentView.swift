@@ -20,9 +20,22 @@ struct ContentView: View {
             Tab(OverviewTab.triage.title, systemImage: OverviewTab.triage.systemImage, value: .triage) {
                 TriageView(viewModel: triageModel)
             }
+            Tab(OverviewTab.review.title, systemImage: OverviewTab.review.systemImage, value: .review) {
+                ReviewPlaceholderView()
+            }
         }
         .tint(.blue)
         .preferredColorScheme(.dark)
+    }
+}
+
+private struct ReviewPlaceholderView: View {
+    var body: some View {
+        ContentUnavailableView(
+            Strings.Overview.tabReview,
+            systemImage: "trash",
+            description: Text(Strings.Overview.reviewComingSoon)
+        )
     }
 }
 
