@@ -56,6 +56,7 @@ struct OverviewView: View {
                 header
                 PrivacyPillView()
                 hero
+                summaryCard
             }
             .padding(.horizontal, Metrics.screenPadding)
             .padding(.top, Metrics.screenPadding)
@@ -112,6 +113,40 @@ struct OverviewView: View {
         .padding(.vertical, 8)
     }
 
+    private var summaryCard: some View {
+        GlassCard {
+            VStack(spacing: 20) {
+                HStack(alignment: .top, spacing: 12) {
+                    ForEach(stats) { stat in
+                        OverviewStatCard(stat: stat)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+
+                Button(action: onStartTriage) {
+                    HStack {
+                        Text(Strings.Overview.startTriage)
+                            .font(.headline)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 18)
+                    .frame(maxWidth: .infinity)
+                    .background(Metrics.accent, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .buttonStyle(.plain)
+
+                Text(Strings.Overview.startTriageHelper)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(Metrics.cardPadding)
+        }
+    }
+
     private var failure: some View {
         ContentUnavailableView {
             Label(Strings.Access.title, systemImage: "lock.fill")
@@ -129,6 +164,15 @@ struct OverviewView: View {
     private var showsOpenSettings: Bool {
         let auth = viewModel.state.authorization
         return !auth.canAccessLibrary && auth != .notDetermined
+    }
+
+    private var stats: [TriageStat] {
+        let summary = viewModel.state.summary
+        return [
+            TriageStat(id: .useful, value: countText(summary.usefulCount), title: Strings.Overview.usefulTitle, detail: sizeText(summary.usefulBytes), indicator: .icon("checkmark.circle.fill")),
+            TriageStat(id: .safeToDelete, value: countText(summary.safeCount), title: Strings.Overview.safeToDeleteTitle, detail: sizeText(summary.safeBytes), indicator: .icon("square.3.layers.3d")),
+            TriageStat(id: .reclaimable, value: "\(Int((summary.reclaimableRatio * 100).rounded()))%", title: Strings.Overview.reclaimableTitle, detail: nil, indicator: .progress(summary.reclaimableRatio))
+        ]
     }
 
     private func sizeText(_ bytes: Int) -> String {
@@ -149,9 +193,24 @@ struct OverviewView: View {
 private enum Metrics {
     static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
     static let accent = Color.blue
+    static let cardCornerRadius: CGFloat = 28
+    static let cardPadding: CGFloat = 20
     static let screenPadding: CGFloat = 20
     static let sectionSpacing: CGFloat = 20
+    static let cardStroke = Color.white.opacity(0.08)
     static let surfaceFill = Color.white.opacity(0.05)
+}
+
+private struct GlassCard<Content: View>: View {
+    var cornerRadius: CGFloat = Metrics.cardCornerRadius
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        content
+            .frame(maxWidth: .infinity)
+            .background(Metrics.surfaceFill, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous).strokeBorder(Metrics.cardStroke, lineWidth: 1))
+    }
 }
 
 private struct AppMarkView: View {
@@ -203,6 +262,42 @@ private struct PrivacyPillView: View {
     private var privacyTrailing: String {
         Strings.Overview.privacy
             .replacingOccurrences(of: Strings.Overview.privacyLead + " ", with: "")
+    }
+}
+
+private struct OverviewStatCard: View {
+    let stat: TriageStat
+
+    var body: some View {
+        VStack(spacing: 8) {
+            indicator.frame(height: 30)
+            Text(stat.value).font(.title2.weight(.bold)).foregroundStyle(.white).lineLimit(1).minimumScaleFactor(0.7).contentTransition(.numericText())
+            Text(stat.title).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            if let detail = stat.detail {
+                Text(detail).font(.caption2).foregroundStyle(.tertiary)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var indicator: some View {
+        switch stat.indicator {
+        case .icon(let name):
+            Image(systemName: name).font(.system(size: 24, weight: .regular)).foregroundStyle(Metrics.accent)
+        case .progress(let value):
+            ProgressRing(progress: value).frame(width: 30, height: 30)
+        }
+    }
+}
+
+private struct ProgressRing: View {
+    let progress: Double
+
+    var body: some View {
+        ZStack {
+            Circle().stroke(Color.white.opacity(0.12), lineWidth: 5)
+            Circle().trim(from: 0, to: progress).stroke(Metrics.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round)).rotationEffect(.degrees(-90))
+        }
     }
 }
 
