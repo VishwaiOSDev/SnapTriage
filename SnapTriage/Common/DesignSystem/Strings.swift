@@ -8,6 +8,34 @@
 import Foundation
 
 enum Strings {
+    enum Overview {
+        static let title = "Screenshot Triage"
+        static let privacy = "All on-device. Your data stays private."
+        static let privacyLead = "All on-device."
+        static let reclaimableHeadline = "reclaimable"
+        static let heroCaption = "Found in %@ screenshots"
+
+        static let usefulTitle = "Useful"
+        static let safeToDeleteTitle = "Safe to delete"
+        static let reclaimableTitle = "Reclaimable"
+
+        static let startTriage = "Start triage"
+        static let startTriageHelper = "Swipe through to keep what matters."
+        static let analyzing = "Analyzing %@ of %@…"
+
+        static let onDeviceTitle = "100% on-device"
+        static let onDeviceSubtitle = "Nothing is uploaded or shared"
+        static let intelligentTitle = "Intelligent triage"
+        static let intelligentSubtitle = "Surfaces the one detail that matters"
+
+        static let tabOverview = "Overview"
+        static let tabTriage = "Triage"
+        static let tabReview = "Review"
+        static let reviewComingSoon = "Marked screenshots will appear here for a final check before deletion."
+
+        static let settings = "Settings"
+    }
+
     enum Triage {
         static let title = "Screenshots"
         static let loading = "Loading screenshots…"
