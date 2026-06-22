@@ -35,7 +35,7 @@ struct OverviewView: View {
             if viewModel.state.summary.totalCount == 0 {
                 chrome { EmptyOverviewView() }
             } else {
-                chrome { Text(Strings.Overview.reclaimableHeadline).foregroundStyle(.white) }
+                loaded
             }
         }
     }
@@ -50,6 +50,21 @@ struct OverviewView: View {
         .padding(.top, Metrics.screenPadding)
     }
 
+    private var loaded: some View {
+        ScrollView {
+            VStack(spacing: Metrics.sectionSpacing) {
+                header
+                PrivacyPillView()
+                hero
+            }
+            .padding(.horizontal, Metrics.screenPadding)
+            .padding(.top, Metrics.screenPadding)
+            .padding(.bottom, Metrics.sectionSpacing)
+            .animation(.default, value: viewModel.state.summary)
+        }
+        .scrollIndicators(.hidden)
+    }
+
     private var header: some View {
         HStack(spacing: 12) {
             AppMarkView()
@@ -61,6 +76,40 @@ struct OverviewView: View {
                 viewModel.send(.openSettings)
             }
         }
+    }
+
+    private var hero: some View {
+        let summary = viewModel.state.summary
+        return VStack(spacing: 6) {
+            VStack(spacing: 2) {
+                HeroMetricText(sizeText(summary.reclaimableBytes), size: 72)
+                Text(Strings.Overview.reclaimableHeadline)
+                    .font(.system(size: 46, weight: .bold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            }
+            .multilineTextAlignment(.center)
+
+            Text(String(format: Strings.Overview.heroCaption, countText(summary.totalCount)))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            if viewModel.state.isClassifying {
+                Label(
+                    String(
+                        format: Strings.Overview.analyzing,
+                        countText(viewModel.state.classifiedCount),
+                        countText(summary.totalCount)
+                    ),
+                    systemImage: "wand.and.stars"
+                )
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
     }
 
     private var failure: some View {
@@ -81,6 +130,20 @@ struct OverviewView: View {
         let auth = viewModel.state.authorization
         return !auth.canAccessLibrary && auth != .notDetermined
     }
+
+    private func sizeText(_ bytes: Int) -> String {
+        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+    }
+
+    private func countText(_ value: Int) -> String {
+        Self.counter.string(from: NSNumber(value: value)) ?? "\(value)"
+    }
+
+    private static let counter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter
+    }()
 }
 
 private enum Metrics {
@@ -116,6 +179,30 @@ private struct CircularIconButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
+    }
+}
+
+private struct PrivacyPillView: View {
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "lock.fill")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Metrics.accent)
+            Text(Strings.Overview.privacyLead)
+                .foregroundStyle(.white)
+                .fontWeight(.semibold)
+            + Text(" " + privacyTrailing)
+                .foregroundStyle(.secondary)
+        }
+        .font(.footnote)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 14)
+        .background(Metrics.surfaceFill, in: Capsule())
+    }
+
+    private var privacyTrailing: String {
+        Strings.Overview.privacy
+            .replacingOccurrences(of: Strings.Overview.privacyLead + " ", with: "")
     }
 }
 
