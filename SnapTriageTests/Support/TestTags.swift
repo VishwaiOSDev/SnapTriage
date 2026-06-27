@@ -20,4 +20,6 @@ extension Tag {
     @Tag static var fallback: Self
     /// Pure, in-memory, no I/O — safe to run on every keystroke.
     @Tag static var fast: Self
+    /// The Review feature: load/select/delete flows.
+    @Tag static var review: Self
 }
