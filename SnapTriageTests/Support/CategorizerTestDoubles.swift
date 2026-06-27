@@ -48,6 +48,7 @@ final class StubPhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
         cgImageRequested = true
         return image
     }
+    func deleteScreenshots(_ ids: [Screenshot.ID]) async throws {}
 }
 
 // MARK: - Fixtures

@@ -1,20 +1,20 @@
 //
-//  OverviewComposition.swift
+//  ReviewComposition.swift
 //  SnapTriage
 //
-//  Created by Vishweshwaran on 21/06/26.
+//  Created by Vishweshwaran on 27/06/26.
 //
 
 import Foundation
 
-enum OverviewComposition {
+enum ReviewComposition {
     @MainActor
     static func make(
         service: PhotoLibraryService,
         ocrStore: OCRStore,
         categoryStore: CategoryStore,
-        router: OverviewRouter
-    ) -> OverviewViewModel {
+        router: ReviewRouter
+    ) -> ReviewViewModel {
         let recognizer = VisionTextRecognitionService()
 
         let recognizeText = RecognizeScreenshotTextUseCase(
@@ -28,14 +28,19 @@ enum OverviewComposition {
             imageLoader: service
         )
 
-        return OverviewViewModel(
+        return ReviewViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
-            loadScreenshots: LoadScreenshotsUseCase(service: service),
-            classifyLibrary: ClassifyLibraryUseCase(
-                recognizeText: recognizeText,
-                categorize: categorize,
+            loadItems: LoadReviewItemsUseCase(
+                loadScreenshots: LoadScreenshotsUseCase(service: service),
+                classifyLibrary: ClassifyLibraryUseCase(
+                    recognizeText: recognizeText,
+                    categorize: categorize,
+                    store: categoryStore
+                ),
                 store: categoryStore
             ),
+            deleteScreenshots: DeleteScreenshotsUseCase(service: service),
+            imageLoader: service,
             router: router
         )
     }

@@ -14,6 +14,10 @@ protocol PhotoLibraryService: Sendable {
     func fetchScreenshots() async -> [Screenshot]
     func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage?
     func cgImage(for id: Screenshot.ID, longEdge: CGFloat) async -> CGImage?
+    /// Deletes the given assets from the photo library. iOS presents its own
+    /// confirmation sheet; declining it throws `TriageError.deletionCancelled`,
+    /// any other failure throws `TriageError.deletionFailed`.
+    func deleteScreenshots(_ ids: [Screenshot.ID]) async throws
 }
 
 // @unchecked Sendable: only stored state is PHCachingImageManager, internally thread-safe.
@@ -118,6 +122,25 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
                 if let degraded = info?[PHImageResultIsDegradedKey] as? Bool, degraded { return }
                 once.run { continuation.resume(returning: image?.cgImage) }
             }
+        }
+    }
+
+    func deleteScreenshots(_ ids: [Screenshot.ID]) async throws {
+        guard !ids.isEmpty else { return }
+
+        let fetch = PHAsset.fetchAssets(withLocalIdentifiers: ids, options: nil)
+        var assets: [PHAsset] = []
+        fetch.enumerateObjects { asset, _, _ in assets.append(asset) }
+        guard !assets.isEmpty else { return }   // already gone; nothing to do
+
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.deleteAssets(assets as NSArray)
+            }
+        } catch let error as PHPhotosError where error.code == .userCancelled {
+            throw TriageError.deletionCancelled
+        } catch {
+            throw TriageError.deletionFailed
         }
     }
 }

@@ -31,7 +31,6 @@ enum Strings {
         static let tabOverview = "Overview"
         static let tabTriage = "Triage"
         static let tabReview = "Review"
-        static let reviewComingSoon = "Marked screenshots will appear here for a final check before deletion."
 
         static let settings = "Settings"
     }
@@ -41,6 +40,17 @@ enum Strings {
         static let loading = "Loading screenshots…"
         static let emptyTitle = "No Screenshots"
         static let emptyMessage = "Screenshots you capture will show up here, ready to triage."
+    }
+
+    enum Review {
+        static let title = "Review"
+        static let reclaimableHeadline = "to free up"
+        static let selectionCaption = "%@ of %@ selected"
+        static let deleteButton = "Delete %@ · Free %@"
+        static let deleting = "Deleting…"
+        static let emptyTitle = "Nothing to Review"
+        static let emptyMessage = "Screenshots marked safe to delete will show up here for a final check before they're removed."
+        static let deletionFailed = "Couldn't delete the selected screenshots. Please try again."
     }
 
     enum Access {

@@ -8,9 +8,19 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var overviewModel = OverviewComposition.make(router: SystemOverviewRouter())
-    @State private var triageModel = TriageComposition.make(router: SystemTriageRouter())
+    @State private var composition: AppComposition
+    @State private var overviewModel: OverviewViewModel
+    @State private var triageModel: TriageViewModel
+    @State private var reviewModel: ReviewViewModel
     @State private var selection: OverviewTab = .overview
+
+    init() {
+        let composition = AppComposition()
+        _composition = State(initialValue: composition)
+        _overviewModel = State(initialValue: composition.makeOverview())
+        _triageModel = State(initialValue: composition.makeTriage())
+        _reviewModel = State(initialValue: composition.makeReview())
+    }
 
     var body: some View {
         TabView(selection: $selection) {
@@ -21,21 +31,11 @@ struct ContentView: View {
                 TriageView(viewModel: triageModel)
             }
             Tab(OverviewTab.review.title, systemImage: OverviewTab.review.systemImage, value: .review) {
-                ReviewPlaceholderView()
+                ReviewView(viewModel: reviewModel)
             }
         }
         .tint(.blue)
         .preferredColorScheme(.dark)
-    }
-}
-
-private struct ReviewPlaceholderView: View {
-    var body: some View {
-        ContentUnavailableView(
-            Strings.Overview.tabReview,
-            systemImage: "trash",
-            description: Text(Strings.Overview.reviewComingSoon)
-        )
     }
 }
 
