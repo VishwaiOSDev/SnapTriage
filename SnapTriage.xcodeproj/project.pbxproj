@@ -43,10 +43,23 @@
 		0A0A1B260000000000000001 /* CategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A260000000000000001 /* CategoryStore.swift */; };
 		0A0A1B270000000000000001 /* ClassifyLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */; };
 		0A0A1B280000000000000001 /* HeroMetricText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A280000000000000001 /* HeroMetricText.swift */; };
+		0A0A1B300000000000000001 /* AppComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A300000000000000001 /* AppComposition.swift */; };
+		0A0A1B310000000000000001 /* ReviewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A310000000000000001 /* ReviewItem.swift */; };
+		0A0A1B320000000000000001 /* LoadReviewItemsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A320000000000000001 /* LoadReviewItemsUseCase.swift */; };
+		0A0A1B330000000000000001 /* DeleteScreenshotsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A330000000000000001 /* DeleteScreenshotsUseCase.swift */; };
+		0A0A1B340000000000000001 /* ReviewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A340000000000000001 /* ReviewRouter.swift */; };
+		0A0A1B350000000000000001 /* ReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A350000000000000001 /* ReviewViewModel.swift */; };
+		0A0A1B360000000000000001 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A360000000000000001 /* ReviewView.swift */; };
+		0A0A1B370000000000000001 /* ReviewItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A370000000000000001 /* ReviewItemView.swift */; };
+		0A0A1B380000000000000001 /* ReviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A380000000000000001 /* ReviewComposition.swift */; };
 		0A0A0D810000000000000001 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D010000000000000001 /* TestTags.swift */; };
 		0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */; };
 		0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */; };
 		0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */; };
+		0A0A0D850000000000000001 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D050000000000000001 /* ReviewTestDoubles.swift */; };
+		0A0A0D860000000000000001 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */; };
+		0A0A0D870000000000000001 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */; };
+		0A0A0D880000000000000001 /* ReviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D080000000000000001 /* ReviewViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -87,11 +100,24 @@
 		0A0A1A260000000000000001 /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
 		0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassifyLibraryUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A280000000000000001 /* HeroMetricText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroMetricText.swift; sourceTree = "<group>"; };
+		0A0A1A300000000000000001 /* AppComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppComposition.swift; sourceTree = "<group>"; };
+		0A0A1A310000000000000001 /* ReviewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewItem.swift; sourceTree = "<group>"; };
+		0A0A1A320000000000000001 /* LoadReviewItemsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A330000000000000001 /* DeleteScreenshotsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A340000000000000001 /* ReviewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewRouter.swift; sourceTree = "<group>"; };
+		0A0A1A350000000000000001 /* ReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModel.swift; sourceTree = "<group>"; };
+		0A0A1A360000000000000001 /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
+		0A0A1A370000000000000001 /* ReviewItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewItemView.swift; sourceTree = "<group>"; };
+		0A0A1A380000000000000001 /* ReviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewComposition.swift; sourceTree = "<group>"; };
 		0A0A0E000000000000000001 /* SnapTriageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapTriageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A0A0D010000000000000001 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
 		0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
 		0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCaseTests.swift; sourceTree = "<group>"; };
 		0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
+		0A0A0D050000000000000001 /* ReviewTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTestDoubles.swift; sourceTree = "<group>"; };
+		0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCaseTests.swift; sourceTree = "<group>"; };
+		0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCaseTests.swift; sourceTree = "<group>"; };
+		0A0A0D080000000000000001 /* ReviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,6 +170,7 @@
 			children = (
 				0A0A00100000000000000001 /* SnapTriageApp.swift */,
 				0A0A00110000000000000001 /* ContentView.swift */,
+				0A0A1A300000000000000001 /* AppComposition.swift */,
 				0A0A1C010000000000000001 /* Features */,
 				0A0A1C100000000000000001 /* Common */,
 				0A0A00120000000000000001 /* Assets.xcassets */,
@@ -165,8 +192,72 @@
 			children = (
 				0A0A1C020000000000000001 /* Triage */,
 				0A0A1C200000000000000001 /* Overview */,
+				0A0A1C300000000000000001 /* Review */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		0A0A1C300000000000000001 /* Review */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1C310000000000000001 /* Model */,
+				0A0A1C320000000000000001 /* UseCase */,
+				0A0A1C330000000000000001 /* Router */,
+				0A0A1C340000000000000001 /* ViewModel */,
+				0A0A1C350000000000000001 /* View */,
+				0A0A1C360000000000000001 /* Composition */,
+			);
+			path = Review;
+			sourceTree = "<group>";
+		};
+		0A0A1C310000000000000001 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A310000000000000001 /* ReviewItem.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0A0A1C320000000000000001 /* UseCase */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A320000000000000001 /* LoadReviewItemsUseCase.swift */,
+				0A0A1A330000000000000001 /* DeleteScreenshotsUseCase.swift */,
+			);
+			path = UseCase;
+			sourceTree = "<group>";
+		};
+		0A0A1C330000000000000001 /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A340000000000000001 /* ReviewRouter.swift */,
+			);
+			path = Router;
+			sourceTree = "<group>";
+		};
+		0A0A1C340000000000000001 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A350000000000000001 /* ReviewViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		0A0A1C350000000000000001 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A360000000000000001 /* ReviewView.swift */,
+				0A0A1A370000000000000001 /* ReviewItemView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		0A0A1C360000000000000001 /* Composition */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A380000000000000001 /* ReviewComposition.swift */,
+			);
+			path = Composition;
 			sourceTree = "<group>";
 		};
 		0A0A1C200000000000000001 /* Overview */ = {
@@ -357,6 +448,9 @@
 				0A0A0E0C0000000000000001 /* Support */,
 				0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */,
 				0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */,
+				0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */,
+				0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */,
+				0A0A0D080000000000000001 /* ReviewViewModelTests.swift */,
 			);
 			path = SnapTriageTests;
 			sourceTree = "<group>";
@@ -366,6 +460,7 @@
 			children = (
 				0A0A0D010000000000000001 /* TestTags.swift */,
 				0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */,
+				0A0A0D050000000000000001 /* ReviewTestDoubles.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -504,6 +599,15 @@
 				0A0A1B260000000000000001 /* CategoryStore.swift in Sources */,
 				0A0A1B270000000000000001 /* ClassifyLibraryUseCase.swift in Sources */,
 				0A0A1B280000000000000001 /* HeroMetricText.swift in Sources */,
+				0A0A1B300000000000000001 /* AppComposition.swift in Sources */,
+				0A0A1B310000000000000001 /* ReviewItem.swift in Sources */,
+				0A0A1B320000000000000001 /* LoadReviewItemsUseCase.swift in Sources */,
+				0A0A1B330000000000000001 /* DeleteScreenshotsUseCase.swift in Sources */,
+				0A0A1B340000000000000001 /* ReviewRouter.swift in Sources */,
+				0A0A1B350000000000000001 /* ReviewViewModel.swift in Sources */,
+				0A0A1B360000000000000001 /* ReviewView.swift in Sources */,
+				0A0A1B370000000000000001 /* ReviewItemView.swift in Sources */,
+				0A0A1B380000000000000001 /* ReviewComposition.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -515,6 +619,10 @@
 				0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */,
 				0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */,
 				0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */,
+				0A0A0D850000000000000001 /* ReviewTestDoubles.swift in Sources */,
+				0A0A0D860000000000000001 /* DeleteScreenshotsUseCaseTests.swift in Sources */,
+				0A0A0D870000000000000001 /* LoadReviewItemsUseCaseTests.swift in Sources */,
+				0A0A0D880000000000000001 /* ReviewViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

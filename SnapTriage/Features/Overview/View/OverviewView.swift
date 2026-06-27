@@ -469,7 +469,7 @@ private struct EmptyOverviewView: View {
 }
 
 #Preview {
-    let viewModel = OverviewComposition.make(router: SystemOverviewRouter())
+    let viewModel = AppComposition().makeOverview()
     viewModel.seedForPreview(.sample)
     return OverviewView(viewModel: viewModel) {}
 }

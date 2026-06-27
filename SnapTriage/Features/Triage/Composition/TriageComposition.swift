@@ -9,10 +9,12 @@ import Foundation
 
 enum TriageComposition {
     @MainActor
-    static func make(router: TriageRouter) -> TriageViewModel {
-        let service = PhotoKitLibraryService()
+    static func make(
+        service: PhotoLibraryService,
+        ocrStore: OCRStore,
+        router: TriageRouter
+    ) -> TriageViewModel {
         let recognizer = VisionTextRecognitionService()
-        let ocrStore = InMemoryOCRStore()
         return TriageViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
             loadScreenshots: LoadScreenshotsUseCase(service: service),
