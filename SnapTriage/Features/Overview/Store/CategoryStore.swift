@@ -10,6 +10,9 @@ import Foundation
 protocol CategoryStore: Sendable {
     func category(for id: Screenshot.ID) async -> ScreenshotCategory?
     func save(_ category: ScreenshotCategory, for id: Screenshot.ID) async
+    /// Every category cached so far, keyed by screenshot id. The Review feature
+    /// reads this to build the "safe to delete" set without re-running the pipeline.
+    func allCategories() async -> [Screenshot.ID: ScreenshotCategory]
 }
 
 actor InMemoryCategoryStore: CategoryStore {
@@ -22,5 +25,9 @@ actor InMemoryCategoryStore: CategoryStore {
 
     func save(_ category: ScreenshotCategory, for id: Screenshot.ID) {
         cache[id] = category
+    }
+
+    func allCategories() -> [Screenshot.ID: ScreenshotCategory] {
+        cache
     }
 }
