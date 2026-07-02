@@ -17,6 +17,10 @@ struct TriageView: View {
     @State private var isDismissing = false
     @State private var fullScreenShot: Screenshot?
 
+    /// Shared and prepared ahead of the first swipe: creating a generator and
+    /// firing it cold spins up the haptic engine, which stalls the first fly-off.
+    @State private var haptic = UIImpactFeedbackGenerator(style: .medium)
+
     init(viewModel: TriageViewModel, onClose: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
         self.onClose = onClose
@@ -27,7 +31,10 @@ struct TriageView: View {
             Metrics.background.ignoresSafeArea()
             content
         }
-        .task { viewModel.send(.onAppear) }
+        .task {
+            viewModel.send(.onAppear)
+            haptic.prepare()
+        }
         .fullScreenCover(item: $fullScreenShot) { screenshot in
             ScreenshotViewerView(screenshot: screenshot) { id, size in
                 await viewModel.thumbnail(for: id, targetSize: size)
@@ -216,7 +223,8 @@ struct TriageView: View {
     private func fly(_ decision: TriageDecision) {
         guard !isDismissing, viewModel.state.current != nil else { return }
         isDismissing = true
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        haptic.impactOccurred()
+        haptic.prepare()
 
         let direction: CGFloat = decision == .keep ? 1 : -1
         withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
