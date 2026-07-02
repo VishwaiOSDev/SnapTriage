@@ -615,3 +615,19 @@ private struct EmptyScreenshotsView: View {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    let viewModel = AppComposition().makeTriage()
+    viewModel.seedForPreview(
+        [
+            Screenshot(id: "1", pixelWidth: 1179, pixelHeight: 2556, creationDate: .now, byteSize: 1_800_000),
+            Screenshot(id: "2", pixelWidth: 1179, pixelHeight: 2556, creationDate: .now.addingTimeInterval(-90_000), byteSize: 2_400_000),
+            Screenshot(id: "3", pixelWidth: 1179, pixelHeight: 2556, creationDate: .now.addingTimeInterval(-400_000), byteSize: 3_100_000)
+        ],
+        categories: ["1": .otp, "2": .receipt, "3": .location]
+    )
+    return TriageView(viewModel: viewModel)
+        .preferredColorScheme(.dark)
+}
+#endif
