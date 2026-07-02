@@ -10,7 +10,10 @@ import Foundation
 /// The user's swipe verdict for a screenshot. Nothing is deleted here —
 /// `markForDeletion` only queues the screenshot for the Review screen,
 /// where the actual batch deletion happens.
-enum TriageDecision: Equatable, Sendable {
+///
+/// Raw values are the on-disk schema of the persisted decision store;
+/// renaming a case is a format change.
+enum TriageDecision: String, Codable, Equatable, Sendable {
     case keep
     case markForDeletion
 }
