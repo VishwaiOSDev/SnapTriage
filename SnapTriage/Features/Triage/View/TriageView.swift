@@ -56,7 +56,8 @@ struct TriageView: View {
     private var deck: some View {
         VStack(spacing: Metrics.sectionSpacing) {
             header
-            Spacer()
+            cardStack
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding(.horizontal, Metrics.screenPadding)
         .padding(.top, Metrics.screenPadding)
@@ -83,6 +84,40 @@ struct TriageView: View {
             }
         }
         .animation(.default, value: viewModel.state.currentIndex)
+    }
+
+    // MARK: - Card stack
+
+    // A ForEach keyed by screenshot id keeps view identity stable while a card
+    // moves from the back slot to the front, so its already-loaded thumbnail
+    // survives the promotion instead of flashing back to the placeholder.
+    private var cardStack: some View {
+        ZStack {
+            ForEach(deckWindow) { screenshot in
+                deckCard(for: screenshot, isTop: screenshot.id == viewModel.state.current?.id)
+            }
+        }
+    }
+
+    private func deckCard(for screenshot: Screenshot, isTop: Bool) -> some View {
+        card(for: screenshot)
+            .scaleEffect(isTop ? 1 : 0.92)
+            .opacity(isTop ? 1 : 0.6)
+    }
+
+    // Back-to-front render order: up-next behind, current on top.
+    private var deckWindow: [Screenshot] {
+        [viewModel.state.upNext, viewModel.state.current].compactMap(\.self)
+    }
+
+    private func card(for screenshot: Screenshot) -> some View {
+        TriageCardView(
+            screenshot: screenshot,
+            category: viewModel.state.category(for: screenshot),
+            loadThumbnail: { id, size in
+                await viewModel.thumbnail(for: id, targetSize: size)
+            }
+        )
     }
 
     // MARK: - Failure
