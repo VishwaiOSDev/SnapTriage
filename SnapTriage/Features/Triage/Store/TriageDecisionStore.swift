@@ -48,3 +48,37 @@ final class InMemoryTriageDecisionStore: TriageDecisionStore {
     }
 }
 
+/// Disk-backed store so swipe verdicts survive relaunch. Verdicts are user
+/// intent, so the file lives in Application Support, not Caches.
+final class FileBackedTriageDecisionStore: TriageDecisionStore {
+
+    private let storage: PersistedDictionary<TriageDecision>
+
+    init(directory: URL) {
+        storage = PersistedDictionary(name: "triage-decisions", directory: directory)
+    }
+
+    func decision(for id: Screenshot.ID) -> TriageDecision? {
+        storage[id]
+    }
+
+    func save(_ decision: TriageDecision, for id: Screenshot.ID) {
+        storage.set(decision, for: id)
+    }
+
+    func allDecisions() -> [Screenshot.ID: TriageDecision] {
+        storage.snapshot()
+    }
+
+    func remove(_ ids: [Screenshot.ID]) {
+        storage.remove(ids)
+    }
+
+    func removeAll() {
+        storage.removeAll()
+    }
+
+    func flush() {
+        storage.flush()
+    }
+}
