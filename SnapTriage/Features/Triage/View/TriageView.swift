@@ -15,6 +15,7 @@ struct TriageView: View {
     /// ViewModel. Only the final decision crosses the boundary via `send`.
     @State private var drag: CGSize = .zero
     @State private var isDismissing = false
+    @State private var fullScreenShot: Screenshot?
 
     init(viewModel: TriageViewModel, onClose: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
@@ -27,6 +28,11 @@ struct TriageView: View {
             content
         }
         .task { viewModel.send(.onAppear) }
+        .fullScreenCover(item: $fullScreenShot) { screenshot in
+            ScreenshotViewerView(screenshot: screenshot) { id, size in
+                await viewModel.thumbnail(for: id, targetSize: size)
+            }
+        }
     }
 
     @ViewBuilder
@@ -141,6 +147,7 @@ struct TriageView: View {
             .opacity(isTop ? 1 : 0.6 + 0.4 * Double(dragProgress))
             .offset(isTop ? drag : .zero)
             .rotationEffect(.degrees(rotation), anchor: .bottom)
+            .onTapGesture { if isTop { fullScreenShot = screenshot } }
             .gesture(isTop ? dragGesture : nil)
     }
 
@@ -497,6 +504,61 @@ private struct TriageCardView: View {
 
     private var sizeText: String {
         ByteCountFormatter.string(fromByteCount: Int64(screenshot.byteSize), countStyle: .file)
+    }
+}
+
+// MARK: - Full-screen viewer
+
+/// Borderless look at one screenshot, for cards whose detail is too small to
+/// judge from the deck. Requests a fresh thumbnail at full screen pixels, so
+/// text-heavy shots stay legible; the card-sized image stands in while it loads.
+private struct ScreenshotViewerView: View {
+    let screenshot: Screenshot
+    let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.displayScale) private var displayScale
+    @State private var image: UIImage?
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack {
+                Color.black.ignoresSafeArea()
+                if let image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    ProgressView()
+                        .tint(.white)
+                }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .contentShape(Rectangle())
+            .onTapGesture { dismiss() }
+            .overlay(alignment: .topTrailing) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .frame(width: 38, height: 38)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Strings.Triage.close)
+                .padding(Metrics.screenPadding)
+            }
+            .task {
+                let target = CGSize(
+                    width: proxy.size.width * displayScale,
+                    height: proxy.size.height * displayScale
+                )
+                image = await loadThumbnail(screenshot.id, target)
+            }
+        }
+        .background(Color.black.ignoresSafeArea())
     }
 }
 
