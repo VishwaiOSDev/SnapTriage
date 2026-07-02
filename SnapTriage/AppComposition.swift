@@ -9,18 +9,30 @@ import Foundation
 
 /// App-level composition root. Builds the expensive, stateful dependencies once
 /// — a single `PhotoKitLibraryService` (one `PHCachingImageManager`) and the
-/// in-memory OCR/category/decision caches — and threads them into every feature.
+/// disk-backed OCR/category/decision stores — and threads them into every feature.
 ///
-/// Sharing the caches is what lets Review reuse Overview's classification work:
+/// Sharing the stores is what lets Review reuse Overview's classification work:
 /// the classify pipeline is cache-first, so once Overview has run, opening Review
 /// is near-instant. Features still never import one another; the app wires them.
+///
+/// Store placement: decisions are user intent and live in Application Support;
+/// OCR and categories are recomputable caches and live in Caches, where the
+/// system may purge them.
 @MainActor
 final class AppComposition {
 
     private let service = PhotoKitLibraryService()
-    private let ocrStore = InMemoryOCRStore()
-    private let categoryStore = InMemoryCategoryStore()
-    private let decisionStore = InMemoryTriageDecisionStore()
+    private let ocrStore = FileBackedOCRStore(directory: URL.cachesDirectory)
+    private let categoryStore = FileBackedCategoryStore(directory: URL.cachesDirectory)
+    private let decisionStore = FileBackedTriageDecisionStore(directory: URL.applicationSupportDirectory)
+
+    /// Forces pending store writes to disk; called when the scene backgrounds,
+    /// after which the process may be killed without further notice.
+    func flushStores() {
+        decisionStore.flush()
+        categoryStore.flush()
+        ocrStore.flush()
+    }
 
     func makeOverview(router: (any OverviewRouter)? = nil) -> OverviewViewModel {
         OverviewComposition.make(
