@@ -66,6 +66,7 @@ final class TriageViewModel {
 
     private enum TaskKind { case load, classify }
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
+    @ObservationIgnored private var isClassifying = false
 
     init(
         requestAccess: RequestPhotoAccessUseCase,
@@ -162,20 +163,33 @@ final class TriageViewModel {
     }
 
     // Classifies the visible card plus a small lookahead so the category pill
-    // is ready by the time a card surfaces. Cache-first, so re-runs are cheap.
+    // is ready by the time a card surfaces. One task follows the swipe position,
+    // re-deriving its window after each batch; restarting per swipe would cancel
+    // in-flight OCR and pile a second burst on top of the first.
     private func classifyWindow() {
-        let window = state.screenshots
-            .dropFirst(state.currentIndex)
-            .prefix(classifyLookahead)
-            .filter { state.categories[$0.id] == nil }
-        guard !window.isEmpty else { return }
+        guard !isClassifying else { return }
+        isClassifying = true
 
-        run(.classify) { [weak self] in
+        tasks[.classify] = Task { [weak self] in
             guard let self else { return }
-            for await progress in self.classifyLibrary.execute(Array(window)) {
-                if Task.isCancelled { break }
-                if let id = progress.id, let category = progress.category {
-                    self.state.categories[id] = category
+            defer { self.isClassifying = false }
+
+            // Failed classifications stay uncached; skipping already-attempted ids
+            // bounds this run. The next swipe starts a fresh task that retries them.
+            var attempted: Set<Screenshot.ID> = []
+            while !Task.isCancelled {
+                let window = self.state.screenshots
+                    .dropFirst(self.state.currentIndex)
+                    .prefix(self.classifyLookahead)
+                    .filter { self.state.categories[$0.id] == nil && !attempted.contains($0.id) }
+                guard !window.isEmpty else { return }
+                attempted.formUnion(window.map(\.id))
+
+                for await progress in self.classifyLibrary.execute(Array(window)) {
+                    if Task.isCancelled { return }
+                    if let id = progress.id, let category = progress.category {
+                        self.state.categories[id] = category
+                    }
                 }
             }
         }
