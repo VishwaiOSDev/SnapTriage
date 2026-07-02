@@ -28,7 +28,7 @@ struct ContentView: View {
                 OverviewView(viewModel: overviewModel) { selection = .triage }
             }
             Tab(OverviewTab.triage.title, systemImage: OverviewTab.triage.systemImage, value: .triage) {
-                TriageView(viewModel: triageModel)
+                TriageView(viewModel: triageModel) { selection = .overview }
             }
             Tab(OverviewTab.review.title, systemImage: OverviewTab.review.systemImage, value: .review) {
                 ReviewView(viewModel: reviewModel)
