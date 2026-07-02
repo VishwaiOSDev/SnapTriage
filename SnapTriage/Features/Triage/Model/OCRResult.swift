@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct OCRResult: Sendable, Equatable {
+struct OCRResult: Codable, Sendable, Equatable {
     let screenshotID: Screenshot.ID
     let lines: [OCRLine]
 
