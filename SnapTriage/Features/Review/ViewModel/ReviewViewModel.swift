@@ -111,8 +111,15 @@ final class ReviewViewModel {
             do {
                 let items = try await self.loadItems.execute()
                 try Task.checkCancellation()
+                // Pre-select only items new since the last load; items already
+                // on screen keep their selection, so a manual deselection
+                // survives tab switches instead of being silently re-armed.
+                let knownIDs = Set(self.state.items.map(\.id))
+                let currentIDs = Set(items.map(\.id))
+                self.state.selectedIDs = self.state.selectedIDs
+                    .intersection(currentIDs)
+                    .union(currentIDs.subtracting(knownIDs))
                 self.state.items = items
-                self.state.selectedIDs = Set(items.map(\.id))   // everything pre-selected
                 self.state.phase = .loaded
             } catch is CancellationError {
                 // superseded by a newer load
