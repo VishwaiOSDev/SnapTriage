@@ -32,3 +32,29 @@ actor InMemoryOCRStore: OCRStore {
     }
 }
 
+/// Disk-backed store so OCR transcripts survive relaunch. Recomputable, so the
+/// file lives in Caches — if the system purges it the pipeline just re-runs.
+final class FileBackedOCRStore: OCRStore {
+
+    private let storage: PersistedDictionary<OCRResult>
+
+    init(directory: URL) {
+        storage = PersistedDictionary(name: "ocr-results", directory: directory)
+    }
+
+    func result(for id: Screenshot.ID) -> OCRResult? {
+        storage[id]
+    }
+
+    func save(_ result: OCRResult) {
+        storage.set(result, for: result.screenshotID)
+    }
+
+    func remove(_ ids: [Screenshot.ID]) {
+        storage.remove(ids)
+    }
+
+    func flush() {
+        storage.flush()
+    }
+}
