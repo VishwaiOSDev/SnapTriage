@@ -13,6 +13,7 @@ enum ReviewComposition {
         service: PhotoLibraryService,
         ocrStore: OCRStore,
         categoryStore: CategoryStore,
+        decisionStore: TriageDecisionStore,
         router: ReviewRouter
     ) -> ReviewViewModel {
         let recognizer = VisionTextRecognitionService()
@@ -37,7 +38,8 @@ enum ReviewComposition {
                     categorize: categorize,
                     store: categoryStore
                 ),
-                store: categoryStore
+                store: categoryStore,
+                decisions: decisionStore
             ),
             deleteScreenshots: DeleteScreenshotsUseCase(service: service),
             imageLoader: service,
