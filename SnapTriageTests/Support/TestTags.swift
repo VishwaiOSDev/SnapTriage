@@ -22,4 +22,10 @@ extension Tag {
     @Tag static var fast: Self
     /// The Review feature: load/select/delete flows.
     @Tag static var review: Self
+    /// The Triage feature: deck load/swipe/resume flows.
+    @Tag static var triage: Self
+    /// The Overview feature: summary load/classify flows.
+    @Tag static var overview: Self
+    /// Disk-backed store behavior: round-trips, pruning, corrupt-file recovery.
+    @Tag static var persistence: Self
 }
