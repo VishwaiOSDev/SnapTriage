@@ -46,6 +46,7 @@ final class TriageViewModel {
         case onAppear
         case retry
         case decide(TriageDecision)
+        case startOver
         case openSettings
         case clearError
     }
@@ -55,6 +56,8 @@ final class TriageViewModel {
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadScreenshots: LoadScreenshotsUseCase
     private let classifyLibrary: ClassifyLibraryUseCase
+    private let recordDecision: RecordTriageDecisionUseCase
+    private let clearDecisions: ClearTriageDecisionsUseCase
     private let imageLoader: PhotoLibraryService
     private let router: TriageRouter
 
@@ -68,12 +71,16 @@ final class TriageViewModel {
         requestAccess: RequestPhotoAccessUseCase,
         loadScreenshots: LoadScreenshotsUseCase,
         classifyLibrary: ClassifyLibraryUseCase,
+        recordDecision: RecordTriageDecisionUseCase,
+        clearDecisions: ClearTriageDecisionsUseCase,
         imageLoader: PhotoLibraryService,
         router: TriageRouter
     ) {
         self.requestAccess = requestAccess
         self.loadScreenshots = loadScreenshots
         self.classifyLibrary = classifyLibrary
+        self.recordDecision = recordDecision
+        self.clearDecisions = clearDecisions
         self.imageLoader = imageLoader
         self.router = router
     }
@@ -86,6 +93,10 @@ final class TriageViewModel {
             loadFlow()
         case .decide(let decision):
             decide(decision)
+        case .startOver:
+            // A fresh pass: previous verdicts are void, counters reset in loadFlow.
+            clearDecisions.execute()
+            loadFlow()
         case .openSettings:
             router.openSettings()
         case .clearError:
@@ -131,7 +142,11 @@ final class TriageViewModel {
     }
 
     private func decide(_ decision: TriageDecision) {
-        guard state.current != nil else { return }
+        guard let screenshot = state.current else { return }
+
+        // Recorded synchronously so the verdict is in the store before the deck
+        // advances: a Review load triggered afterwards can never miss this swipe.
+        recordDecision.execute(decision, for: screenshot.id)
 
         switch decision {
         case .keep:            state.keptCount += 1
