@@ -7,7 +7,9 @@
 
 import Foundation
 
-enum ScreenshotCategory: String, CaseIterable, Sendable, Equatable {
+/// Raw values are the on-disk schema of the persisted category cache;
+/// renaming a case is a format change.
+enum ScreenshotCategory: String, CaseIterable, Codable, Sendable, Equatable {
     case receipt
     case code
     case conversation
