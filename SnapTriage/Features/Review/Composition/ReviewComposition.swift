@@ -42,6 +42,11 @@ enum ReviewComposition {
                 decisions: decisionStore
             ),
             deleteScreenshots: DeleteScreenshotsUseCase(service: service),
+            pruneRecords: PruneScreenshotRecordsUseCase(
+                decisions: decisionStore,
+                categories: categoryStore,
+                ocr: ocrStore
+            ),
             imageLoader: service,
             router: router
         )
