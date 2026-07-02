@@ -36,6 +36,7 @@ enum OverviewComposition {
                 categorize: categorize,
                 store: categoryStore
             ),
+            observeLibrary: ObservePhotoLibraryUseCase(service: service),
             router: router
         )
     }
