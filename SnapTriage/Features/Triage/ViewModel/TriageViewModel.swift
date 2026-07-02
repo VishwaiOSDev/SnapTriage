@@ -21,6 +21,21 @@ final class TriageViewModel {
         var categories: [Screenshot.ID: ScreenshotCategory] = [:]
         var phase: Phase = .idle
         var errorMessage: String?
+        var currentIndex = 0
+        var keptCount = 0
+        var markedCount = 0
+
+        var current: Screenshot? {
+            screenshots.indices.contains(currentIndex) ? screenshots[currentIndex] : nil
+        }
+
+        var upNext: Screenshot? {
+            screenshots.indices.contains(currentIndex + 1) ? screenshots[currentIndex + 1] : nil
+        }
+
+        var isFinished: Bool {
+            phase == .loaded && !screenshots.isEmpty && current == nil
+        }
 
         func category(for screenshot: Screenshot) -> ScreenshotCategory {
             categories[screenshot.id] ?? .other
@@ -30,6 +45,7 @@ final class TriageViewModel {
     enum Input {
         case onAppear
         case retry
+        case decide(TriageDecision)
         case openSettings
         case clearError
     }
@@ -64,8 +80,12 @@ final class TriageViewModel {
 
     func send(_ input: Input) {
         switch input {
-        case .onAppear, .retry:
+        case .onAppear:
+            if state.phase == .idle { loadFlow() }
+        case .retry:
             loadFlow()
+        case .decide(let decision):
+            decide(decision)
         case .openSettings:
             router.openSettings()
         case .clearError:
@@ -96,6 +116,9 @@ final class TriageViewModel {
             do {
                 let screenshots = try await self.loadScreenshots.execute()
                 self.state.screenshots = screenshots
+                self.state.currentIndex = 0
+                self.state.keptCount = 0
+                self.state.markedCount = 0
                 self.state.phase = .loaded
                 self.classifyWindow()
             } catch is CancellationError {
@@ -107,10 +130,22 @@ final class TriageViewModel {
         }
     }
 
+    private func decide(_ decision: TriageDecision) {
+        guard state.current != nil else { return }
+
+        switch decision {
+        case .keep:            state.keptCount += 1
+        case .markForDeletion: state.markedCount += 1
+        }
+        state.currentIndex += 1
+        classifyWindow()
+    }
+
     // Classifies the visible card plus a small lookahead so the category pill
     // is ready by the time a card surfaces. Cache-first, so re-runs are cheap.
     private func classifyWindow() {
         let window = state.screenshots
+            .dropFirst(state.currentIndex)
             .prefix(classifyLookahead)
             .filter { state.categories[$0.id] == nil }
         guard !window.isEmpty else { return }
