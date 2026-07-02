@@ -15,26 +15,21 @@ final class TriageViewModel {
 
     enum Phase: Equatable { case idle, loading, loaded, failed }
 
-    enum Recognition: Equatable {
-        case idle
-        case recognizing(Screenshot.ID)
-        case ready(OCRResult, ScreenshotCategory)
-        case failed(Screenshot.ID)
-    }
-
     struct State: Equatable {
         var authorization: PhotoLibraryAuthorization = .notDetermined
         var screenshots: [Screenshot] = []
+        var categories: [Screenshot.ID: ScreenshotCategory] = [:]
         var phase: Phase = .idle
         var errorMessage: String?
-        var recognition: Recognition = .idle
+
+        func category(for screenshot: Screenshot) -> ScreenshotCategory {
+            categories[screenshot.id] ?? .other
+        }
     }
 
     enum Input {
         case onAppear
         case retry
-        case recognize(Screenshot.ID)
-        case dismissRecognition
         case openSettings
         case clearError
     }
@@ -43,26 +38,26 @@ final class TriageViewModel {
 
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadScreenshots: LoadScreenshotsUseCase
-    private let recognizeText: RecognizeScreenshotTextUseCase
-    private let categorize: CategorizeScreenshotUseCase
+    private let classifyLibrary: ClassifyLibraryUseCase
     private let imageLoader: PhotoLibraryService
     private let router: TriageRouter
 
-    private enum TaskKind { case load, ocr }
+    /// How many upcoming cards get classified ahead of the swipe position.
+    private let classifyLookahead = 5
+
+    private enum TaskKind { case load, classify }
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
 
     init(
         requestAccess: RequestPhotoAccessUseCase,
         loadScreenshots: LoadScreenshotsUseCase,
-        recognizeText: RecognizeScreenshotTextUseCase,
-        categorize: CategorizeScreenshotUseCase,
+        classifyLibrary: ClassifyLibraryUseCase,
         imageLoader: PhotoLibraryService,
         router: TriageRouter
     ) {
         self.requestAccess = requestAccess
         self.loadScreenshots = loadScreenshots
-        self.recognizeText = recognizeText
-        self.categorize = categorize
+        self.classifyLibrary = classifyLibrary
         self.imageLoader = imageLoader
         self.router = router
     }
@@ -71,11 +66,6 @@ final class TriageViewModel {
         switch input {
         case .onAppear, .retry:
             loadFlow()
-        case .recognize(let id):
-            recognizeFlow(id: id)
-        case .dismissRecognition:
-            tasks[.ocr]?.cancel()
-            state.recognition = .idle
         case .openSettings:
             router.openSettings()
         case .clearError:
@@ -83,7 +73,7 @@ final class TriageViewModel {
         }
     }
 
-    // Transient read for grid cells, not domain state, so bypasses send.
+    // Transient read for the card image, not domain state, so bypasses send.
     func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? {
         await imageLoader.thumbnail(for: id, targetSize: targetSize)
     }
@@ -107,6 +97,7 @@ final class TriageViewModel {
                 let screenshots = try await self.loadScreenshots.execute()
                 self.state.screenshots = screenshots
                 self.state.phase = .loaded
+                self.classifyWindow()
             } catch is CancellationError {
                 // superseded by newer load
             } catch {
@@ -116,21 +107,21 @@ final class TriageViewModel {
         }
     }
 
-    private func recognizeFlow(id: Screenshot.ID) {
-        categorize.prewarm()    // warm the model now; it loads while OCR runs
-        run(.ocr) { [weak self] in
+    // Classifies the visible card plus a small lookahead so the category pill
+    // is ready by the time a card surfaces. Cache-first, so re-runs are cheap.
+    private func classifyWindow() {
+        let window = state.screenshots
+            .prefix(classifyLookahead)
+            .filter { state.categories[$0.id] == nil }
+        guard !window.isEmpty else { return }
+
+        run(.classify) { [weak self] in
             guard let self else { return }
-            self.state.recognition = .recognizing(id)
-            do {
-                let result = try await self.recognizeText.execute(screenshotID: id)
-                try Task.checkCancellation()
-                let category = await self.categorize.execute(result)
-                try Task.checkCancellation()
-                self.state.recognition = .ready(result, category)
-            } catch is CancellationError {
-                // superseded by a newer tap or dismissed; leave recognition as-is
-            } catch {
-                self.state.recognition = .failed(id)
+            for await progress in self.classifyLibrary.execute(Array(window)) {
+                if Task.isCancelled { break }
+                if let id = progress.id, let category = progress.category {
+                    self.state.categories[id] = category
+                }
             }
         }
     }
