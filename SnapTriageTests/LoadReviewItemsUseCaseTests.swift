@@ -82,6 +82,19 @@ struct LoadReviewItemsUseCaseTests {
         #expect(items.map(\.category) == [.receipt, .social])
     }
 
+    @Test("A marked screenshot without a cached category still surfaces", .tags(.fast))
+    func markedWithoutCategorySurfaces() async throws {
+        let shots = [Fixture.screenshot(id: "1", byteSize: 100)]
+        let service = FakePhotoLibraryService(screenshots: shots)
+        let store = SeededCategoryStore(["1": .other])   // classifier gave up -> .other, still safe
+        let decisions = SeededTriageDecisionStore(["1": .markForDeletion])
+        let sut = Fixture.loadReviewItems(service: service, store: store, decisions: decisions)
+
+        let items = try await sut.execute()
+
+        #expect(items.map(\.id) == ["1"])
+    }
+
     @Test("Denied access throws before classifying", .tags(.fast))
     func deniedThrows() async {
         let service = FakePhotoLibraryService(authorization: .denied)
