@@ -36,7 +36,7 @@ enum Strings {
     }
 
     enum Triage {
-        static let title = "Screenshots"
+        static let title = "Triage"
         static let loading = "Loading screenshots…"
         static let emptyTitle = "No Screenshots"
         static let emptyMessage = "Screenshots you capture will show up here, ready to triage."
