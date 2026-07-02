@@ -15,8 +15,9 @@ struct ReviewViewModelTests {
     // Three safe-to-delete screenshots plus one useful, so the loaded set is "1","2","3".
     private func makeSUT(
         deleteError: Error? = nil,
-        authorization: PhotoLibraryAuthorization = .authorized
-    ) -> (ReviewViewModel, FakePhotoLibraryService) {
+        authorization: PhotoLibraryAuthorization = .authorized,
+        decisions: SeededTriageDecisionStore = SeededTriageDecisionStore()
+    ) -> (ReviewViewModel, FakePhotoLibraryService, SeededCategoryStore) {
         let shots = [
             Fixture.screenshot(id: "1", byteSize: 100),
             Fixture.screenshot(id: "2", byteSize: 200),
@@ -36,12 +37,17 @@ struct ReviewViewModelTests {
         ])
         let vm = ReviewViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
-            loadItems: Fixture.loadReviewItems(service: service, store: store),
+            loadItems: Fixture.loadReviewItems(service: service, store: store, decisions: decisions),
             deleteScreenshots: DeleteScreenshotsUseCase(service: service),
+            pruneRecords: PruneScreenshotRecordsUseCase(
+                decisions: decisions,
+                categories: store,
+                ocr: InMemoryOCRStore()
+            ),
             imageLoader: service,
             router: StubReviewRouter()
         )
-        return (vm, service)
+        return (vm, service, store)
     }
 
     private func waitUntil(_ condition: @escaping () -> Bool, ticks: Int = 5000) async {
@@ -54,7 +60,7 @@ struct ReviewViewModelTests {
 
     @Test("Load surfaces only safe-to-delete items, all pre-selected")
     func loadPreSelectsAll() async {
-        let (vm, _) = makeSUT()
+        let (vm, _, _) = makeSUT()
 
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
@@ -67,7 +73,7 @@ struct ReviewViewModelTests {
 
     @Test("Toggling deselects and updates reclaimable bytes")
     func toggleUpdatesSelection() async {
-        let (vm, _) = makeSUT()
+        let (vm, _, _) = makeSUT()
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
 
@@ -83,7 +89,7 @@ struct ReviewViewModelTests {
 
     @Test("Delete removes the selected items and forwards them to the library")
     func deleteRemovesSelected() async {
-        let (vm, service) = makeSUT()
+        let (vm, service, _) = makeSUT()
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
 
@@ -99,7 +105,7 @@ struct ReviewViewModelTests {
 
     @Test("Cancelling the system sheet leaves the list untouched")
     func cancellationIsNoOp() async {
-        let (vm, service) = makeSUT(deleteError: TriageError.deletionCancelled)
+        let (vm, service, _) = makeSUT(deleteError: TriageError.deletionCancelled)
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
 
@@ -113,7 +119,7 @@ struct ReviewViewModelTests {
 
     @Test("A delete failure surfaces an error and keeps the items")
     func deleteFailureShowsError() async {
-        let (vm, _) = makeSUT(deleteError: TriageError.deletionFailed)
+        let (vm, _, _) = makeSUT(deleteError: TriageError.deletionFailed)
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
 
@@ -124,9 +130,44 @@ struct ReviewViewModelTests {
         #expect(vm.state.errorMessage == Strings.Review.deletionFailed)
     }
 
+    @Test("Successful delete prunes the stored records for the deleted ids")
+    func deletePrunesStores() async {
+        let decisions = SeededTriageDecisionStore(["1": .markForDeletion, "2": .keep])
+        let (vm, _, categories) = makeSUT(decisions: decisions)
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        // "2" was swiped keep, so the loaded set is "1" and "3"; delete both.
+        vm.send(.deleteSelected)
+        await waitUntil { vm.state.items.isEmpty }
+
+        #expect(decisions.decision(for: "1") == nil)
+        #expect(decisions.decision(for: "2") == .keep)
+        #expect(await categories.category(for: "1") == nil)
+        #expect(await categories.category(for: "3") == nil)
+        #expect(await categories.category(for: "2") == .article)
+    }
+
+    @Test("Cancelling the system sheet prunes nothing")
+    func cancellationPrunesNothing() async {
+        let decisions = SeededTriageDecisionStore(["1": .markForDeletion])
+        let (vm, service, categories) = makeSUT(
+            deleteError: TriageError.deletionCancelled,
+            decisions: decisions
+        )
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.deleteSelected)
+        await waitUntil { vm.state.isDeleting == false && service.deleteCallCount == 1 }
+
+        #expect(decisions.decision(for: "1") == .markForDeletion)
+        #expect(await categories.category(for: "1") == .social)
+    }
+
     @Test("Denied access fails with a presentable message")
     func deniedAccessFails() async {
-        let (vm, _) = makeSUT(authorization: .denied)
+        let (vm, _, _) = makeSUT(authorization: .denied)
 
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .failed }
