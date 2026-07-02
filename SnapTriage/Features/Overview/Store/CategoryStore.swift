@@ -13,6 +13,9 @@ protocol CategoryStore: Sendable {
     /// Every category cached so far, keyed by screenshot id. The Review feature
     /// reads this to build the "safe to delete" set without re-running the pipeline.
     func allCategories() async -> [Screenshot.ID: ScreenshotCategory]
+    /// Drops the categories for screenshots that no longer exist, e.g. after
+    /// Review deletes them.
+    func remove(_ ids: [Screenshot.ID]) async
 }
 
 actor InMemoryCategoryStore: CategoryStore {
@@ -30,4 +33,9 @@ actor InMemoryCategoryStore: CategoryStore {
     func allCategories() -> [Screenshot.ID: ScreenshotCategory] {
         cache
     }
+
+    func remove(_ ids: [Screenshot.ID]) {
+        ids.forEach { cache[$0] = nil }
+    }
 }
+
