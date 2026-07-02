@@ -41,6 +41,8 @@ struct TriageView: View {
         case .loaded:
             if viewModel.state.screenshots.isEmpty {
                 chrome { EmptyScreenshotsView() }
+            } else if viewModel.state.isFinished {
+                chrome { finished }
             } else {
                 deck
             }
@@ -260,7 +262,34 @@ struct TriageView: View {
         .padding(.top, 4)
     }
 
-    // MARK: - Failure
+    // MARK: - Finished / failure
+
+    private var finished: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.system(size: 52))
+                .foregroundStyle(Metrics.keep)
+            Text(Strings.Triage.doneTitle)
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+            Text(String(
+                format: Strings.Triage.doneMessage,
+                countText(viewModel.state.keptCount),
+                countText(viewModel.state.markedCount)
+            ))
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            Text(Strings.Triage.doneHint)
+                .font(.footnote)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+            Button(Strings.Triage.startOver) { viewModel.send(.startOver) }
+                .buttonStyle(.bordered)
+                .tint(Metrics.keep)
+                .padding(.top, 8)
+        }
+        .padding(.horizontal, Metrics.screenPadding)
+    }
 
     private var failure: some View {
         ContentUnavailableView {
