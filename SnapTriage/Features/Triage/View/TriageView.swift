@@ -63,6 +63,8 @@ struct TriageView: View {
             header
             cardStack
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            swipeHints
+            actionButtons
         }
         .padding(.horizontal, Metrics.screenPadding)
         .padding(.top, Metrics.screenPadding)
@@ -199,6 +201,41 @@ struct TriageView: View {
             withTransaction(transaction) { drag = .zero }
             isDismissing = false
         }
+    }
+
+    // MARK: - Hints & actions
+
+    private var swipeHints: some View {
+        HStack {
+            Label(Strings.Triage.swipeRightHint, systemImage: "arrow.right")
+                .foregroundStyle(Metrics.keep)
+            Spacer()
+            Label(Strings.Triage.swipeLeftHint, systemImage: "arrow.left")
+                .foregroundStyle(Metrics.delete)
+        }
+        .font(.caption.weight(.medium))
+    }
+
+    private var actionButtons: some View {
+        HStack {
+            DecisionButton(
+                systemImage: "trash.fill",
+                color: Metrics.delete,
+                accessibilityLabel: Strings.Triage.delete
+            ) {
+                fly(.markForDeletion)
+            }
+            Spacer()
+            DecisionButton(
+                systemImage: "checkmark",
+                color: Metrics.keep,
+                accessibilityLabel: Strings.Triage.keep
+            ) {
+                fly(.keep)
+            }
+        }
+        .padding(.horizontal, Metrics.screenPadding)
+        .padding(.top, 4)
     }
 
     // MARK: - Failure
@@ -428,6 +465,29 @@ private struct DecisionStamp: View {
             .padding(.horizontal, 14)
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(color, lineWidth: 4))
             .rotationEffect(.degrees(angle))
+    }
+}
+
+private struct DecisionButton: View {
+    let systemImage: String
+    let color: Color
+    let accessibilityLabel: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: Metrics.actionButtonSize, height: Metrics.actionButtonSize)
+                .background(color.gradient, in: Circle())
+                .overlay(Circle().strokeBorder(.white.opacity(0.15), lineWidth: 1))
+                .padding(7)
+                .overlay(Circle().strokeBorder(color.opacity(0.35), lineWidth: 1.5))
+                .shadow(color: color.opacity(0.45), radius: 18, y: 6)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
     }
 }
 
