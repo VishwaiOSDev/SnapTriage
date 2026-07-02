@@ -18,13 +18,23 @@ protocol PhotoLibraryService: Sendable {
     /// confirmation sheet; declining it throws `TriageError.deletionCancelled`,
     /// any other failure throws `TriageError.deletionFailed`.
     func deleteScreenshots(_ ids: [Screenshot.ID]) async throws
+    /// Emits after the photo library changes (debounced), so features can
+    /// refresh instead of showing stale data until relaunch. Each call returns
+    /// an independent stream; it never emits without photo access.
+    func libraryChanges() -> AsyncStream<Void>
 }
 
-// @unchecked Sendable: only stored state is PHCachingImageManager, internally thread-safe.
+// @unchecked Sendable: stored state is PHCachingImageManager (internally
+// thread-safe) and the lock-guarded change relay.
 final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
-    
+
     private let imageManager = PHCachingImageManager()
-    
+    private let changeRelay = LibraryChangeRelay()
+
+    func libraryChanges() -> AsyncStream<Void> {
+        changeRelay.makeStream()
+    }
+
     func currentAuthorization() -> PhotoLibraryAuthorization {
         PhotoLibraryAuthorization(PHPhotoLibrary.authorizationStatus(for: .readWrite))
     }
@@ -165,6 +175,61 @@ private extension PhotoLibraryAuthorization {
         case .notDetermined: self = .notDetermined
         @unknown default:    self = .denied
         }
+    }
+}
+
+/// Fans PhotoKit's change callbacks out to any number of `AsyncStream`
+/// subscribers. Events are debounced: a screenshot spree or batch delete fires
+/// one emission, not one per asset. Deliberately unfiltered — subscribers
+/// reload cache-first, so the odd emission for a non-screenshot change costs a
+/// cheap fetch, which beats retaining fetch results here just to diff them.
+private final class LibraryChangeRelay: NSObject, PHPhotoLibraryChangeObserver, @unchecked Sendable {
+
+    private let lock = NSLock()
+    private var continuations: [UUID: AsyncStream<Void>.Continuation] = [:]
+    private var pendingEmit: Task<Void, Never>?
+
+    override init() {
+        super.init()
+        PHPhotoLibrary.shared().register(self)
+    }
+
+    deinit {
+        PHPhotoLibrary.shared().unregisterChangeObserver(self)
+    }
+
+    func makeStream() -> AsyncStream<Void> {
+        AsyncStream { continuation in
+            let id = UUID()
+            lock.lock()
+            continuations[id] = continuation
+            lock.unlock()
+            continuation.onTermination = { [weak self] _ in
+                guard let self else { return }
+                self.lock.lock()
+                self.continuations[id] = nil
+                self.lock.unlock()
+            }
+        }
+    }
+
+    // Called by PhotoKit on an arbitrary background queue.
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard pendingEmit == nil else { return }
+        pendingEmit = Task { [weak self] in
+            guard (try? await Task.sleep(for: .seconds(1))) != nil else { return }
+            self?.emit()
+        }
+    }
+
+    private func emit() {
+        lock.lock()
+        pendingEmit = nil
+        let subscribers = Array(continuations.values)
+        lock.unlock()
+        subscribers.forEach { $0.yield() }
     }
 }
 
