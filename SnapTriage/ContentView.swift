@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var composition: AppComposition
     @State private var overviewModel: OverviewViewModel
     @State private var triageModel: TriageViewModel
@@ -36,6 +37,11 @@ struct ContentView: View {
         }
         .tint(.blue)
         .preferredColorScheme(.dark)
+        .onChange(of: scenePhase) { _, phase in
+            // The stores write behind a debounce; backgrounding is the last
+            // reliable moment to force pending verdicts out before a kill.
+            if phase == .background { composition.flushStores() }
+        }
     }
 }
 
