@@ -201,4 +201,13 @@ final class TriageViewModel {
     deinit {
         tasks.values.forEach { $0.cancel() }
     }
+
+    #if DEBUG
+    func seedForPreview(_ screenshots: [Screenshot], categories: [Screenshot.ID: ScreenshotCategory]) {
+        state.phase = .loaded
+        state.authorization = .authorized
+        state.screenshots = screenshots
+        state.categories = categories
+    }
+    #endif
 }
