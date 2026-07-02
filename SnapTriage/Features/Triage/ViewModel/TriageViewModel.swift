@@ -24,17 +24,32 @@ final class TriageViewModel {
         var currentIndex = 0
         var keptCount = 0
         var markedCount = 0
+        /// Deck entries that already have a verdict. The deck sorts newest
+        /// first, so a screenshot taken mid-pass surfaces above already-swiped
+        /// cards — advancing must skip decided cards, not step by one.
+        var decidedIDs: Set<Screenshot.ID> = []
 
         var current: Screenshot? {
             screenshots.indices.contains(currentIndex) ? screenshots[currentIndex] : nil
         }
 
         var upNext: Screenshot? {
-            screenshots.indices.contains(currentIndex + 1) ? screenshots[currentIndex + 1] : nil
+            guard screenshots.indices.contains(currentIndex) else { return nil }
+            return screenshots[(currentIndex + 1)...].first { !decidedIDs.contains($0.id) }
         }
 
         var isFinished: Bool {
             phase == .loaded && !screenshots.isEmpty && current == nil
+        }
+
+        /// Moves to the next card without a verdict; lands on `count` (finished)
+        /// when none remain.
+        mutating func advance() {
+            var next = currentIndex + 1
+            while next < screenshots.count, decidedIDs.contains(screenshots[next].id) {
+                next += 1
+            }
+            currentIndex = next
         }
 
         func category(for screenshot: Screenshot) -> ScreenshotCategory {
@@ -58,13 +73,15 @@ final class TriageViewModel {
     private let classifyLibrary: ClassifyLibraryUseCase
     private let recordDecision: RecordTriageDecisionUseCase
     private let clearDecisions: ClearTriageDecisionsUseCase
+    private let loadProgress: LoadTriageProgressUseCase
+    private let observeLibrary: ObservePhotoLibraryUseCase
     private let imageLoader: PhotoLibraryService
     private let router: TriageRouter
 
     /// How many upcoming cards get classified ahead of the swipe position.
     private let classifyLookahead = 5
 
-    private enum TaskKind { case load, classify }
+    private enum TaskKind { case load, classify, observe }
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
     @ObservationIgnored private var isClassifying = false
 
@@ -74,6 +91,8 @@ final class TriageViewModel {
         classifyLibrary: ClassifyLibraryUseCase,
         recordDecision: RecordTriageDecisionUseCase,
         clearDecisions: ClearTriageDecisionsUseCase,
+        loadProgress: LoadTriageProgressUseCase,
+        observeLibrary: ObservePhotoLibraryUseCase,
         imageLoader: PhotoLibraryService,
         router: TriageRouter
     ) {
@@ -82,6 +101,8 @@ final class TriageViewModel {
         self.classifyLibrary = classifyLibrary
         self.recordDecision = recordDecision
         self.clearDecisions = clearDecisions
+        self.loadProgress = loadProgress
+        self.observeLibrary = observeLibrary
         self.imageLoader = imageLoader
         self.router = router
     }
@@ -89,7 +110,10 @@ final class TriageViewModel {
     func send(_ input: Input) {
         switch input {
         case .onAppear:
-            if state.phase == .idle { loadFlow() }
+            if state.phase == .idle {
+                loadFlow()
+                observeChanges()
+            }
         case .retry:
             loadFlow()
         case .decide(let decision):
@@ -132,10 +156,10 @@ final class TriageViewModel {
 
             do {
                 let screenshots = try await self.loadScreenshots.execute()
-                self.state.screenshots = screenshots
-                self.state.currentIndex = 0
-                self.state.keptCount = 0
-                self.state.markedCount = 0
+                // Resume a pass in flight: persisted verdicts position the deck
+                // at the first undecided card. A fresh pass (or Start Over,
+                // which just cleared the store) lands at index 0 with zeroes.
+                self.apply(screenshots)
                 self.state.phase = .loaded
                 self.classifyWindow()
             } catch is CancellationError {
@@ -143,6 +167,43 @@ final class TriageViewModel {
             } catch {
                 self.state.errorMessage = self.present(error)
                 self.state.phase = .failed
+            }
+        }
+    }
+
+    // Positions deck state from a fresh library snapshot; shared by the initial
+    // load and library-change refreshes.
+    private func apply(_ screenshots: [Screenshot]) {
+        let progress = loadProgress.execute(for: screenshots)
+        state.screenshots = screenshots
+        state.decidedIDs = progress.decidedIDs
+        state.currentIndex = progress.firstUndecidedIndex
+        state.keptCount = progress.keptCount
+        state.markedCount = progress.markedCount
+    }
+
+    // Silent re-sync after the library changed underneath us — a screenshot
+    // taken while backgrounded, or assets deleted in Photos. No phase churn,
+    // so the deck never flashes a loading state mid-session.
+    private func refreshFlow() {
+        guard state.phase == .loaded else { return }
+        run(.load) { [weak self] in
+            guard let self else { return }
+            guard let screenshots = try? await self.loadScreenshots.execute(),
+                  !Task.isCancelled,
+                  screenshots.map(\.id) != self.state.screenshots.map(\.id)
+            else { return }
+            self.apply(screenshots)
+            self.classifyWindow()
+        }
+    }
+
+    private func observeChanges() {
+        tasks[.observe] = Task { [weak self] in
+            guard let stream = self?.observeLibrary.execute() else { return }
+            for await _ in stream {
+                guard let self, !Task.isCancelled else { return }
+                self.refreshFlow()
             }
         }
     }
@@ -158,7 +219,8 @@ final class TriageViewModel {
         case .keep:            state.keptCount += 1
         case .markForDeletion: state.markedCount += 1
         }
-        state.currentIndex += 1
+        state.decidedIDs.insert(screenshot.id)
+        state.advance()
         classifyWindow()
     }
 
