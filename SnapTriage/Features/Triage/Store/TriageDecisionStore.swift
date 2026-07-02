@@ -16,6 +16,9 @@ protocol TriageDecisionStore: Sendable {
     /// Every decision recorded so far, keyed by screenshot id. The Review
     /// feature reads this to fold the user's swipes into its deletion set.
     func allDecisions() -> [Screenshot.ID: TriageDecision]
+    /// Drops the verdicts for screenshots that no longer exist, e.g. after
+    /// Review deletes them.
+    func remove(_ ids: [Screenshot.ID])
     /// Forgets every verdict; backs "Start Over" on the triage finished screen.
     func removeAll()
 }
@@ -36,7 +39,12 @@ final class InMemoryTriageDecisionStore: TriageDecisionStore {
         cache.withLock { $0 }
     }
 
+    func remove(_ ids: [Screenshot.ID]) {
+        cache.withLock { dict in ids.forEach { dict[$0] = nil } }
+    }
+
     func removeAll() {
         cache.withLock { $0.removeAll() }
     }
 }
+
