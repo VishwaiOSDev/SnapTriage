@@ -48,6 +48,7 @@ final class ReviewViewModel {
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadItems: LoadReviewItemsUseCase
     private let deleteScreenshots: DeleteScreenshotsUseCase
+    private let pruneRecords: PruneScreenshotRecordsUseCase
     private let imageLoader: PhotoLibraryService
     private let router: ReviewRouter
 
@@ -58,12 +59,14 @@ final class ReviewViewModel {
         requestAccess: RequestPhotoAccessUseCase,
         loadItems: LoadReviewItemsUseCase,
         deleteScreenshots: DeleteScreenshotsUseCase,
+        pruneRecords: PruneScreenshotRecordsUseCase,
         imageLoader: PhotoLibraryService,
         router: ReviewRouter
     ) {
         self.requestAccess = requestAccess
         self.loadItems = loadItems
         self.deleteScreenshots = deleteScreenshots
+        self.pruneRecords = pruneRecords
         self.imageLoader = imageLoader
         self.router = router
     }
@@ -148,6 +151,7 @@ final class ReviewViewModel {
             defer { self.state.isDeleting = false }
             do {
                 try await self.deleteScreenshots.execute(ids)
+                await self.pruneRecords.execute(ids)
                 let deleted = Set(ids)
                 self.state.items.removeAll { deleted.contains($0.id) }
                 self.state.selectedIDs.subtract(deleted)
