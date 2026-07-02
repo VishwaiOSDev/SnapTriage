@@ -17,6 +17,7 @@ struct LoadReviewItemsUseCase {
     let loadScreenshots: LoadScreenshotsUseCase
     let classifyLibrary: ClassifyLibraryUseCase
     let store: CategoryStore
+    let decisions: TriageDecisionStore
 
     func execute() async throws -> [ReviewItem] {
         let screenshots = try await loadScreenshots.execute()
