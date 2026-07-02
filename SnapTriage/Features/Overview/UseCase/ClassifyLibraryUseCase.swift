@@ -26,6 +26,12 @@ struct ClassifyLibraryUseCase {
         let total: Int
     }
 
+    /// Starts the categorizer's model load early so the first classification
+    /// doesn't pay the cold-start stall. Safe to call repeatedly.
+    func prewarm() {
+        categorize.prewarm()
+    }
+
     // Utility priority throughout: OCR + inference saturate CPU/ANE, and at the
     // inherited user-initiated priority they starve UI rendering during bursts.
     func execute(_ screenshots: [Screenshot]) -> AsyncStream<Progress> {

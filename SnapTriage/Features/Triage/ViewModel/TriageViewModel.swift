@@ -110,6 +110,11 @@ final class TriageViewModel {
     }
 
     private func loadFlow() {
+        // Kick off the classifier's model load now, off the main actor, so it
+        // overlaps the library fetch instead of stalling the first classify burst.
+        let classifyLibrary = classifyLibrary
+        Task.detached(priority: .utility) { classifyLibrary.prewarm() }
+
         run(.load) { [weak self] in
             guard let self else { return }
             self.state.phase = .loading
