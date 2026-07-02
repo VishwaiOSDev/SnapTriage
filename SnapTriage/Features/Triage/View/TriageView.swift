@@ -169,17 +169,36 @@ struct TriageView: View {
             .onEnded { value in
                 guard !isDismissing else { return }
                 if value.translation.width > Metrics.decisionThreshold {
-                    viewModel.send(.decide(.keep))
-                    drag = .zero
+                    fly(.keep)
                 } else if value.translation.width < -Metrics.decisionThreshold {
-                    viewModel.send(.decide(.markForDeletion))
-                    drag = .zero
+                    fly(.markForDeletion)
                 } else {
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                         drag = .zero
                     }
                 }
             }
+    }
+
+    private func fly(_ decision: TriageDecision) {
+        guard !isDismissing, viewModel.state.current != nil else { return }
+        isDismissing = true
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        let direction: CGFloat = decision == .keep ? 1 : -1
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+            drag = CGSize(width: direction * 640, height: drag.height + 40)
+        }
+        // Let the fly-off play, then advance the deck and reset without animating
+        // back, so the next card appears centered instead of sliding in.
+        Task {
+            try? await Task.sleep(for: .milliseconds(280))
+            viewModel.send(.decide(decision))
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) { drag = .zero }
+            isDismissing = false
+        }
     }
 
     // MARK: - Failure
