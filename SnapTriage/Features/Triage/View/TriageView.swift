@@ -426,6 +426,9 @@ private struct TriageCardView: View {
                 .overlay(alignment: .bottom) { metadataBar }
                 .clipShape(shape)
                 .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
+                // Flatten before the shadow so the blur sees one layer, not the
+                // whole subtree, per frame while the card drags and rotates.
+                .compositingGroup()
                 .shadow(color: .black.opacity(0.45), radius: 24, y: 12)
                 .task(id: screenshot.id) {
                     // Request in pixels, not points, so PhotoKit downscales to the right size.
