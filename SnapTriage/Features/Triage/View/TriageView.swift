@@ -11,6 +11,11 @@ struct TriageView: View {
     @State private var viewModel: TriageViewModel
     private let onClose: () -> Void
 
+    /// Drag state is pure UI: it lives in the view and never reaches the
+    /// ViewModel. Only the final decision crosses the boundary via `send`.
+    @State private var drag: CGSize = .zero
+    @State private var isDismissing = false
+
     init(viewModel: TriageViewModel, onClose: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
         self.onClose = onClose
@@ -100,9 +105,17 @@ struct TriageView: View {
     }
 
     private func deckCard(for screenshot: Screenshot, isTop: Bool) -> some View {
-        card(for: screenshot)
-            .scaleEffect(isTop ? 1 : 0.92)
-            .opacity(isTop ? 1 : 0.6)
+        let scale: CGFloat = isTop
+            ? 1 - min(abs(drag.width) / 2400, 0.04)
+            : 0.92 + 0.08 * dragProgress
+        let rotation: Double = isTop ? Double(drag.width / 18) : 0
+        return card(for: screenshot)
+            .overlay { if isTop { decisionStamps } }
+            .scaleEffect(scale)
+            .opacity(isTop ? 1 : 0.6 + 0.4 * Double(dragProgress))
+            .offset(isTop ? drag : .zero)
+            .rotationEffect(.degrees(rotation), anchor: .bottom)
+            .gesture(isTop ? dragGesture : nil)
     }
 
     // Back-to-front render order: up-next behind, current on top.
@@ -118,6 +131,55 @@ struct TriageView: View {
                 await viewModel.thumbnail(for: id, targetSize: size)
             }
         )
+    }
+
+    // Tinder-style corner stamps that fade in as the card travels.
+    private var decisionStamps: some View {
+        ZStack(alignment: .top) {
+            RoundedRectangle(cornerRadius: Metrics.cardCornerRadius, style: .continuous)
+                .fill(stampColor.opacity(0.25 * Double(dragProgress)))
+            HStack {
+                DecisionStamp(text: Strings.Triage.keepBadge, color: Metrics.keep, angle: -12)
+                    .opacity(drag.width > 0 ? Double(dragProgress) : 0)
+                Spacer()
+                DecisionStamp(text: Strings.Triage.deleteBadge, color: Metrics.delete, angle: 12)
+                    .opacity(drag.width < 0 ? Double(dragProgress) : 0)
+            }
+            .padding(24)
+        }
+        .allowsHitTesting(false)
+    }
+
+    private var stampColor: Color {
+        drag.width >= 0 ? Metrics.keep : Metrics.delete
+    }
+
+    private var dragProgress: CGFloat {
+        min(max((abs(drag.width) - 16) / (Metrics.decisionThreshold - 16), 0), 1)
+    }
+
+    // MARK: - Gesture
+
+    private var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                guard !isDismissing else { return }
+                drag = value.translation
+            }
+            .onEnded { value in
+                guard !isDismissing else { return }
+                if value.translation.width > Metrics.decisionThreshold {
+                    viewModel.send(.decide(.keep))
+                    drag = .zero
+                } else if value.translation.width < -Metrics.decisionThreshold {
+                    viewModel.send(.decide(.markForDeletion))
+                    drag = .zero
+                } else {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        drag = .zero
+                    }
+                }
+            }
     }
 
     // MARK: - Failure
@@ -328,6 +390,25 @@ private struct TriageCardView: View {
 
     private var sizeText: String {
         ByteCountFormatter.string(fromByteCount: Int64(screenshot.byteSize), countStyle: .file)
+    }
+}
+
+// MARK: - Decision affordances
+
+private struct DecisionStamp: View {
+    let text: String
+    let color: Color
+    let angle: Double
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 30, weight: .heavy))
+            .tracking(2)
+            .foregroundStyle(color)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 14)
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(color, lineWidth: 4))
+            .rotationEffect(.degrees(angle))
     }
 }
 
