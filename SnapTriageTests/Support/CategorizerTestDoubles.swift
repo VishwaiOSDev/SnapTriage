@@ -49,6 +49,7 @@ final class StubPhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
         return image
     }
     func deleteScreenshots(_ ids: [Screenshot.ID]) async throws {}
+    func libraryChanges() -> AsyncStream<Void> { AsyncStream { $0.finish() } }
 }
 
 // MARK: - Fixtures
