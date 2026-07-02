@@ -40,6 +40,24 @@ enum Strings {
         static let loading = "Loading screenshots…"
         static let emptyTitle = "No Screenshots"
         static let emptyMessage = "Screenshots you capture will show up here, ready to triage."
+
+        static let progress = "%@ of %@"
+        static let keep = "Keep"
+        static let delete = "Delete"
+        static let keepBadge = "KEEP"
+        static let deleteBadge = "DELETE"
+        static let swipeRightHint = "Swipe right to keep"
+        static let swipeLeftHint = "Swipe left to delete"
+        static let close = "Close"
+        static let more = "More options"
+        static let startOver = "Start Over"
+        static let doneTitle = "All caught up"
+        static let doneMessage = "Kept %@ · Marked %@ for deletion"
+        static let doneHint = "Marked screenshots wait in Review — nothing is deleted until you confirm there."
+        static let safeToDelete = "Safe to delete"
+        static let worthKeeping = "Worth keeping"
+        static let today = "Today, %@"
+        static let yesterday = "Yesterday, %@"
     }
 
     enum Review {
