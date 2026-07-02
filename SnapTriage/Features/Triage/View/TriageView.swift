@@ -61,6 +61,7 @@ struct TriageView: View {
     private var deck: some View {
         VStack(spacing: Metrics.sectionSpacing) {
             header
+            categoryPill
             cardStack
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             swipeHints
@@ -91,6 +92,27 @@ struct TriageView: View {
             }
         }
         .animation(.default, value: viewModel.state.currentIndex)
+    }
+
+    // MARK: - Category pill
+
+    @ViewBuilder
+    private var categoryPill: some View {
+        if let current = viewModel.state.current {
+            let category = viewModel.state.category(for: current)
+            HStack(spacing: 6) {
+                Image(systemName: category.systemImage)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Metrics.keep)
+                Text(category.title)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.white)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 14)
+            .liquidGlass(in: Capsule())
+            .animation(.default, value: category)
+        }
     }
 
     // MARK: - Card stack
