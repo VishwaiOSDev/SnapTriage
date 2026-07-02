@@ -32,6 +32,13 @@ struct ClassifyLibraryUseCase {
         categorize.prewarm()
     }
 
+    /// Everything the store already knows, in one read. Callers fold these into
+    /// their state before streaming `execute` over the remainder — streaming
+    /// cache hits one by one after a relaunch animates totals up from zero.
+    func cachedCategories() async -> [Screenshot.ID: ScreenshotCategory] {
+        await store.allCategories()
+    }
+
     // Utility priority throughout: OCR + inference saturate CPU/ANE, and at the
     // inherited user-initiated priority they starve UI rendering during bursts.
     func execute(_ screenshots: [Screenshot]) -> AsyncStream<Progress> {
