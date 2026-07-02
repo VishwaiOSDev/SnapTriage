@@ -22,32 +22,32 @@ final class AppComposition {
     private let categoryStore = InMemoryCategoryStore()
     private let decisionStore = InMemoryTriageDecisionStore()
 
-    func makeOverview(router: OverviewRouter = SystemOverviewRouter()) -> OverviewViewModel {
+    func makeOverview(router: (any OverviewRouter)? = nil) -> OverviewViewModel {
         OverviewComposition.make(
             service: service,
             ocrStore: ocrStore,
             categoryStore: categoryStore,
-            router: router
+            router: router ?? SystemOverviewRouter()
         )
     }
 
-    func makeTriage(router: TriageRouter = SystemTriageRouter()) -> TriageViewModel {
+    func makeTriage(router: (any TriageRouter)? = nil) -> TriageViewModel {
         TriageComposition.make(
             service: service,
             ocrStore: ocrStore,
             categoryStore: categoryStore,
             decisionStore: decisionStore,
-            router: router
+            router: router ?? SystemTriageRouter()
         )
     }
 
-    func makeReview(router: ReviewRouter = SystemReviewRouter()) -> ReviewViewModel {
+    func makeReview(router: (any ReviewRouter)? = nil) -> ReviewViewModel {
         ReviewComposition.make(
             service: service,
             ocrStore: ocrStore,
             categoryStore: categoryStore,
             decisionStore: decisionStore,
-            router: router
+            router: router ?? SystemReviewRouter()
         )
     }
 }
