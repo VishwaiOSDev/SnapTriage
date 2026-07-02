@@ -7,11 +7,12 @@
 
 import Foundation
 
-/// Produces the "safe to delete" set for the Review screen. It drives the
-/// (cache-first) classification pipeline to completion so every screenshot has a
-/// category in the shared store, then keeps only the safe-to-delete ones in
-/// library order (newest first). When Overview has already classified, this is
-/// effectively free — every screenshot is a cache hit.
+/// Produces the deletion set for the Review screen. It drives the (cache-first)
+/// classification pipeline to completion so every screenshot has a category in
+/// the shared store, then folds in the user's triage swipes: a swipe always
+/// overrides the classifier, and screenshots without a verdict fall back to the
+/// classifier's safe-to-delete judgement. When Overview has already classified,
+/// this is effectively free — every screenshot is a cache hit.
 struct LoadReviewItemsUseCase {
 
     let loadScreenshots: LoadScreenshotsUseCase
@@ -29,10 +30,18 @@ struct LoadReviewItemsUseCase {
         }
 
         let categories = await store.allCategories()
+        let verdicts = decisions.allDecisions()
         return screenshots.compactMap { shot in
-            guard let category = categories[shot.id],
-                  category.disposition == .safeToDelete else { return nil }
-            return ReviewItem(id: shot.id, category: category, byteSize: shot.byteSize)
+            switch verdicts[shot.id] {
+            case .keep:
+                return nil
+            case .markForDeletion:
+                return ReviewItem(id: shot.id, category: categories[shot.id] ?? .other, byteSize: shot.byteSize)
+            case nil:
+                guard let category = categories[shot.id],
+                      category.disposition == .safeToDelete else { return nil }
+                return ReviewItem(id: shot.id, category: category, byteSize: shot.byteSize)
+            }
         }
     }
 }
