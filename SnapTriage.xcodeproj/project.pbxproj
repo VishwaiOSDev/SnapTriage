@@ -21,6 +21,10 @@
 		0A0A1B090000000000000001 /* ScreenshotThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A090000000000000001 /* ScreenshotThumbnailView.swift */; };
 		0A0A1B100000000000000001 /* TriageRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A100000000000000001 /* TriageRouter.swift */; };
 		0A0A1B110000000000000001 /* TriageComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A110000000000000001 /* TriageComposition.swift */; };
+		0A0A1B390000000000000001 /* TriageDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A390000000000000001 /* TriageDecision.swift */; };
+		0A0A1B3A0000000000000001 /* TriageDecisionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3A0000000000000001 /* TriageDecisionStore.swift */; };
+		0A0A1B3B0000000000000001 /* RecordTriageDecisionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3B0000000000000001 /* RecordTriageDecisionUseCase.swift */; };
+		0A0A1B3C0000000000000001 /* ClearTriageDecisionsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3C0000000000000001 /* ClearTriageDecisionsUseCase.swift */; };
 		0A0A1B120000000000000001 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A120000000000000001 /* Strings.swift */; };
 		0A0A1B130000000000000001 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A130000000000000001 /* Spacing.swift */; };
 		0A0A1B140000000000000001 /* OCRLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A140000000000000001 /* OCRLine.swift */; };
@@ -78,6 +82,10 @@
 		0A0A1A090000000000000001 /* ScreenshotThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotThumbnailView.swift; sourceTree = "<group>"; };
 		0A0A1A100000000000000001 /* TriageRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageRouter.swift; sourceTree = "<group>"; };
 		0A0A1A110000000000000001 /* TriageComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageComposition.swift; sourceTree = "<group>"; };
+		0A0A1A390000000000000001 /* TriageDecision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecision.swift; sourceTree = "<group>"; };
+		0A0A1A3A0000000000000001 /* TriageDecisionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecisionStore.swift; sourceTree = "<group>"; };
+		0A0A1A3B0000000000000001 /* RecordTriageDecisionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTriageDecisionUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A3C0000000000000001 /* ClearTriageDecisionsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTriageDecisionsUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A120000000000000001 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		0A0A1A130000000000000001 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
 		0A0A1A140000000000000001 /* OCRLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRLine.swift; sourceTree = "<group>"; };
@@ -355,6 +363,7 @@
 				0A0A1A150000000000000001 /* OCRResult.swift */,
 				0A0A1A190000000000000001 /* ScreenshotCategory.swift */,
 				0A0A1A250000000000000001 /* ScreenshotDisposition.swift */,
+				0A0A1A390000000000000001 /* TriageDecision.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -379,6 +388,8 @@
 				0A0A1A060000000000000001 /* LoadScreenshotsUseCase.swift */,
 				0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */,
 				0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */,
+				0A0A1A3B0000000000000001 /* RecordTriageDecisionUseCase.swift */,
+				0A0A1A3C0000000000000001 /* ClearTriageDecisionsUseCase.swift */,
 			);
 			path = UseCase;
 			sourceTree = "<group>";
@@ -420,6 +431,7 @@
 			isa = PBXGroup;
 			children = (
 				0A0A1A180000000000000001 /* OCRStore.swift */,
+				0A0A1A3A0000000000000001 /* TriageDecisionStore.swift */,
 			);
 			path = Store;
 			sourceTree = "<group>";
@@ -577,6 +589,10 @@
 				0A0A1B090000000000000001 /* ScreenshotThumbnailView.swift in Sources */,
 				0A0A1B100000000000000001 /* TriageRouter.swift in Sources */,
 				0A0A1B110000000000000001 /* TriageComposition.swift in Sources */,
+				0A0A1B390000000000000001 /* TriageDecision.swift in Sources */,
+				0A0A1B3A0000000000000001 /* TriageDecisionStore.swift in Sources */,
+				0A0A1B3B0000000000000001 /* RecordTriageDecisionUseCase.swift in Sources */,
+				0A0A1B3C0000000000000001 /* ClearTriageDecisionsUseCase.swift in Sources */,
 				0A0A1B120000000000000001 /* Strings.swift in Sources */,
 				0A0A1B130000000000000001 /* Spacing.swift in Sources */,
 				0A0A1B140000000000000001 /* OCRLine.swift in Sources */,
