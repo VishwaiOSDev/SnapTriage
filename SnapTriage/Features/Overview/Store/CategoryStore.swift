@@ -39,3 +39,33 @@ actor InMemoryCategoryStore: CategoryStore {
     }
 }
 
+/// Disk-backed store so classifications survive relaunch. Recomputable, so the
+/// file lives in Caches — if the system purges it the pipeline just re-runs.
+final class FileBackedCategoryStore: CategoryStore {
+
+    private let storage: PersistedDictionary<ScreenshotCategory>
+
+    init(directory: URL) {
+        storage = PersistedDictionary(name: "screenshot-categories", directory: directory)
+    }
+
+    func category(for id: Screenshot.ID) -> ScreenshotCategory? {
+        storage[id]
+    }
+
+    func save(_ category: ScreenshotCategory, for id: Screenshot.ID) {
+        storage.set(category, for: id)
+    }
+
+    func allCategories() -> [Screenshot.ID: ScreenshotCategory] {
+        storage.snapshot()
+    }
+
+    func remove(_ ids: [Screenshot.ID]) {
+        storage.remove(ids)
+    }
+
+    func flush() {
+        storage.flush()
+    }
+}
