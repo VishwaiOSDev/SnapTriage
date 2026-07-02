@@ -9,77 +9,95 @@ import SwiftUI
 
 struct TriageView: View {
     @State private var viewModel: TriageViewModel
+    private let onClose: () -> Void
 
-    init(viewModel: TriageViewModel) {
+    init(viewModel: TriageViewModel, onClose: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
+        self.onClose = onClose
     }
-
-    private let columns = [
-        GridItem(.adaptive(minimum: Spacing.thumbnailMinWidth), spacing: Spacing.gridSpacing)
-    ]
 
     var body: some View {
-        NavigationStack {
+        ZStack {
+            Metrics.background.ignoresSafeArea()
             content
-                .navigationTitle(Strings.Triage.title)
         }
         .task { viewModel.send(.onAppear) }
-        .sheet(isPresented: isRecognitionPresented) {
-            TranscriptSheet(
-                recognition: viewModel.state.recognition,
-                onDone: { viewModel.send(.dismissRecognition) }
-            )
-        }
-    }
-
-    // Drive the sheet from the recognition state; dismissal routes back through send.
-    private var isRecognitionPresented: Binding<Bool> {
-        Binding(
-            get: { viewModel.state.recognition != .idle },
-            set: { presented in
-                if !presented { viewModel.send(.dismissRecognition) }
-            }
-        )
     }
 
     @ViewBuilder
     private var content: some View {
         switch viewModel.state.phase {
         case .idle, .loading:
-            ProgressView(Strings.Triage.loading)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            chrome { ProgressView(Strings.Triage.loading) }
 
         case .failed:
-            PhotoAccessUnavailableView(
-                message: viewModel.state.errorMessage ?? Strings.Error.generic,
-                showsOpenSettings: showsOpenSettings,
-                onOpenSettings: { viewModel.send(.openSettings) },
-                onRetry: { viewModel.send(.retry) }
-            )
+            chrome { failure }
 
         case .loaded:
             if viewModel.state.screenshots.isEmpty {
-                EmptyScreenshotsView()
+                chrome { EmptyScreenshotsView() }
             } else {
-                grid
+                deck
             }
         }
     }
 
-    private var grid: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: Spacing.gridSpacing) {
-                ForEach(viewModel.state.screenshots) { screenshot in
-                    ScreenshotThumbnailView(
-                        screenshot: screenshot,
-                        loadThumbnail: { id, size in
-                            await viewModel.thumbnail(for: id, targetSize: size)
-                        },
-                        onSelect: { viewModel.send(.recognize(screenshot.id)) }
-                    )
-                }
+    // Keeps the header pinned while a centered status view fills the rest.
+    private func chrome<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
+        VStack(spacing: Metrics.sectionSpacing) {
+            header
+            inner()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .padding(.horizontal, Metrics.screenPadding)
+        .padding(.top, Metrics.screenPadding)
+    }
+
+    private var deck: some View {
+        VStack(spacing: Metrics.sectionSpacing) {
+            header
+            Spacer()
+        }
+        .padding(.horizontal, Metrics.screenPadding)
+        .padding(.top, Metrics.screenPadding)
+        .padding(.bottom, Metrics.sectionSpacing)
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        ZStack {
+            VStack(spacing: 2) {
+                Text(Strings.Triage.title)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                Text(progressText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .contentTransition(.numericText())
             }
-            .padding(Spacing.gridSpacing)
+            HStack {
+                CircularIconButton(systemImage: "xmark", accessibilityLabel: Strings.Triage.close, action: onClose)
+                Spacer()
+                CircularIconButton(systemImage: "ellipsis", accessibilityLabel: Strings.Triage.more) {}
+            }
+        }
+        .animation(.default, value: viewModel.state.currentIndex)
+    }
+
+    // MARK: - Failure
+
+    private var failure: some View {
+        ContentUnavailableView {
+            Label(Strings.Access.title, systemImage: "lock.fill")
+        } description: {
+            Text(viewModel.state.errorMessage ?? Strings.Error.generic)
+        } actions: {
+            if showsOpenSettings {
+                Button(Strings.Access.openSettings) { viewModel.send(.openSettings) }
+                    .buttonStyle(.borderedProminent)
+            }
+            Button(Strings.Access.retry) { viewModel.send(.retry) }
         }
     }
 
@@ -88,79 +106,87 @@ struct TriageView: View {
         let auth = viewModel.state.authorization
         return !auth.canAccessLibrary && auth != .notDetermined
     }
-}
 
-private struct PhotoAccessUnavailableView: View {
-    let message: String
-    let showsOpenSettings: Bool
-    let onOpenSettings: () -> Void
-    let onRetry: () -> Void
+    // MARK: - Display
 
-    var body: some View {
-        ContentUnavailableView {
-            Label(Strings.Access.title, systemImage: "lock.fill")
-        } description: {
-            Text(message)
-        } actions: {
-            if showsOpenSettings {
-                Button(Strings.Access.openSettings, action: onOpenSettings)
-                    .buttonStyle(.borderedProminent)
-            }
-            Button(Strings.Access.retry, action: onRetry)
-        }
+    private var progressText: String {
+        String(
+            format: Strings.Triage.progress,
+            countText(min(viewModel.state.currentIndex + 1, viewModel.state.screenshots.count)),
+            countText(viewModel.state.screenshots.count)
+        )
     }
+
+    private func countText(_ value: Int) -> String {
+        Self.counter.string(from: NSNumber(value: value)) ?? "\(value)"
+    }
+
+    private static let counter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter
+    }()
 }
 
-private struct TranscriptSheet: View {
-    let recognition: TriageViewModel.Recognition
-    let onDone: () -> Void
+// MARK: - Design tokens
 
-    var body: some View {
-        NavigationStack {
+private enum Metrics {
+    static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
+    static let keep = Color.blue
+    static let delete = Color.red
+    static let cardCornerRadius: CGFloat = 32
+    static let cardStroke = Color.white.opacity(0.08)
+    static let surfaceFill = Color.white.opacity(0.05)
+    static let screenPadding: CGFloat = 20
+    static let sectionSpacing: CGFloat = 16
+    static let decisionThreshold: CGFloat = 120
+    static let actionButtonSize: CGFloat = 64
+}
+
+// MARK: - Liquid Glass
+
+/// Same treatment as the Overview surfaces: real `glassEffect` on iOS 26,
+/// translucent material + hairline border on older systems.
+private struct LiquidGlassModifier<S: InsettableShape>: ViewModifier {
+    let shape: S
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.glassEffect(.regular, in: shape)
+        } else {
             content
-                .navigationTitle(Strings.Transcript.title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button(Strings.Transcript.done, action: onDone)
-                    }
-                }
-        }
-        .presentationDetents([.medium, .large])
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        switch recognition {
-        case .idle, .recognizing:
-            ProgressView(Strings.Transcript.recognizing)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-        case .ready(let result, let category):
-            VStack(alignment: .leading, spacing: 0) {
-                Label(category.title, systemImage: category.systemImage)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal)
-                    .padding(.vertical, Spacing.gridSpacing)
-                Divider()
-                if result.isEmpty {
-                    ContentUnavailableView(Strings.Transcript.empty, systemImage: "text.viewfinder")
-                } else {
-                    ScrollView {
-                        Text(result.transcript)
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                    }
-                }
-            }
-
-        case .failed:
-            ContentUnavailableView(Strings.Transcript.failed, systemImage: "exclamationmark.triangle")
+                .background(Metrics.surfaceFill, in: shape)
+                .background(.ultraThinMaterial, in: shape)
+                .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
         }
     }
 }
+
+private extension View {
+    func liquidGlass<S: InsettableShape>(in shape: S) -> some View {
+        modifier(LiquidGlassModifier(shape: shape))
+    }
+}
+
+private struct CircularIconButton: View {
+    let systemImage: String
+    let accessibilityLabel: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .frame(width: 38, height: 38)
+                .liquidGlass(in: Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
+    }
+}
+
+// MARK: - Empty state
 
 private struct EmptyScreenshotsView: View {
     var body: some View {
