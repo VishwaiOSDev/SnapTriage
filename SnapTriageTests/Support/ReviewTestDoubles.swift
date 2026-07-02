@@ -21,6 +21,7 @@ final class FakePhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
 
     private(set) var deletedIDs: [Screenshot.ID] = []
     private(set) var deleteCallCount = 0
+    private var changeContinuations: [AsyncStream<Void>.Continuation] = []
 
     init(
         authorization: PhotoLibraryAuthorization = .authorized,
@@ -44,6 +45,18 @@ final class FakePhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
         deletedIDs.append(contentsOf: ids)
         screenshots.removeAll { ids.contains($0.id) }
     }
+
+    func libraryChanges() -> AsyncStream<Void> {
+        AsyncStream { continuation in
+            changeContinuations.append(continuation)
+        }
+    }
+
+    /// Fires a library-change event to every subscriber, standing in for the
+    /// (debounced) PhotoKit change observer.
+    func simulateLibraryChange() {
+        changeContinuations.forEach { $0.yield() }
+    }
 }
 
 // MARK: - Category store fake
@@ -60,6 +73,7 @@ actor SeededCategoryStore: CategoryStore {
     func category(for id: Screenshot.ID) -> ScreenshotCategory? { cache[id] }
     func save(_ category: ScreenshotCategory, for id: Screenshot.ID) { cache[id] = category }
     func allCategories() -> [Screenshot.ID: ScreenshotCategory] { cache }
+    func remove(_ ids: [Screenshot.ID]) { ids.forEach { cache[$0] = nil } }
 }
 
 // MARK: - Decision store fake
@@ -75,6 +89,7 @@ final class SeededTriageDecisionStore: TriageDecisionStore, @unchecked Sendable 
     func decision(for id: Screenshot.ID) -> TriageDecision? { cache[id] }
     func save(_ decision: TriageDecision, for id: Screenshot.ID) { cache[id] = decision }
     func allDecisions() -> [Screenshot.ID: TriageDecision] { cache }
+    func remove(_ ids: [Screenshot.ID]) { ids.forEach { cache[$0] = nil } }
     func removeAll() { cache.removeAll() }
 }
 
@@ -93,13 +108,13 @@ extension Fixture {
         Screenshot(id: id, pixelWidth: 100, pixelHeight: 200, creationDate: nil, byteSize: byteSize)
     }
 
-    /// A `LoadReviewItemsUseCase` whose categories are all cache hits, so OCR /
-    /// classification are never invoked (their dependencies are inert).
-    static func loadReviewItems(
+    /// A `ClassifyLibraryUseCase` meant to run against a pre-seeded category
+    /// store: every screenshot is a cache hit, so OCR / classification are
+    /// never invoked (their dependencies are inert).
+    static func classifyLibrary(
         service: FakePhotoLibraryService,
-        store: CategoryStore,
-        decisions: TriageDecisionStore = SeededTriageDecisionStore()
-    ) -> LoadReviewItemsUseCase {
+        store: CategoryStore
+    ) -> ClassifyLibraryUseCase {
         let recognize = RecognizeScreenshotTextUseCase(
             imageLoader: service,
             recognizer: InertTextRecognitionService(),
@@ -110,13 +125,23 @@ extension Fixture {
             imageClassifier: StubImageContentClassifier(result: nil),
             imageLoader: service
         )
-        return LoadReviewItemsUseCase(
+        return ClassifyLibraryUseCase(
+            recognizeText: recognize,
+            categorize: categorize,
+            store: store
+        )
+    }
+
+    /// A `LoadReviewItemsUseCase` whose categories are all cache hits, so OCR /
+    /// classification are never invoked (their dependencies are inert).
+    static func loadReviewItems(
+        service: FakePhotoLibraryService,
+        store: CategoryStore,
+        decisions: TriageDecisionStore = SeededTriageDecisionStore()
+    ) -> LoadReviewItemsUseCase {
+        LoadReviewItemsUseCase(
             loadScreenshots: LoadScreenshotsUseCase(service: service),
-            classifyLibrary: ClassifyLibraryUseCase(
-                recognizeText: recognize,
-                categorize: categorize,
-                store: store
-            ),
+            classifyLibrary: classifyLibrary(service: service, store: store),
             store: store,
             decisions: decisions
         )
