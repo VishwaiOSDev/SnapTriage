@@ -71,7 +71,9 @@ final class ReviewViewModel {
     func send(_ input: Input) {
         switch input {
         case .onAppear:
-            if state.phase == .idle { loadFlow() }
+            // Reload every visit: triage swipes made since the last look must
+            // land here, and the classification pass is cache-first anyway.
+            if !state.isDeleting { loadFlow() }
         case .retry:
             loadFlow()
         case .toggle(let id):
