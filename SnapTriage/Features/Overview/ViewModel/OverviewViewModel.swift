@@ -39,9 +39,10 @@ final class OverviewViewModel {
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadScreenshots: LoadScreenshotsUseCase
     private let classifyLibrary: ClassifyLibraryUseCase
+    private let observeLibrary: ObservePhotoLibraryUseCase
     private let router: OverviewRouter
 
-    private enum TaskKind { case load, classify }
+    private enum TaskKind { case load, classify, observe }
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
     @ObservationIgnored private var sizes: [Screenshot.ID: Int] = [:]
 
@@ -49,18 +50,23 @@ final class OverviewViewModel {
         requestAccess: RequestPhotoAccessUseCase,
         loadScreenshots: LoadScreenshotsUseCase,
         classifyLibrary: ClassifyLibraryUseCase,
+        observeLibrary: ObservePhotoLibraryUseCase,
         router: OverviewRouter
     ) {
         self.requestAccess = requestAccess
         self.loadScreenshots = loadScreenshots
         self.classifyLibrary = classifyLibrary
+        self.observeLibrary = observeLibrary
         self.router = router
     }
 
     func send(_ input: Input) {
         switch input {
         case .onAppear:
-            if state.phase == .idle { loadFlow() }
+            if state.phase == .idle {
+                loadFlow()
+                observeChanges()
+            }
         case .retry:
             loadFlow()
         case .openSettings:
@@ -92,13 +98,8 @@ final class OverviewViewModel {
             do {
                 let screenshots = try await self.loadScreenshots.execute()
                 try Task.checkCancellation()
-                self.sizes = Dictionary(
-                    screenshots.map { ($0.id, $0.byteSize) },
-                    uniquingKeysWith: { first, _ in first }
-                )
-                self.state.summary.totalCount = screenshots.count
+                await self.applySnapshot(screenshots)
                 self.state.phase = .loaded
-                self.classifyFlow(screenshots)
             } catch is CancellationError {
                 // superseded by a newer load
             } catch {
@@ -108,13 +109,67 @@ final class OverviewViewModel {
         }
     }
 
-    private func classifyFlow(_ screenshots: [Screenshot]) {
+    // Rebuilds the summary from a fresh library snapshot; shared by the initial
+    // load and library-change refreshes. Persisted categories fold in one shot
+    // so a warm pass renders fully formed — streaming them through classifyFlow
+    // would spin the hero metric up from zero — and only genuinely
+    // unclassified screenshots go to the pipeline.
+    private func applySnapshot(_ screenshots: [Screenshot]) async {
+        sizes = Dictionary(
+            screenshots.map { ($0.id, $0.byteSize) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        let cached = await classifyLibrary.cachedCategories()
+        if Task.isCancelled { return }
+        var summary = OverviewSummary()
+        summary.totalCount = screenshots.count
+        var pending: [Screenshot] = []
+        for screenshot in screenshots {
+            if let category = cached[screenshot.id] {
+                summary.add(bytes: screenshot.byteSize, disposition: category.disposition)
+            } else {
+                pending.append(screenshot)
+            }
+        }
+        state.summary = summary
+        state.classifiedCount = screenshots.count - pending.count
+        classifyFlow(pending, startingFrom: state.classifiedCount)
+    }
+
+    // Silent re-sync after the library changed underneath us — a screenshot
+    // taken while backgrounded, or assets deleted in Photos. No phase churn,
+    // so the summary never flashes a loading state.
+    private func refreshFlow() {
+        guard state.phase == .loaded else { return }
+        run(.load) { [weak self] in
+            guard let self else { return }
+            guard let screenshots = try? await self.loadScreenshots.execute(),
+                  !Task.isCancelled
+            else { return }
+            await self.applySnapshot(screenshots)
+        }
+    }
+
+    private func observeChanges() {
+        tasks[.observe] = Task { [weak self] in
+            guard let stream = self?.observeLibrary.execute() else { return }
+            for await _ in stream {
+                guard let self, !Task.isCancelled else { return }
+                self.refreshFlow()
+            }
+        }
+    }
+
+    // `base` is how many screenshots the cache already covered; the stream's
+    // progress counts are relative to the pending slice handed to it.
+    private func classifyFlow(_ screenshots: [Screenshot], startingFrom base: Int) {
         guard !screenshots.isEmpty else { return }
         run(.classify) { [weak self] in
             guard let self else { return }
             for await progress in self.classifyLibrary.execute(screenshots) {
                 if Task.isCancelled { break }
-                self.state.classifiedCount = progress.completed
+                self.state.classifiedCount = base + progress.completed
                 guard let id = progress.id else { continue }
                 if let category = progress.category {
                     self.state.summary.add(
