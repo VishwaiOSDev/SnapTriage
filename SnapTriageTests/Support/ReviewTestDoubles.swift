@@ -62,6 +62,22 @@ actor SeededCategoryStore: CategoryStore {
     func allCategories() -> [Screenshot.ID: ScreenshotCategory] { cache }
 }
 
+// MARK: - Decision store fake
+
+/// A decision store pre-seeded with a fixed map of triage swipes.
+final class SeededTriageDecisionStore: TriageDecisionStore, @unchecked Sendable {
+    private var cache: [Screenshot.ID: TriageDecision]
+
+    init(_ seed: [Screenshot.ID: TriageDecision] = [:]) {
+        self.cache = seed
+    }
+
+    func decision(for id: Screenshot.ID) -> TriageDecision? { cache[id] }
+    func save(_ decision: TriageDecision, for id: Screenshot.ID) { cache[id] = decision }
+    func allDecisions() -> [Screenshot.ID: TriageDecision] { cache }
+    func removeAll() { cache.removeAll() }
+}
+
 // MARK: - Router
 
 @MainActor
@@ -81,7 +97,8 @@ extension Fixture {
     /// classification are never invoked (their dependencies are inert).
     static func loadReviewItems(
         service: FakePhotoLibraryService,
-        store: CategoryStore
+        store: CategoryStore,
+        decisions: TriageDecisionStore = SeededTriageDecisionStore()
     ) -> LoadReviewItemsUseCase {
         let recognize = RecognizeScreenshotTextUseCase(
             imageLoader: service,
@@ -100,7 +117,8 @@ extension Fixture {
                 categorize: categorize,
                 store: store
             ),
-            store: store
+            store: store,
+            decisions: decisions
         )
     }
 }
