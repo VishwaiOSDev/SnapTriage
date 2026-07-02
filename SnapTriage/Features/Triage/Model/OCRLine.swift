@@ -7,7 +7,7 @@
 
 import CoreGraphics
 
-struct OCRLine: Sendable, Equatable {
+struct OCRLine: Codable, Sendable, Equatable {
     let text: String
     let confidence: Float
     let boundingBox: CGRect
