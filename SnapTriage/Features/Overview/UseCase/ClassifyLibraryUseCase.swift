@@ -26,9 +26,11 @@ struct ClassifyLibraryUseCase {
         let total: Int
     }
 
+    // Utility priority throughout: OCR + inference saturate CPU/ANE, and at the
+    // inherited user-initiated priority they starve UI rendering during bursts.
     func execute(_ screenshots: [Screenshot]) -> AsyncStream<Progress> {
         AsyncStream { continuation in
-            let task = Task {
+            let task = Task(priority: .utility) {
                 categorize.prewarm()
                 let total = screenshots.count
                 var completed = 0
@@ -39,7 +41,7 @@ struct ClassifyLibraryUseCase {
                         guard index < screenshots.count else { return }
                         let shot = screenshots[index]
                         index += 1
-                        group.addTask { await classify(shot) }
+                        group.addTask(priority: .utility) { await classify(shot) }
                     }
 
                     for _ in 0..<min(concurrency, screenshots.count) { addNext() }
