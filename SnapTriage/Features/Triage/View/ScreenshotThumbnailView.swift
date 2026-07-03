@@ -11,10 +11,10 @@ struct ScreenshotThumbnailView: View {
     let screenshot: Screenshot
     let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
     let onSelect: () -> Void
-
+    
     @Environment(\.displayScale) private var displayScale
     @State private var image: UIImage?
-
+    
     var body: some View {
         GeometryReader { proxy in
             thumbnail
@@ -33,7 +33,7 @@ struct ScreenshotThumbnailView: View {
         }
         .aspectRatio(Spacing.thumbnailAspectRatio, contentMode: .fit)
     }
-
+    
     @ViewBuilder
     private var thumbnail: some View {
         if let image {
