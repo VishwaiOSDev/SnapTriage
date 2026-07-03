@@ -10,6 +10,14 @@
 		0A0A00010000000000000001 /* SnapTriageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A00100000000000000001 /* SnapTriageApp.swift */; };
 		0A0A00020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A00110000000000000001 /* ContentView.swift */; };
 		0A0A00030000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A0A00120000000000000001 /* Assets.xcassets */; };
+		0A0A0D810000000000000001 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D010000000000000001 /* TestTags.swift */; };
+		0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */; };
+		0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */; };
+		0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */; };
+		0A0A0D850000000000000001 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D050000000000000001 /* ReviewTestDoubles.swift */; };
+		0A0A0D860000000000000001 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */; };
+		0A0A0D870000000000000001 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */; };
+		0A0A0D880000000000000001 /* ReviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D080000000000000001 /* ReviewViewModelTests.swift */; };
 		0A0A1B010000000000000001 /* Screenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A010000000000000001 /* Screenshot.swift */; };
 		0A0A1B020000000000000001 /* PhotoLibraryAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A020000000000000001 /* PhotoLibraryAuthorization.swift */; };
 		0A0A1B030000000000000001 /* TriageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A030000000000000001 /* TriageError.swift */; };
@@ -21,10 +29,6 @@
 		0A0A1B090000000000000001 /* ScreenshotThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A090000000000000001 /* ScreenshotThumbnailView.swift */; };
 		0A0A1B100000000000000001 /* TriageRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A100000000000000001 /* TriageRouter.swift */; };
 		0A0A1B110000000000000001 /* TriageComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A110000000000000001 /* TriageComposition.swift */; };
-		0A0A1B390000000000000001 /* TriageDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A390000000000000001 /* TriageDecision.swift */; };
-		0A0A1B3A0000000000000001 /* TriageDecisionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3A0000000000000001 /* TriageDecisionStore.swift */; };
-		0A0A1B3B0000000000000001 /* RecordTriageDecisionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3B0000000000000001 /* RecordTriageDecisionUseCase.swift */; };
-		0A0A1B3C0000000000000001 /* ClearTriageDecisionsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3C0000000000000001 /* ClearTriageDecisionsUseCase.swift */; };
 		0A0A1B120000000000000001 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A120000000000000001 /* Strings.swift */; };
 		0A0A1B130000000000000001 /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A130000000000000001 /* Spacing.swift */; };
 		0A0A1B140000000000000001 /* OCRLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A140000000000000001 /* OCRLine.swift */; };
@@ -33,11 +37,11 @@
 		0A0A1B170000000000000001 /* RecognizeScreenshotTextUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */; };
 		0A0A1B180000000000000001 /* OCRStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A180000000000000001 /* OCRStore.swift */; };
 		0A0A1B190000000000000001 /* ScreenshotCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A190000000000000001 /* ScreenshotCategory.swift */; };
+		0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */; };
 		0A0A1B1B0000000000000001 /* ScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1B0000000000000001 /* ScreenshotCategorizer.swift */; };
 		0A0A1B1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift */; };
 		0A0A1B1D0000000000000001 /* FallbackScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */; };
 		0A0A1B1E0000000000000001 /* ImageContentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */; };
-		0A0A1B1A0000000000000001 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */; };
 		0A0A1B200000000000000001 /* TriageStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A200000000000000001 /* TriageStat.swift */; };
 		0A0A1B210000000000000001 /* OverviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A210000000000000001 /* OverviewViewModel.swift */; };
 		0A0A1B220000000000000001 /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A220000000000000001 /* OverviewView.swift */; };
@@ -56,21 +60,37 @@
 		0A0A1B360000000000000001 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A360000000000000001 /* ReviewView.swift */; };
 		0A0A1B370000000000000001 /* ReviewItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A370000000000000001 /* ReviewItemView.swift */; };
 		0A0A1B380000000000000001 /* ReviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A380000000000000001 /* ReviewComposition.swift */; };
-		0A0A0D810000000000000001 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D010000000000000001 /* TestTags.swift */; };
-		0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */; };
-		0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */; };
-		0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */; };
-		0A0A0D850000000000000001 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D050000000000000001 /* ReviewTestDoubles.swift */; };
-		0A0A0D860000000000000001 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */; };
-		0A0A0D870000000000000001 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */; };
-		0A0A0D880000000000000001 /* ReviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D080000000000000001 /* ReviewViewModelTests.swift */; };
+		0A0A1B390000000000000001 /* TriageDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A390000000000000001 /* TriageDecision.swift */; };
+		0A0A1B3A0000000000000001 /* TriageDecisionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3A0000000000000001 /* TriageDecisionStore.swift */; };
+		0A0A1B3B0000000000000001 /* RecordTriageDecisionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3B0000000000000001 /* RecordTriageDecisionUseCase.swift */; };
+		0A0A1B3C0000000000000001 /* ClearTriageDecisionsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A3C0000000000000001 /* ClearTriageDecisionsUseCase.swift */; };
+		0A0A1C410000000000000001 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0A0A1C400000000000000001 /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0A0A0E090000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A0A00410000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0A0A00400000000000000001;
+			remoteInfo = SnapTriage;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0A0A00100000000000000001 /* SnapTriageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapTriageApp.swift; sourceTree = "<group>"; };
 		0A0A00110000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0A0A00120000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A0A00130000000000000001 /* SnapTriage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapTriage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0A0D010000000000000001 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
+		0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
+		0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCaseTests.swift; sourceTree = "<group>"; };
+		0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
+		0A0A0D050000000000000001 /* ReviewTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTestDoubles.swift; sourceTree = "<group>"; };
+		0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCaseTests.swift; sourceTree = "<group>"; };
+		0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCaseTests.swift; sourceTree = "<group>"; };
+		0A0A0D080000000000000001 /* ReviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModelTests.swift; sourceTree = "<group>"; };
+		0A0A0E000000000000000001 /* SnapTriageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapTriageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A0A1A010000000000000001 /* Screenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screenshot.swift; sourceTree = "<group>"; };
 		0A0A1A020000000000000001 /* PhotoLibraryAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryAuthorization.swift; sourceTree = "<group>"; };
 		0A0A1A030000000000000001 /* TriageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageError.swift; sourceTree = "<group>"; };
@@ -82,10 +102,6 @@
 		0A0A1A090000000000000001 /* ScreenshotThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotThumbnailView.swift; sourceTree = "<group>"; };
 		0A0A1A100000000000000001 /* TriageRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageRouter.swift; sourceTree = "<group>"; };
 		0A0A1A110000000000000001 /* TriageComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageComposition.swift; sourceTree = "<group>"; };
-		0A0A1A390000000000000001 /* TriageDecision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecision.swift; sourceTree = "<group>"; };
-		0A0A1A3A0000000000000001 /* TriageDecisionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecisionStore.swift; sourceTree = "<group>"; };
-		0A0A1A3B0000000000000001 /* RecordTriageDecisionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTriageDecisionUseCase.swift; sourceTree = "<group>"; };
-		0A0A1A3C0000000000000001 /* ClearTriageDecisionsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTriageDecisionsUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A120000000000000001 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		0A0A1A130000000000000001 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
 		0A0A1A140000000000000001 /* OCRLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRLine.swift; sourceTree = "<group>"; };
@@ -94,11 +110,11 @@
 		0A0A1A170000000000000001 /* RecognizeScreenshotTextUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeScreenshotTextUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A180000000000000001 /* OCRStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRStore.swift; sourceTree = "<group>"; };
 		0A0A1A190000000000000001 /* ScreenshotCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategory.swift; sourceTree = "<group>"; };
+		0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A1B0000000000000001 /* ScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		0A0A1A1C0000000000000001 /* FoundationModelScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		0A0A1A1D0000000000000001 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		0A0A1A1E0000000000000001 /* ImageContentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentClassifier.swift; sourceTree = "<group>"; };
-		0A0A1A1A0000000000000001 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A200000000000000001 /* TriageStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageStat.swift; sourceTree = "<group>"; };
 		0A0A1A210000000000000001 /* OverviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewViewModel.swift; sourceTree = "<group>"; };
 		0A0A1A220000000000000001 /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
@@ -117,15 +133,11 @@
 		0A0A1A360000000000000001 /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
 		0A0A1A370000000000000001 /* ReviewItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewItemView.swift; sourceTree = "<group>"; };
 		0A0A1A380000000000000001 /* ReviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewComposition.swift; sourceTree = "<group>"; };
-		0A0A0E000000000000000001 /* SnapTriageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapTriageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		0A0A0D010000000000000001 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
-		0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
-		0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCaseTests.swift; sourceTree = "<group>"; };
-		0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
-		0A0A0D050000000000000001 /* ReviewTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTestDoubles.swift; sourceTree = "<group>"; };
-		0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCaseTests.swift; sourceTree = "<group>"; };
-		0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCaseTests.swift; sourceTree = "<group>"; };
-		0A0A0D080000000000000001 /* ReviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModelTests.swift; sourceTree = "<group>"; };
+		0A0A1A390000000000000001 /* TriageDecision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecision.swift; sourceTree = "<group>"; };
+		0A0A1A3A0000000000000001 /* TriageDecisionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecisionStore.swift; sourceTree = "<group>"; };
+		0A0A1A3B0000000000000001 /* RecordTriageDecisionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTriageDecisionUseCase.swift; sourceTree = "<group>"; };
+		0A0A1A3C0000000000000001 /* ClearTriageDecisionsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTriageDecisionsUseCase.swift; sourceTree = "<group>"; };
+		0A0A1C400000000000000001 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,24 +156,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
-
-/* Begin PBXContainerItemProxy section */
-		0A0A0E090000000000000001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0A0A00410000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 0A0A00400000000000000001;
-			remoteInfo = SnapTriage;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXTargetDependency section */
-		0A0A0E0A0000000000000001 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 0A0A00400000000000000001 /* SnapTriage */;
-			targetProxy = 0A0A0E090000000000000001 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXGroup section */
 		0A0A00300000000000000001 = {
@@ -182,6 +176,7 @@
 				0A0A1C010000000000000001 /* Features */,
 				0A0A1C100000000000000001 /* Common */,
 				0A0A00120000000000000001 /* Assets.xcassets */,
+				0A0A1C400000000000000001 /* Localizable.xcstrings */,
 			);
 			path = SnapTriage;
 			sourceTree = "<group>";
@@ -190,9 +185,32 @@
 			isa = PBXGroup;
 			children = (
 				0A0A00130000000000000001 /* SnapTriage.app */,
-			0A0A0E000000000000000001 /* SnapTriageTests.xctest */,
+				0A0A0E000000000000000001 /* SnapTriageTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0A0A0E0B0000000000000001 /* SnapTriageTests */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A0E0C0000000000000001 /* Support */,
+				0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */,
+				0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */,
+				0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */,
+				0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */,
+				0A0A0D080000000000000001 /* ReviewViewModelTests.swift */,
+			);
+			path = SnapTriageTests;
+			sourceTree = "<group>";
+		};
+		0A0A0E0C0000000000000001 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A0D010000000000000001 /* TestTags.swift */,
+				0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */,
+				0A0A0D050000000000000001 /* ReviewTestDoubles.swift */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 		0A0A1C010000000000000001 /* Features */ = {
@@ -203,139 +221,6 @@
 				0A0A1C300000000000000001 /* Review */,
 			);
 			path = Features;
-			sourceTree = "<group>";
-		};
-		0A0A1C300000000000000001 /* Review */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1C310000000000000001 /* Model */,
-				0A0A1C320000000000000001 /* UseCase */,
-				0A0A1C330000000000000001 /* Router */,
-				0A0A1C340000000000000001 /* ViewModel */,
-				0A0A1C350000000000000001 /* View */,
-				0A0A1C360000000000000001 /* Composition */,
-			);
-			path = Review;
-			sourceTree = "<group>";
-		};
-		0A0A1C310000000000000001 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A310000000000000001 /* ReviewItem.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		0A0A1C320000000000000001 /* UseCase */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A320000000000000001 /* LoadReviewItemsUseCase.swift */,
-				0A0A1A330000000000000001 /* DeleteScreenshotsUseCase.swift */,
-			);
-			path = UseCase;
-			sourceTree = "<group>";
-		};
-		0A0A1C330000000000000001 /* Router */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A340000000000000001 /* ReviewRouter.swift */,
-			);
-			path = Router;
-			sourceTree = "<group>";
-		};
-		0A0A1C340000000000000001 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A350000000000000001 /* ReviewViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		0A0A1C350000000000000001 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A360000000000000001 /* ReviewView.swift */,
-				0A0A1A370000000000000001 /* ReviewItemView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		0A0A1C360000000000000001 /* Composition */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A380000000000000001 /* ReviewComposition.swift */,
-			);
-			path = Composition;
-			sourceTree = "<group>";
-		};
-		0A0A1C200000000000000001 /* Overview */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1C210000000000000001 /* Model */,
-				0A0A1C270000000000000001 /* UseCase */,
-				0A0A1C220000000000000001 /* ViewModel */,
-				0A0A1C230000000000000001 /* View */,
-				0A0A1C240000000000000001 /* Router */,
-				0A0A1C250000000000000001 /* Composition */,
-				0A0A1C260000000000000001 /* Store */,
-			);
-			path = Overview;
-			sourceTree = "<group>";
-		};
-		0A0A1C260000000000000001 /* Store */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A260000000000000001 /* CategoryStore.swift */,
-			);
-			path = Store;
-			sourceTree = "<group>";
-		};
-		0A0A1C270000000000000001 /* UseCase */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */,
-			);
-			path = UseCase;
-			sourceTree = "<group>";
-		};
-		0A0A1C210000000000000001 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A200000000000000001 /* TriageStat.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		0A0A1C220000000000000001 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A210000000000000001 /* OverviewViewModel.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		0A0A1C230000000000000001 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A220000000000000001 /* OverviewView.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		0A0A1C240000000000000001 /* Router */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A230000000000000001 /* OverviewRouter.swift */,
-			);
-			path = Router;
-			sourceTree = "<group>";
-		};
-		0A0A1C250000000000000001 /* Composition */ = {
-			isa = PBXGroup;
-			children = (
-				0A0A1A240000000000000001 /* OverviewComposition.swift */,
-			);
-			path = Composition;
 			sourceTree = "<group>";
 		};
 		0A0A1C020000000000000001 /* Triage */ = {
@@ -454,27 +339,137 @@
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
-		0A0A0E0B0000000000000001 /* SnapTriageTests */ = {
+		0A0A1C200000000000000001 /* Overview */ = {
 			isa = PBXGroup;
 			children = (
-				0A0A0E0C0000000000000001 /* Support */,
-				0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */,
-				0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */,
-				0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */,
-				0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */,
-				0A0A0D080000000000000001 /* ReviewViewModelTests.swift */,
+				0A0A1C210000000000000001 /* Model */,
+				0A0A1C270000000000000001 /* UseCase */,
+				0A0A1C220000000000000001 /* ViewModel */,
+				0A0A1C230000000000000001 /* View */,
+				0A0A1C240000000000000001 /* Router */,
+				0A0A1C250000000000000001 /* Composition */,
+				0A0A1C260000000000000001 /* Store */,
 			);
-			path = SnapTriageTests;
+			path = Overview;
 			sourceTree = "<group>";
 		};
-		0A0A0E0C0000000000000001 /* Support */ = {
+		0A0A1C210000000000000001 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				0A0A0D010000000000000001 /* TestTags.swift */,
-				0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */,
-				0A0A0D050000000000000001 /* ReviewTestDoubles.swift */,
+				0A0A1A200000000000000001 /* TriageStat.swift */,
 			);
-			path = Support;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0A0A1C220000000000000001 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A210000000000000001 /* OverviewViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		0A0A1C230000000000000001 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A220000000000000001 /* OverviewView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		0A0A1C240000000000000001 /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A230000000000000001 /* OverviewRouter.swift */,
+			);
+			path = Router;
+			sourceTree = "<group>";
+		};
+		0A0A1C250000000000000001 /* Composition */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A240000000000000001 /* OverviewComposition.swift */,
+			);
+			path = Composition;
+			sourceTree = "<group>";
+		};
+		0A0A1C260000000000000001 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A260000000000000001 /* CategoryStore.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		0A0A1C270000000000000001 /* UseCase */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */,
+			);
+			path = UseCase;
+			sourceTree = "<group>";
+		};
+		0A0A1C300000000000000001 /* Review */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1C310000000000000001 /* Model */,
+				0A0A1C320000000000000001 /* UseCase */,
+				0A0A1C330000000000000001 /* Router */,
+				0A0A1C340000000000000001 /* ViewModel */,
+				0A0A1C350000000000000001 /* View */,
+				0A0A1C360000000000000001 /* Composition */,
+			);
+			path = Review;
+			sourceTree = "<group>";
+		};
+		0A0A1C310000000000000001 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A310000000000000001 /* ReviewItem.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0A0A1C320000000000000001 /* UseCase */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A320000000000000001 /* LoadReviewItemsUseCase.swift */,
+				0A0A1A330000000000000001 /* DeleteScreenshotsUseCase.swift */,
+			);
+			path = UseCase;
+			sourceTree = "<group>";
+		};
+		0A0A1C330000000000000001 /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A340000000000000001 /* ReviewRouter.swift */,
+			);
+			path = Router;
+			sourceTree = "<group>";
+		};
+		0A0A1C340000000000000001 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A350000000000000001 /* ReviewViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		0A0A1C350000000000000001 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A360000000000000001 /* ReviewView.swift */,
+				0A0A1A370000000000000001 /* ReviewItemView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		0A0A1C360000000000000001 /* Composition */ = {
+			isa = PBXGroup;
+			children = (
+				0A0A1A380000000000000001 /* ReviewComposition.swift */,
+			);
+			path = Composition;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -559,6 +554,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A0A00030000000000000001 /* Assets.xcassets in Resources */,
+				0A0A1C410000000000000001 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -644,6 +640,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		0A0A0E0A0000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0A0A00400000000000000001 /* SnapTriage */;
+			targetProxy = 0A0A0E090000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		0A0A00700000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -703,6 +707,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -759,6 +764,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};

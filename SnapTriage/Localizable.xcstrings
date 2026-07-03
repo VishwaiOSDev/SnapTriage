@@ -1,0 +1,882 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Overview.title": {
+      "comment": "Overview screen large navigation title",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshot Triage"
+          }
+        }
+      }
+    },
+    "Overview.privacy": {
+      "comment": "Full privacy reassurance line shown on the overview screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All on-device. Your data stays private."
+          }
+        }
+      }
+    },
+    "Overview.privacyLead": {
+      "comment": "Leading segment of the privacy line; combined in code with a trailing phrase",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All on-device."
+          }
+        }
+      }
+    },
+    "Overview.reclaimableHeadline": {
+      "comment": "Caption under the hero reclaimable-space number on the overview screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reclaimable"
+          }
+        }
+      }
+    },
+    "Overview.heroCaption": {
+      "comment": "Caption under the hero number; %@ is the screenshot count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found in %@ screenshots"
+          }
+        }
+      }
+    },
+    "Overview.usefulTitle": {
+      "comment": "Stat card title for screenshots worth keeping",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Useful"
+          }
+        }
+      }
+    },
+    "Overview.safeToDeleteTitle": {
+      "comment": "Stat card title for screenshots that are safe to delete",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safe to delete"
+          }
+        }
+      }
+    },
+    "Overview.reclaimableTitle": {
+      "comment": "Stat card title for reclaimable storage space",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reclaimable"
+          }
+        }
+      }
+    },
+    "Overview.startTriage": {
+      "comment": "Primary call-to-action button that begins the triage flow",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start triage"
+          }
+        }
+      }
+    },
+    "Overview.startTriageHelper": {
+      "comment": "Helper text under the Start triage button",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe through to keep what matters."
+          }
+        }
+      }
+    },
+    "Overview.analyzing": {
+      "comment": "Progress label while classifying the library; both %@ are counts",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing %@ of %@…"
+          }
+        }
+      }
+    },
+    "Overview.onDeviceTitle": {
+      "comment": "Feature highlight title: processing happens on-device",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "100% on-device"
+          }
+        }
+      }
+    },
+    "Overview.onDeviceSubtitle": {
+      "comment": "Feature highlight subtitle for the on-device claim",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing is uploaded or shared"
+          }
+        }
+      }
+    },
+    "Overview.intelligentTitle": {
+      "comment": "Feature highlight title for smart categorization",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intelligent triage"
+          }
+        }
+      }
+    },
+    "Overview.intelligentSubtitle": {
+      "comment": "Feature highlight subtitle for intelligent triage",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surfaces the one detail that matters"
+          }
+        }
+      }
+    },
+    "Overview.tabOverview": {
+      "comment": "Tab bar label for the Overview tab",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overview"
+          }
+        }
+      }
+    },
+    "Overview.tabTriage": {
+      "comment": "Tab bar label for the Triage tab",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triage"
+          }
+        }
+      }
+    },
+    "Overview.tabReview": {
+      "comment": "Tab bar label for the Review tab",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        }
+      }
+    },
+    "Overview.settings": {
+      "comment": "Accessibility label for the settings button on the overview screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Triage.title": {
+      "comment": "Triage screen navigation title",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triage"
+          }
+        }
+      }
+    },
+    "Triage.loading": {
+      "comment": "Loading indicator label while screenshots are being fetched",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading screenshots…"
+          }
+        }
+      }
+    },
+    "Triage.emptyTitle": {
+      "comment": "Empty state title when there are no screenshots to triage",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Screenshots"
+          }
+        }
+      }
+    },
+    "Triage.emptyMessage": {
+      "comment": "Empty state message when there are no screenshots to triage",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots you capture will show up here, ready to triage."
+          }
+        }
+      }
+    },
+    "Triage.progress": {
+      "comment": "Progress counter; both %@ are numbers, e.g. 3 of 20",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ of %@"
+          }
+        }
+      }
+    },
+    "Triage.keep": {
+      "comment": "Swipe action label to keep a screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep"
+          }
+        }
+      }
+    },
+    "Triage.delete": {
+      "comment": "Swipe action label to delete a screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "Triage.keepBadge": {
+      "comment": "Overlay badge shown while swiping to keep, all caps by design",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KEEP"
+          }
+        }
+      }
+    },
+    "Triage.deleteBadge": {
+      "comment": "Overlay badge shown while swiping to delete, all caps by design",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DELETE"
+          }
+        }
+      }
+    },
+    "Triage.swipeRightHint": {
+      "comment": "Onboarding hint label with a right-arrow icon",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe right to keep"
+          }
+        }
+      }
+    },
+    "Triage.swipeLeftHint": {
+      "comment": "Onboarding hint label with a left-arrow icon",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe left to delete"
+          }
+        }
+      }
+    },
+    "Triage.close": {
+      "comment": "Accessibility label for the close button",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "Triage.more": {
+      "comment": "Accessibility label for the overflow menu button",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More options"
+          }
+        }
+      }
+    },
+    "Triage.startOver": {
+      "comment": "Button to restart the triage flow after finishing",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Over"
+          }
+        }
+      }
+    },
+    "Triage.doneTitle": {
+      "comment": "Headline shown after the user finishes triaging all screenshots",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All caught up"
+          }
+        }
+      }
+    },
+    "Triage.doneMessage": {
+      "comment": "Summary after finishing triage; both %@ are counts",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kept %@ · Marked %@ for deletion"
+          }
+        }
+      }
+    },
+    "Triage.doneHint": {
+      "comment": "Reassurance hint shown on the triage finished screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marked screenshots wait in Review — nothing is deleted until you confirm there."
+          }
+        }
+      }
+    },
+    "Triage.safeToDelete": {
+      "comment": "Category chip label indicating a screenshot is safe to delete",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safe to delete"
+          }
+        }
+      }
+    },
+    "Triage.worthKeeping": {
+      "comment": "Category chip label indicating a screenshot is worth keeping",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worth keeping"
+          }
+        }
+      }
+    },
+    "Triage.today": {
+      "comment": "Relative timestamp for today; %@ is a time, e.g. Today, 3:45 PM",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today, %@"
+          }
+        }
+      }
+    },
+    "Triage.yesterday": {
+      "comment": "Relative timestamp for yesterday; %@ is a time, e.g. Yesterday, 3:45 PM",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday, %@"
+          }
+        }
+      }
+    },
+    "Review.title": {
+      "comment": "Review screen navigation title",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        }
+      }
+    },
+    "Review.reclaimableHeadline": {
+      "comment": "Caption under the hero reclaimable-space number on the review screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "to free up"
+          }
+        }
+      }
+    },
+    "Review.selectionCaption": {
+      "comment": "Selection counter; both %@ are numbers, e.g. 3 of 10 selected",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ of %@ selected"
+          }
+        }
+      }
+    },
+    "Review.deleteButton": {
+      "comment": "Delete button title; first %@ is a count, second %@ is a formatted size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete %@ · Free %@"
+          }
+        }
+      }
+    },
+    "Review.deleting": {
+      "comment": "Progress label shown while screenshots are being deleted",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleting…"
+          }
+        }
+      }
+    },
+    "Review.emptyTitle": {
+      "comment": "Empty state title when there is nothing left to review",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to Review"
+          }
+        }
+      }
+    },
+    "Review.emptyMessage": {
+      "comment": "Empty state message when there is nothing left to review",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots marked safe to delete will show up here for a final check before they're removed."
+          }
+        }
+      }
+    },
+    "Review.deletionFailed": {
+      "comment": "Error message shown when deleting screenshots fails",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't delete the selected screenshots. Please try again."
+          }
+        }
+      }
+    },
+    "Access.title": {
+      "comment": "Title shown when the app lacks photo library access",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo Access Needed"
+          }
+        }
+      }
+    },
+    "Access.openSettings": {
+      "comment": "Button that deep-links to the system Settings app",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "Access.retry": {
+      "comment": "Button to retry requesting photo library access",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try Again"
+          }
+        }
+      }
+    },
+    "Transcript.title": {
+      "comment": "Sheet title showing OCR-recognized text from a screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recognized Text"
+          }
+        }
+      }
+    },
+    "Transcript.recognizing": {
+      "comment": "Loading label while OCR is running on a screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading text…"
+          }
+        }
+      }
+    },
+    "Transcript.empty": {
+      "comment": "Message shown when OCR finds no text",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No text was recognized in this screenshot."
+          }
+        }
+      }
+    },
+    "Transcript.failed": {
+      "comment": "Message shown when OCR fails",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read text from this screenshot."
+          }
+        }
+      }
+    },
+    "Transcript.done": {
+      "comment": "Button to dismiss the recognized text sheet",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Category.receipt": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receipt"
+          }
+        }
+      }
+    },
+    "Category.code": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        }
+      }
+    },
+    "Category.conversation": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation"
+          }
+        }
+      }
+    },
+    "Category.article": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Article"
+          }
+        }
+      }
+    },
+    "Category.social": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Social"
+          }
+        }
+      }
+    },
+    "Category.location": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location"
+          }
+        }
+      }
+    },
+    "Category.otp": {
+      "comment": "Screenshot category label for one-time passcodes",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verification Code"
+          }
+        }
+      }
+    },
+    "Category.travel": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travel"
+          }
+        }
+      }
+    },
+    "Category.event": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event"
+          }
+        }
+      }
+    },
+    "Category.email": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        }
+      }
+    },
+    "Category.identity": {
+      "comment": "Screenshot category label for identity documents",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID"
+          }
+        }
+      }
+    },
+    "Category.document": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Document"
+          }
+        }
+      }
+    },
+    "Category.photo": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        }
+      }
+    },
+    "Category.other": {
+      "comment": "Screenshot category label for uncategorized screenshots",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
+          }
+        }
+      }
+    },
+    "Error.accessDenied": {
+      "comment": "Error message when photo library access is denied",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SnapTriage needs access to your photos to find and triage your screenshots. You can grant access in Settings."
+          }
+        }
+      }
+    },
+    "Error.accessRestricted": {
+      "comment": "Error message when photo library access is restricted by a system policy",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo access is restricted on this device, so screenshots can't be loaded."
+          }
+        }
+      }
+    },
+    "Error.generic": {
+      "comment": "Generic fallback error message",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong while loading your screenshots."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
