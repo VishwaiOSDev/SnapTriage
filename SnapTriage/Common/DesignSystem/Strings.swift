@@ -7,104 +7,99 @@
 
 import Foundation
 
+/// Centralized user-facing copy backed by Localizable.xcstrings generated symbols.
 enum Strings {
     enum Overview {
-        static let title = "Screenshot Triage"
-        static let privacy = "All on-device. Your data stays private."
-        static let privacyLead = "All on-device."
-        static let reclaimableHeadline = "reclaimable"
-        static let heroCaption = "Found in %@ screenshots"
-
-        static let usefulTitle = "Useful"
-        static let safeToDeleteTitle = "Safe to delete"
-        static let reclaimableTitle = "Reclaimable"
-
-        static let startTriage = "Start triage"
-        static let startTriageHelper = "Swipe through to keep what matters."
-        static let analyzing = "Analyzing %@ of %@…"
-
-        static let onDeviceTitle = "100% on-device"
-        static let onDeviceSubtitle = "Nothing is uploaded or shared"
-        static let intelligentTitle = "Intelligent triage"
-        static let intelligentSubtitle = "Surfaces the one detail that matters"
-
-        static let tabOverview = "Overview"
-        static let tabTriage = "Triage"
-        static let tabReview = "Review"
-
-        static let settings = "Settings"
+        static let title = String(localized: .overviewTitle)
+        static let privacy = String(localized: .overviewPrivacy)
+        static let privacyLead = String(localized: .overviewPrivacyLead)
+        static let reclaimableHeadline = String(localized: .overviewReclaimableHeadline)
+        static func heroCaption(_ count: String) -> String { String(localized: .overviewHeroCaption(count)) }
+        static let usefulTitle = String(localized: .overviewUsefulTitle)
+        static let safeToDeleteTitle = String(localized: .overviewSafeToDeleteTitle)
+        static let reclaimableTitle = String(localized: .overviewReclaimableTitle)
+        static let startTriage = String(localized: .overviewStartTriage)
+        static let startTriageHelper = String(localized: .overviewStartTriageHelper)
+        static func analyzing(_ current: String, _ total: String) -> String { String(localized: .overviewAnalyzing(current, total)) }
+        static let onDeviceTitle = String(localized: .overviewOnDeviceTitle)
+        static let onDeviceSubtitle = String(localized: .overviewOnDeviceSubtitle)
+        static let intelligentTitle = String(localized: .overviewIntelligentTitle)
+        static let intelligentSubtitle = String(localized: .overviewIntelligentSubtitle)
+        static let tabOverview = String(localized: .overviewTabOverview)
+        static let tabTriage = String(localized: .overviewTabTriage)
+        static let tabReview = String(localized: .overviewTabReview)
+        static let settings = String(localized: .overviewSettings)
     }
 
     enum Triage {
-        static let title = "Triage"
-        static let loading = "Loading screenshots…"
-        static let emptyTitle = "No Screenshots"
-        static let emptyMessage = "Screenshots you capture will show up here, ready to triage."
-
-        static let progress = "%@ of %@"
-        static let keep = "Keep"
-        static let delete = "Delete"
-        static let keepBadge = "KEEP"
-        static let deleteBadge = "DELETE"
-        static let swipeRightHint = "Swipe right to keep"
-        static let swipeLeftHint = "Swipe left to delete"
-        static let close = "Close"
-        static let more = "More options"
-        static let startOver = "Start Over"
-        static let doneTitle = "All caught up"
-        static let doneMessage = "Kept %@ · Marked %@ for deletion"
-        static let doneHint = "Marked screenshots wait in Review — nothing is deleted until you confirm there."
-        static let safeToDelete = "Safe to delete"
-        static let worthKeeping = "Worth keeping"
-        static let today = "Today, %@"
-        static let yesterday = "Yesterday, %@"
+        static let title = String(localized: .triageTitle)
+        static let loading = String(localized: .triageLoading)
+        static let emptyTitle = String(localized: .triageEmptyTitle)
+        static let emptyMessage = String(localized: .triageEmptyMessage)
+        static func progress(_ current: String, _ total: String) -> String { String(localized: .triageProgress(current, total)) }
+        static let keep = String(localized: .triageKeep)
+        static let delete = String(localized: .triageDelete)
+        static let keepBadge = String(localized: .triageKeepBadge)
+        static let deleteBadge = String(localized: .triageDeleteBadge)
+        static let swipeRightHint = String(localized: .triageSwipeRightHint)
+        static let swipeLeftHint = String(localized: .triageSwipeLeftHint)
+        static let close = String(localized: .triageClose)
+        static let more = String(localized: .triageMore)
+        static let startOver = String(localized: .triageStartOver)
+        static let doneTitle = String(localized: .triageDoneTitle)
+        static func doneMessage(_ kept: String, _ marked: String) -> String { String(localized: .triageDoneMessage(kept, marked)) }
+        static let doneHint = String(localized: .triageDoneHint)
+        static let safeToDelete = String(localized: .triageSafeToDelete)
+        static let worthKeeping = String(localized: .triageWorthKeeping)
+        static func today(_ time: String) -> String { String(localized: .triageToday(time)) }
+        static func yesterday(_ time: String) -> String { String(localized: .triageYesterday(time)) }
     }
 
     enum Review {
-        static let title = "Review"
-        static let reclaimableHeadline = "to free up"
-        static let selectionCaption = "%@ of %@ selected"
-        static let deleteButton = "Delete %@ · Free %@"
-        static let deleting = "Deleting…"
-        static let emptyTitle = "Nothing to Review"
-        static let emptyMessage = "Screenshots marked safe to delete will show up here for a final check before they're removed."
-        static let deletionFailed = "Couldn't delete the selected screenshots. Please try again."
+        static let title = String(localized: .reviewTitle)
+        static let reclaimableHeadline = String(localized: .reviewReclaimableHeadline)
+        static func selectionCaption(_ selected: String, _ total: String) -> String { String(localized: .reviewSelectionCaption(selected, total)) }
+        static func deleteButton(_ count: String, _ size: String) -> String { String(localized: .reviewDeleteButton(count, size)) }
+        static let deleting = String(localized: .reviewDeleting)
+        static let emptyTitle = String(localized: .reviewEmptyTitle)
+        static let emptyMessage = String(localized: .reviewEmptyMessage)
+        static let deletionFailed = String(localized: .reviewDeletionFailed)
     }
 
     enum Access {
-        static let title = "Photo Access Needed"
-        static let openSettings = "Open Settings"
-        static let retry = "Try Again"
+        static let title = String(localized: .accessTitle)
+        static let openSettings = String(localized: .accessOpenSettings)
+        static let retry = String(localized: .accessRetry)
     }
 
     enum Transcript {
-        static let title = "Recognized Text"
-        static let recognizing = "Reading text…"
-        static let empty = "No text was recognized in this screenshot."
-        static let failed = "Couldn't read text from this screenshot."
-        static let done = "Done"
+        static let title = String(localized: .transcriptTitle)
+        static let recognizing = String(localized: .transcriptRecognizing)
+        static let empty = String(localized: .transcriptEmpty)
+        static let failed = String(localized: .transcriptFailed)
+        static let done = String(localized: .transcriptDone)
     }
 
     enum Category {
-        static let receipt = "Receipt"
-        static let code = "Code"
-        static let conversation = "Conversation"
-        static let article = "Article"
-        static let social = "Social"
-        static let location = "Location"
-        static let otp = "Verification Code"
-        static let travel = "Travel"
-        static let event = "Event"
-        static let email = "Email"
-        static let identity = "ID"
-        static let document = "Document"
-        static let photo = "Photo"
-        static let other = "Other"
+        static let receipt = String(localized: .categoryReceipt)
+        static let code = String(localized: .categoryCode)
+        static let conversation = String(localized: .categoryConversation)
+        static let article = String(localized: .categoryArticle)
+        static let social = String(localized: .categorySocial)
+        static let location = String(localized: .categoryLocation)
+        static let otp = String(localized: .categoryOtp)
+        static let travel = String(localized: .categoryTravel)
+        static let event = String(localized: .categoryEvent)
+        static let email = String(localized: .categoryEmail)
+        static let identity = String(localized: .categoryIdentity)
+        static let document = String(localized: .categoryDocument)
+        static let photo = String(localized: .categoryPhoto)
+        static let other = String(localized: .categoryOther)
     }
 
     enum Error {
-        static let accessDenied = "SnapTriage needs access to your photos to find and triage your screenshots. You can grant access in Settings."
-        static let accessRestricted = "Photo access is restricted on this device, so screenshots can't be loaded."
-        static let generic = "Something went wrong while loading your screenshots."
+        static let accessDenied = String(localized: .errorAccessDenied)
+        static let accessRestricted = String(localized: .errorAccessRestricted)
+        static let generic = String(localized: .errorGeneric)
     }
 }

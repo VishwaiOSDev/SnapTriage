@@ -287,8 +287,7 @@ struct TriageView: View {
             Text(Strings.Triage.doneTitle)
                 .font(.title2.weight(.bold))
                 .foregroundStyle(.white)
-            Text(String(
-                format: Strings.Triage.doneMessage,
+            Text(Strings.Triage.doneMessage(
                 countText(viewModel.state.keptCount),
                 countText(viewModel.state.markedCount)
             ))
@@ -329,8 +328,7 @@ struct TriageView: View {
     // MARK: - Display
 
     private var progressText: String {
-        String(
-            format: Strings.Triage.progress,
+        Strings.Triage.progress(
             countText(min(viewModel.state.currentIndex + 1, viewModel.state.screenshots.count)),
             countText(viewModel.state.screenshots.count)
         )
@@ -505,10 +503,10 @@ private struct TriageCardView: View {
         guard let date = screenshot.creationDate else { return nil }
         let time = date.formatted(date: .omitted, time: .shortened)
         if Calendar.current.isDateInToday(date) {
-            return String(format: Strings.Triage.today, time)
+            return Strings.Triage.today(time)
         }
         if Calendar.current.isDateInYesterday(date) {
-            return String(format: Strings.Triage.yesterday, time)
+            return Strings.Triage.yesterday(time)
         }
         return date.formatted(date: .abbreviated, time: .omitted)
     }
