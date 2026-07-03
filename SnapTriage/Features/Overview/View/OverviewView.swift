@@ -108,14 +108,13 @@ struct OverviewView: View {
             }
             .multilineTextAlignment(.center)
 
-            Text(String(format: Strings.Overview.heroCaption, countText(summary.totalCount)))
+            Text(Strings.Overview.heroCaption(countText(summary.totalCount)))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             if viewModel.state.isClassifying {
                 Label(
-                    String(
-                        format: Strings.Overview.analyzing,
+                    Strings.Overview.analyzing(
                         countText(viewModel.state.classifiedCount),
                         countText(summary.totalCount)
                     ),

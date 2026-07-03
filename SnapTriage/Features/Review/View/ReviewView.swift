@@ -173,16 +173,14 @@ struct ReviewView: View {
     // MARK: - Display
 
     private var deleteTitle: String {
-        String(
-            format: Strings.Review.deleteButton,
+        Strings.Review.deleteButton(
             countText(viewModel.state.selectedCount),
             sizeText(viewModel.state.reclaimableBytes)
         )
     }
 
     private var selectionCaption: String {
-        String(
-            format: Strings.Review.selectionCaption,
+        Strings.Review.selectionCaption(
             countText(viewModel.state.selectedCount),
             countText(viewModel.state.items.count)
         )
