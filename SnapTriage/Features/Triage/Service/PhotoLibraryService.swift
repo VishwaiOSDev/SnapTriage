@@ -36,11 +36,12 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
     
     func fetchScreenshots() async -> [Screenshot] {
         let options = PHFetchOptions()
-        // Subtype predicate more robust than "Screenshots" smart album (absent on fresh device).
-        options.predicate = NSPredicate(
-            format: "(mediaSubtypes & %d) != 0",
-            PHAssetMediaSubtype.photoScreenshot.rawValue
-        )
+        if !Self.includeAllImagesForManualTesting {
+            options.predicate = NSPredicate(
+                format: "(mediaSubtypes & %d) != 0",
+                PHAssetMediaSubtype.photoScreenshot.rawValue
+            )
+        }
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
         let result = PHAsset.fetchAssets(with: .image, options: options)
@@ -58,6 +59,14 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
             )
         }
         return screenshots
+    }
+
+    private static var includeAllImagesForManualTesting: Bool {
+        #if DEBUG && targetEnvironment(simulator)
+        ProcessInfo.processInfo.arguments.contains("-SnapTriageIncludeAllImages")
+        #else
+        false
+        #endif
     }
 
     // PHAsset exposes no public size; resource `fileSize` (KVC) is the standard read.
