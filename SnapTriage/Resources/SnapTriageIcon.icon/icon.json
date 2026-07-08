@@ -1,0 +1,46 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : {
+        "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+      }
+    },
+    {
+      "appearance" : "dark",
+      "value" : "automatic"
+    }
+  ],
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : "normal"
+            }
+          ],
+          "fill" : "automatic",
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "snap-triage-png.png",
+          "name" : "snap-triage-png"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.6
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.2
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
