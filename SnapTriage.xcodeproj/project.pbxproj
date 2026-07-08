@@ -72,6 +72,7 @@
 		0A0A0D8A0000000000000001 /* TriageViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D0A0000000000000001 /* TriageViewModelTests.swift */; };
 		0A0A0D8B0000000000000001 /* OverviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D0B0000000000000001 /* OverviewViewModelTests.swift */; };
 		0A0A1C410000000000000001 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0A0A1C400000000000000001 /* Localizable.xcstrings */; };
+		88FB6D852FFED77800613B50 /* SnapTriageIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 88FB6D842FFED77800613B50 /* SnapTriageIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,6 +154,7 @@
 		0A0A1A3E0000000000000001 /* LoadTriageProgressUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadTriageProgressUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A3F0000000000000001 /* PruneScreenshotRecordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PruneScreenshotRecordsUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A400000000000000001 /* ObservePhotoLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservePhotoLibraryUseCase.swift; sourceTree = "<group>"; };
+		88FB6D842FFED77800613B50 /* SnapTriageIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = SnapTriageIcon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +192,7 @@
 				0A0A1A300000000000000001 /* AppComposition.swift */,
 				0A0A1C010000000000000001 /* Features */,
 				0A0A1C100000000000000001 /* Common */,
+				88FB6D832FFED75800613B50 /* Resources */,
 				0A0A00120000000000000001 /* Assets.xcassets */,
 				0A0A1C400000000000000001 /* Localizable.xcstrings */,
 			);
@@ -502,6 +505,14 @@
 			path = Composition;
 			sourceTree = "<group>";
 		};
+		88FB6D832FFED75800613B50 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				88FB6D842FFED77800613B50 /* SnapTriageIcon.icon */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -584,6 +595,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A0A00030000000000000001 /* Assets.xcassets in Resources */,
+				88FB6D852FFED77800613B50 /* SnapTriageIcon.icon in Resources */,
 				0A0A1C410000000000000001 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -810,8 +822,9 @@
 		0A0A00720000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = SnapTriageIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -824,6 +837,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -842,8 +856,9 @@
 		0A0A00730000000000000001 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = SnapTriageIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -856,6 +871,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
