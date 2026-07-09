@@ -24,6 +24,28 @@ struct HeuristicScreenshotCategorizerTests {
         #expect(category == expected)
     }
 
+    @Test("Phone-heavy insurance card is a document, not a conversation", .tags(.fallback))
+    func insuranceCardBeatsPhoneSignals() async {
+        let transcript = """
+        Emergency Out of Province Coverage and Assistance is provided by
+        AIG Travel Insurance under policy:
+        9429051
+        For emergency assistance call: 1-877-207-5018
+        Outside North America, call collect: +1 819-566-3940
+        INTERNATIONAL STUDENT INSURANCE CARD
+        PLAN MEMBER
+        DRUG, DENTAL & EXTENDED HEALTH GROUP NUMBER
+        HOSPITAL, PHYSICIAN & ACCIDENT POLICY NUMBER
+        CERTIFICATE ID
+        DATE OF BIRTH (OPTIONAL)
+        QUESTIONS: CALL 1-888-985-1552
+        """
+
+        let category = await sut.category(for: Fixture.ocrResult(transcript: transcript))
+
+        #expect(category == .document)
+    }
+
     @Test("Empty transcript is other", .tags(.fallback))
     func emptyTranscriptIsOther() async {
         let category = await sut.category(for: Fixture.ocrResult(transcript: ""))
