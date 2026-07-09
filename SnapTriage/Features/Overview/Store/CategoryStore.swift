@@ -43,10 +43,18 @@ actor InMemoryCategoryStore: CategoryStore {
 /// file lives in Caches — if the system purges it the pipeline just re-runs.
 final class FileBackedCategoryStore: CategoryStore {
 
+    /// Bump when the classifier (prompt, rules, or routing) changes: cached
+    /// verdicts from the old classifier are stale, and a new file name makes
+    /// the whole library re-classify on next launch.
+    private static let classifierVersion = 3
+
     private let storage: PersistedDictionary<ScreenshotCategory>
 
     init(directory: URL) {
-        storage = PersistedDictionary(name: "screenshot-categories", directory: directory)
+        storage = PersistedDictionary(
+            name: "screenshot-categories-v\(Self.classifierVersion)",
+            directory: directory
+        )
     }
 
     func category(for id: Screenshot.ID) -> ScreenshotCategory? {

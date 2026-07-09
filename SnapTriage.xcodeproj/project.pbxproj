@@ -14,6 +14,7 @@
 		0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */; };
 		0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */; };
 		0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */; };
+		0A0A0DFF0000000000000001 /* FallbackScreenshotCategorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D7F0000000000000001 /* FallbackScreenshotCategorizerTests.swift */; };
 		0A0A0D850000000000000001 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D050000000000000001 /* ReviewTestDoubles.swift */; };
 		0A0A0D860000000000000001 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */; };
 		0A0A0D870000000000000001 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */; };
@@ -94,6 +95,7 @@
 		0A0A0D020000000000000001 /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
 		0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCaseTests.swift; sourceTree = "<group>"; };
 		0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
+		0A0A0D7F0000000000000001 /* FallbackScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
 		0A0A0D050000000000000001 /* ReviewTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTestDoubles.swift; sourceTree = "<group>"; };
 		0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCaseTests.swift; sourceTree = "<group>"; };
 		0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCaseTests.swift; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 				0A0A0E0C0000000000000001 /* Support */,
 				0A0A0D030000000000000001 /* CategorizeScreenshotUseCaseTests.swift */,
 				0A0A0D040000000000000001 /* HeuristicScreenshotCategorizerTests.swift */,
+				0A0A0D7F0000000000000001 /* FallbackScreenshotCategorizerTests.swift */,
 				0A0A0D060000000000000001 /* DeleteScreenshotsUseCaseTests.swift */,
 				0A0A0D070000000000000001 /* LoadReviewItemsUseCaseTests.swift */,
 				0A0A0D080000000000000001 /* ReviewViewModelTests.swift */,
@@ -677,6 +680,7 @@
 				0A0A0D820000000000000001 /* CategorizerTestDoubles.swift in Sources */,
 				0A0A0D830000000000000001 /* CategorizeScreenshotUseCaseTests.swift in Sources */,
 				0A0A0D840000000000000001 /* HeuristicScreenshotCategorizerTests.swift in Sources */,
+				0A0A0DFF0000000000000001 /* FallbackScreenshotCategorizerTests.swift in Sources */,
 				0A0A0D850000000000000001 /* ReviewTestDoubles.swift in Sources */,
 				0A0A0D860000000000000001 /* DeleteScreenshotsUseCaseTests.swift in Sources */,
 				0A0A0D870000000000000001 /* LoadReviewItemsUseCaseTests.swift in Sources */,

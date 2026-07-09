@@ -25,13 +25,19 @@ struct CategorizeScreenshotUseCase {
 
     func execute(_ result: OCRResult) async -> ScreenshotCategory {
         guard isTextSparse(result) else {
-            return await textCategorizer.category(for: result)
+            let category = await textCategorizer.category(for: result)
+            guard category == .other else { return category }
+            return await visualCategory(for: result) ?? .other
         }
-        if let image = await imageLoader.cgImage(for: result.screenshotID, longEdge: longEdge),
-           let visual = await imageClassifier.category(for: image) {
-            return visual
-        }
+        if let visual = await visualCategory(for: result) { return visual }
         return await textCategorizer.category(for: result)
+    }
+
+    private func visualCategory(for result: OCRResult) async -> ScreenshotCategory? {
+        guard let image = await imageLoader.cgImage(for: result.screenshotID, longEdge: longEdge) else {
+            return nil
+        }
+        return await imageClassifier.category(for: image)
     }
 
     private func isTextSparse(_ result: OCRResult) -> Bool {
