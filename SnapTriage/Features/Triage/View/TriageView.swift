@@ -245,32 +245,86 @@ struct TriageView: View {
     // MARK: - Hints & actions
 
     private var swipeHints: some View {
-        HStack {
-            Label(Strings.Triage.swipeRightHint, systemImage: "arrow.right")
-                .foregroundStyle(Metrics.keep)
-            Spacer()
-            Label(Strings.Triage.swipeLeftHint, systemImage: "arrow.left")
-                .foregroundStyle(Metrics.delete)
+        HStack(spacing: 0) {
+            hintLabel(
+                text: Strings.Triage.swipeRightHint,
+                arrow: "arrow.right",
+                color: Metrics.controlKeep,
+                arrowLeading: true
+            )
+            Spacer(minLength: Metrics.hintGroupSpacing)
+            hintDivider
+            Spacer(minLength: Metrics.hintGroupSpacing)
+            hintLabel(
+                text: Strings.Triage.swipeLeftHint,
+                arrow: "arrow.left",
+                color: Metrics.controlDelete,
+                arrowLeading: false
+            )
         }
-        .font(.caption.weight(.medium))
+    }
+
+    private func hintLabel(text: String, arrow: String, color: Color, arrowLeading: Bool) -> some View {
+        HStack(spacing: Metrics.hintArrowSpacing) {
+            if arrowLeading { glossyArrow(arrow, color: color) }
+            Text(text)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [color.opacity(0.72), color],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: Metrics.hintTextWidth, alignment: .leading)
+                .multilineTextAlignment(.leading)
+                .lineSpacing(2)
+                .fixedSize(horizontal: false, vertical: true)
+            if !arrowLeading { glossyArrow(arrow, color: color) }
+        }
+    }
+
+    private func glossyArrow(_ name: String, color: Color) -> some View {
+        Image(systemName: name)
+            .font(.system(size: Metrics.hintArrowSize, weight: .light))
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [color.opacity(0.72), color, color.opacity(0.58)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .shadow(color: color.opacity(0.45), radius: 5)
+    }
+
+    private var hintDivider: some View {
+        Capsule()
+            .fill(
+                LinearGradient(
+                    colors: [.clear, .white.opacity(0.28), .clear],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .frame(width: 1, height: Metrics.hintDividerHeight)
     }
 
     private var actionButtons: some View {
         HStack {
             DecisionButton(
-                systemImage: "trash.fill",
-                color: Metrics.delete,
-                accessibilityLabel: Strings.Triage.delete
-            ) {
-                fly(.markForDeletion)
-            }
-            Spacer()
-            DecisionButton(
                 systemImage: "checkmark",
-                color: Metrics.keep,
+                color: Metrics.controlKeep,
                 accessibilityLabel: Strings.Triage.keep
             ) {
                 fly(.keep)
+            }
+            Spacer()
+            DecisionButton(
+                systemImage: "trash",
+                color: Metrics.controlDelete,
+                accessibilityLabel: Strings.Triage.delete
+            ) {
+                fly(.markForDeletion)
             }
         }
         .padding(.horizontal, Metrics.screenPadding)
@@ -351,6 +405,8 @@ private enum Metrics {
     static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
     static let keep = Color.blue
     static let delete = Color.red
+    static let controlKeep = Color(red: 0.08, green: 0.43, blue: 0.90)
+    static let controlDelete = Color(red: 0.88, green: 0.20, blue: 0.29)
     static let cardCornerRadius: CGFloat = 32
     static let cardStroke = Color.white.opacity(0.08)
     static let surfaceFill = Color.white.opacity(0.05)
@@ -358,6 +414,12 @@ private enum Metrics {
     static let sectionSpacing: CGFloat = 16
     static let decisionThreshold: CGFloat = 120
     static let actionButtonSize: CGFloat = 64
+    static let actionButtonHaloPadding: CGFloat = 12
+    static let hintArrowSize: CGFloat = 24
+    static let hintArrowSpacing: CGFloat = 10
+    static let hintTextWidth: CGFloat = 72
+    static let hintGroupSpacing: CGFloat = 12
+    static let hintDividerHeight: CGFloat = 32
 }
 
 // MARK: - Liquid Glass
@@ -599,14 +661,44 @@ private struct DecisionButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 26, weight: .medium))
                 .foregroundStyle(.white)
                 .frame(width: Metrics.actionButtonSize, height: Metrics.actionButtonSize)
-                .background(color.gradient, in: Circle())
-                .overlay(Circle().strokeBorder(.white.opacity(0.15), lineWidth: 1))
-                .padding(7)
-                .overlay(Circle().strokeBorder(color.opacity(0.35), lineWidth: 1.5))
-                .shadow(color: color.opacity(0.45), radius: 18, y: 6)
+                .background(
+                    LinearGradient(
+                        colors: [color.opacity(0.72), color, color.opacity(0.82)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    in: Circle()
+                )
+                .overlay {
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.5), color.opacity(0.65)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.25
+                        )
+                }
+                .shadow(color: color.opacity(0.42), radius: 14, y: 5)
+                .padding(Metrics.actionButtonHaloPadding)
+                .background(.ultraThinMaterial, in: Circle())
+                .background(Color.white.opacity(0.025), in: Circle())
+                .overlay {
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.035), color.opacity(0.055), .black.opacity(0.18)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.75
+                        )
+                }
+                .shadow(color: .black.opacity(0.38), radius: 14, y: 8)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
