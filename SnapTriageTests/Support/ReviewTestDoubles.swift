@@ -121,7 +121,7 @@ extension Fixture {
             store: InMemoryOCRStore()
         )
         let categorize = CategorizeScreenshotUseCase(
-            textCategorizer: StubScreenshotCategorizer(.other),
+            categorizer: StubScreenshotCategorizer(.other),
             imageClassifier: StubImageContentClassifier(result: nil),
             imageLoader: service
         )

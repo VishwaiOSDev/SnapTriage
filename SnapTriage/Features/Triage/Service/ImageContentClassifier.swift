@@ -15,17 +15,17 @@ protocol ImageContentClassifier: Sendable {
 }
 
 /// On-device Vision classifier. A detected face means a person photo; otherwise the
-/// scene-label taxonomy decides between a captured `photo` and a scanned `document`.
+/// scene-label taxonomy can identify broad game, document, and photo subjects.
 struct VisionImageContentClassifier: ImageContentClassifier {
 
     /// Below this, a Vision label is noise — ignore it.
     private let minimumConfidence: Float = 0.25
 
     func category(for image: CGImage) async -> ScreenshotCategory? {
-        if await hasFace(in: image) { return .photo }
-
         let labels = await topLabels(in: image)
+        if labels.contains(where: Self.gameHints.contains)     { return .game }
         if labels.contains(where: Self.documentHints.contains) { return .document }
+        if await hasFace(in: image) { return .photo }
         if labels.contains(where: Self.photoHints.contains)    { return .photo }
         return nil
     }
@@ -49,6 +49,9 @@ struct VisionImageContentClassifier: ImageContentClassifier {
     private static let documentHints: Set<String> = [
         "document", "paper", "paperwork", "text", "menu", "letter",
         "book", "page", "handwriting", "signature", "whiteboard", "card",
+    ]
+    private static let gameHints: Set<String> = [
+        "game", "video game", "video game console", "game controller",
     ]
     private static let photoHints: Set<String> = [
         "people", "person", "portrait", "selfie", "crowd", "face",

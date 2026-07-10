@@ -81,6 +81,7 @@ enum Strings {
     }
 
     enum Category {
+        static let game = String(localized: .categoryGame)
         static let receipt = String(localized: .categoryReceipt)
         static let code = String(localized: .categoryCode)
         static let conversation = String(localized: .categoryConversation)

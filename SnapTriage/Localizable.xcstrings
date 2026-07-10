@@ -673,6 +673,18 @@
         }
       }
     },
+    "Category.game": {
+      "comment": "Screenshot category label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game"
+          }
+        }
+      }
+    },
     "Category.receipt": {
       "comment": "Screenshot category label",
       "extractionState": "manual",

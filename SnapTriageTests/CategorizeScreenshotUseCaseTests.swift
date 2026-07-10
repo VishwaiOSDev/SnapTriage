@@ -16,11 +16,11 @@ struct CategorizeScreenshotUseCaseTests {
         image: StubImageContentClassifier,
         loader: StubPhotoLibraryService
     ) -> CategorizeScreenshotUseCase {
-        CategorizeScreenshotUseCase(textCategorizer: text, imageClassifier: image, imageLoader: loader)
+        CategorizeScreenshotUseCase(categorizer: text, imageClassifier: image, imageLoader: loader)
     }
 
-    @Test("Text-rich screenshot uses the text model and never touches the image path", .tags(.fast))
-    func textRichUsesTextModel() async {
+    @Test("Text-rich screenshots use the multimodal path when the OS supports it", .tags(.fast))
+    func textRichUsesAvailableModelInput() async {
         let text = StubScreenshotCategorizer(.receipt)
         let loader = StubPhotoLibraryService(image: Fixture.image())
         let sut = makeSUT(text: text, image: StubImageContentClassifier(result: .photo), loader: loader)
@@ -28,7 +28,13 @@ struct CategorizeScreenshotUseCaseTests {
         let category = await sut.execute(Fixture.ocrResult(transcript: "Total amount paid today"))
 
         #expect(category == .receipt)
-        #expect(loader.cgImageRequested == false)
+        if #available(iOS 27.0, *) {
+            #expect(loader.cgImageRequested)
+            #expect(text.receivedImage)
+        } else {
+            #expect(loader.cgImageRequested == false)
+            #expect(text.receivedImage == false)
+        }
     }
 
     @Test("Sparse text routes to the image classifier")
@@ -102,9 +108,9 @@ struct CategorizeScreenshotUseCaseTests {
         #expect(category == .other)
     }
 
-    @Test("Word count decides the route at the boundary", .tags(.fast), arguments: [
-        ("one two three", true),     // 3 words  -> sparse -> image path
-        ("one two three four", false) // 4 words  -> rich   -> text path
+    @Test("Word count only routes legacy text-only systems", .tags(.fast), arguments: [
+        ("one two three", true),      // 3 words -> Vision first on iOS 26
+        ("one two three four", false) // 4 words -> text first on iOS 26
     ])
     func wordCountBoundary(transcript: String, expectsImagePath: Bool) async {
         let loader = StubPhotoLibraryService(image: Fixture.image())
@@ -116,8 +122,13 @@ struct CategorizeScreenshotUseCaseTests {
 
         let category = await sut.execute(Fixture.ocrResult(transcript: transcript))
 
-        #expect(loader.cgImageRequested == expectsImagePath)
-        #expect(category == (expectsImagePath ? .photo : .receipt))
+        if #available(iOS 27.0, *) {
+            #expect(loader.cgImageRequested)
+            #expect(category == .receipt)
+        } else {
+            #expect(loader.cgImageRequested == expectsImagePath)
+            #expect(category == (expectsImagePath ? .photo : .receipt))
+        }
     }
 
     @Test("Prewarm is forwarded to the text model", .tags(.fast))

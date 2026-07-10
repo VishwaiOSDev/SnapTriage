@@ -7,8 +7,9 @@
 
 import Foundation
 import FoundationModels
+import CoreGraphics
 
-/// Classifies a screenshot transcript with Apple's on-device foundation model.
+/// Classifies screenshots with Apple's on-device foundation model.
 ///
 /// Output is constrained by guided generation (`@Generable`), so the model can
 /// only return one of the known categories — no string parsing, no hallucinated
@@ -42,23 +43,57 @@ struct FoundationModelScreenshotCategorizer {
         let session = LanguageModelSession(model: model, instructions: Self.instructions)
 
         let response = try await session.respond(
-            to: "Screenshot text to classify:\n\n\(transcript)",
-            generating: ScreenshotClassification.self,
+            to: "Screenshot OCR text to classify:\n\n\(transcript)",
+            generating: GenerableScreenshotCategory.self,
             options: GenerationOptions(samplingMode: .greedy)
         )
-        return response.content.category.domain
+        return response.content.domain
+    }
+
+    /// Uses both the pixels and OCR when the system's multimodal model is available.
+    /// OCR remains in the prompt because it is more accurate for small interface text.
+    @available(iOS 27.0, *)
+    func category(for result: OCRResult, image: CGImage) async throws -> ScreenshotCategory {
+        guard case .available = model.availability else {
+            throw CategorizationError.modelUnavailable
+        }
+
+        let transcript = String(result.transcript.prefix(maxTranscriptLength))
+        let session = LanguageModelSession(model: model, instructions: Self.instructions)
+        let response = try await session.respond(
+            generating: GenerableScreenshotCategory.self,
+            options: GenerationOptions(samplingMode: .greedy)
+        ) {
+            """
+            Classify this phone screenshot. Use the image to identify its visual interface and
+            use the OCR text below only as supporting evidence. The OCR can be incomplete,
+            noisy, or ordered imperfectly.
+
+            OCR text:
+            \(transcript)
+            """
+
+            Attachment(image).label("screenshot")
+        }
+        return response.content.domain
     }
 
     private static let instructions = Instructions {
         """
-        You classify the text captured from one phone screenshot into exactly one category.
-        Judge by the dominant purpose of the whole screen, not a single stray keyword.
-        Always choose the closest matching category. Choose `other` only when no category
-        fits even loosely — treat it as a last resort, not a safe default.
+        You classify one phone screenshot into exactly one category. When an image is present,
+        use visual interface evidence first and OCR text as supporting evidence; OCR can be noisy.
+        Judge by the dominant purpose of the whole screen, not a single stray keyword. Use `other`
+        when the screen does not clearly belong to a listed category. Do not force an approximate
+        match just because `other` is available.
 
         Categories:
+        - game: Gameplay, a game lobby, game menu, score screen, or in-game store — player
+          controls, game currency, levels, maps, characters, cards, or scoreboards. An in-game
+          community or team screen is still `game`, not `social`.
         - receipt: A purchase receipt, invoice, bill, order summary/confirmation, or payment
-          confirmation — line items, prices, a total, or an amount paid or due.
+          confirmation. It needs transaction evidence such as a merchant, order/receipt/invoice,
+          a total, line items, or an amount paid or due; a balance or cards inside an app are not
+          transaction evidence by themselves.
         - code: Source code, terminal output, logs, or a config file with syntax and code keywords.
         - conversation: A chat or messaging thread — messages people sent to each other,
           with senders and replies. Phone numbers or short label lines alone are NOT a chat.
@@ -98,24 +133,12 @@ struct FoundationModelScreenshotCategorizer {
     }
 }
 
-/// Two-field guided generation: the model must state its evidence *before* picking
-/// a category. Property order is generation order, so this forces a short
-/// chain-of-thought pass that measurably reduces lazy `other` answers.
-@available(iOS 26.0, *)
-@Generable
-private struct ScreenshotClassification {
-    @Guide(description: "The strongest evidence for the category — one short sentence citing what on screen decided it.")
-    let evidence: String
-
-    @Guide(description: "The single category that best matches the dominant purpose of the screen.")
-    let category: GenerableScreenshotCategory
-}
-
 /// Guided-generation mirror of ``ScreenshotCategory``. Category definitions live
 /// in ``FoundationModelScreenshotCategorizer/instructions`` — tune accuracy there.
 @available(iOS 26.0, *)
 @Generable
 enum GenerableScreenshotCategory {
+    case game
     case receipt
     case code
     case conversation
@@ -133,6 +156,7 @@ enum GenerableScreenshotCategory {
 
     var domain: ScreenshotCategory {
         switch self {
+        case .game:         .game
         case .receipt:      .receipt
         case .code:         .code
         case .conversation: .conversation

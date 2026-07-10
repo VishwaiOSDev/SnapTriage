@@ -46,6 +46,47 @@ struct HeuristicScreenshotCategorizerTests {
         #expect(category == .document)
     }
 
+    @Test("Classifies generic game UI without an app-specific rule")
+    func gameUIUsesGameplaySignals() async {
+        let transcript = """
+        Level 24
+        Player score 12,400
+        Battle mission
+        Team leaderboard
+        """
+
+        let category = await sut.category(for: Fixture.ocrResult(transcript: transcript))
+
+        #expect(category == .game)
+    }
+
+    @Test("A balance and card words are not enough to call a receipt")
+    func receiptRequiresTransactionStructure() async {
+        let transcript = "Cash balance $1,200.00\nCard table\nCurrent score 900"
+
+        let category = await sut.category(for: Fixture.ocrResult(transcript: transcript))
+
+        #expect(category != .receipt)
+    }
+
+    @Test("Recurring task plans stay other despite incidental game-like words")
+    func structuredPlanIsOther() async {
+        let transcript = """
+        Monday
+        Battle ropes 3 x 12
+        Squats 3 sets
+        Tuesday
+        Push ups 3 x 10
+        Plank 2 minutes
+        Wednesday
+        Lunges 3 sets
+        """
+
+        let category = await sut.category(for: Fixture.ocrResult(transcript: transcript))
+
+        #expect(category == .other)
+    }
+
     @Test("Empty transcript is other", .tags(.fallback))
     func emptyTranscriptIsOther() async {
         let category = await sut.category(for: Fixture.ocrResult(transcript: ""))

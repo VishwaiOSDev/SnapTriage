@@ -36,10 +36,14 @@ actor InMemoryOCRStore: OCRStore {
 /// file lives in Caches — if the system purges it the pipeline just re-runs.
 final class FileBackedOCRStore: OCRStore {
 
+    /// OCR ordering feeds the classifier. Bump when recognition settings or reading-order logic
+    /// changes so cached transcripts do not preserve stale structure.
+    private static let ocrVersion = 2
+
     private let storage: PersistedDictionary<OCRResult>
 
     init(directory: URL) {
-        storage = PersistedDictionary(name: "ocr-results", directory: directory)
+        storage = PersistedDictionary(name: "ocr-results-v\(Self.ocrVersion)", directory: directory)
     }
 
     func result(for id: Screenshot.ID) -> OCRResult? {

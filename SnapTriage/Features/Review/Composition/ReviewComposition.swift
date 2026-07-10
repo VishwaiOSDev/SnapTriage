@@ -24,7 +24,7 @@ enum ReviewComposition {
             store: ocrStore
         )
         let categorize = CategorizeScreenshotUseCase(
-            textCategorizer: FallbackScreenshotCategorizer(),
+            categorizer: FallbackScreenshotCategorizer(),
             imageClassifier: VisionImageContentClassifier(),
             imageLoader: service
         )
