@@ -10,6 +10,7 @@ import Foundation
 /// Raw values are the on-disk schema of the persisted category cache;
 /// renaming a case is a format change.
 enum ScreenshotCategory: String, CaseIterable, Codable, Sendable, Equatable {
+    case game
     case receipt
     case code
     case conversation
@@ -27,6 +28,7 @@ enum ScreenshotCategory: String, CaseIterable, Codable, Sendable, Equatable {
 
     var title: String {
         switch self {
+        case .game:         Strings.Category.game
         case .receipt:      Strings.Category.receipt
         case .code:         Strings.Category.code
         case .conversation: Strings.Category.conversation
@@ -50,13 +52,14 @@ enum ScreenshotCategory: String, CaseIterable, Codable, Sendable, Equatable {
         switch self {
         case .receipt, .otp, .identity, .travel, .event, .document, .email:
             .useful
-        case .code, .conversation, .article, .social, .location, .photo, .other:
+        case .game, .code, .conversation, .article, .social, .location, .photo, .other:
             .safeToDelete
         }
     }
 
     var systemImage: String {
         switch self {
+        case .game:         "gamecontroller.fill"
         case .receipt:      "receipt"
         case .code:         "chevron.left.forwardslash.chevron.right"
         case .conversation: "bubble.left.and.bubble.right"

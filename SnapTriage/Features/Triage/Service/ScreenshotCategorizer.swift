@@ -6,15 +6,22 @@
 //
 
 import Foundation
+import CoreGraphics
 import NaturalLanguage
 
 protocol ScreenshotCategorizer: Sendable {
-    func category(for result: OCRResult) async -> ScreenshotCategory
+    /// The image is supplied when the caller has it locally. Text-only classifiers ignore it;
+    /// multimodal classifiers use it to disambiguate UI that OCR cannot describe.
+    func category(for result: OCRResult, image: CGImage?) async -> ScreenshotCategory
     /// Loads any expensive backing model ahead of the first real call. No-op by default.
     func prewarm()
 }
 
 extension ScreenshotCategorizer {
+    func category(for result: OCRResult) async -> ScreenshotCategory {
+        await category(for: result, image: nil)
+    }
+
     func prewarm() {}
 }
 
@@ -34,16 +41,30 @@ struct HeuristicScreenshotCategorizer: ScreenshotCategorizer {
         self.minimumScore = minimumScore
     }
 
-    func category(for result: OCRResult) async -> ScreenshotCategory {
+    func category(for result: OCRResult, image: CGImage?) async -> ScreenshotCategory {
         guard !result.transcript.isEmpty else { return .other }
 
         let features = Features(text: result.transcript)
+        if Self.isDocumentLike(features) { return .document }
+        if Self.isStructuredPlan(features) { return .other }
+
         let best = Self.rules
             .map { (category: $0.category, score: score($0, features)) }
             .max { $0.score < $1.score }
 
-        guard let best, best.score >= minimumScore else { return .other }
+        guard let best,
+              best.score >= minimumScore,
+              Self.hasRequiredEvidence(for: best.category, features: features) else {
+            return .other
+        }
         return best.category
+    }
+
+    /// A reusable escape hatch for routines, study schedules, meal plans, chore lists, and
+    /// similar task plans. They have no dedicated user-facing category, so `other` is correct.
+    static func isStructuredPlan(_ result: OCRResult) -> Bool {
+        guard !result.transcript.isEmpty else { return false }
+        return isStructuredPlan(Features(text: result.transcript))
     }
 
     private func score(_ rule: CategoryRule, _ f: Features) -> Double {
@@ -67,10 +88,69 @@ private struct CategoryRule {
 }
 
 private extension HeuristicScreenshotCategorizer {
+    static let gameTerms: Set<String> = [
+        "game", "play", "player", "level", "score", "match", "battle",
+        "quest", "mission", "leaderboard", "achievement", "inventory", "guild",
+        "team", "win", "lose", "bet", "raise", "fold", "chip", "blind",
+    ]
+
+    /// Terms that rarely describe a task plan on their own. Text-only game classification must
+    /// include these alongside other game evidence; visual classification on iOS 27 remains richer.
+    static let strongGameTerms: Set<String> = [
+        "game", "player", "score", "leaderboard", "achievement", "inventory", "guild",
+        "bet", "raise", "fold", "chip", "blind",
+    ]
+
+    static let receiptAnchors: Set<String> = [
+        "total", "subtotal", "receipt", "invoice", "order", "payment",
+        "transaction", "purchased", "paid", "refund", "balance",
+    ]
+
+    static let documentTerms: Set<String> = [
+        "policy", "insurance", "insured", "premium", "contract", "agreement",
+        "certificate", "holder", "coverage", "beneficiary", "member", "group",
+        "plan", "claim", "subscriber", "provider", "patient", "benefit",
+    ]
+
+    static func hasRequiredEvidence(for category: ScreenshotCategory, features: Features) -> Bool {
+        switch category {
+        case .receipt:
+            let anchorCount = receiptAnchors.intersection(features.terms).count
+            let hasAmount = features.value(for: .money) > 0 || features.value(for: .amount) > 0
+            // "Card" or a decimal number alone occur in games, wallets, and status screens.
+            return anchorCount >= 2 || (anchorCount >= 1 && hasAmount)
+        case .game:
+            let gameCount = gameTerms.intersection(features.terms).count
+            let strongCount = strongGameTerms.intersection(features.terms).count
+            return (strongCount >= 1 && gameCount >= 2) || strongCount >= 2
+        default:
+            return true
+        }
+    }
+
+    static func isDocumentLike(_ features: Features) -> Bool {
+        let termCount = documentTerms.intersection(features.terms).count
+        let fieldCount = features.value(for: .documentField)
+        // This is deliberately structural rather than insurer-specific: records and membership
+        // cards normally contain multiple labelled identifiers, while a chat mentioning a policy
+        // does not. It only promotes toward the safer, useful disposition.
+        return termCount >= 2 && fieldCount >= 1
+    }
+
+    static func isStructuredPlan(_ features: Features) -> Bool {
+        // A weekday by itself is not enough: require recurring task quantities too. This avoids
+        // treating calendar headings as plans while covering routines across several domains.
+        features.value(for: .weekdayHeading) >= 2 && features.value(for: .taskQuantity) >= 2
+    }
+
     static let rules: [CategoryRule] = [
         CategoryRule(
+            category: .game,
+            terms: gameTerms
+        ),
+        CategoryRule(
             category: .receipt,
-            terms: ["total", "subtotal", "tax", "receipt", "invoice", "order", "amount", "qty", "payment", "change", "cash", "card"],
+            terms: ["total", "subtotal", "tax", "receipt", "invoice", "order", "amount", "qty", "payment", "transaction", "paid", "refund", "balance"],
             signals: [.money: 2, .amount: 0.75, .date: 0.5]
         ),
         CategoryRule(
@@ -130,8 +210,9 @@ private extension HeuristicScreenshotCategorizer {
         ),
         CategoryRule(
             category: .document,
-            terms: ["policy", "insurance", "insured", "premium", "contract", "agreement", "certificate", "holder", "coverage", "beneficiary"],
-            phrases: ["policy number": 2.5, "terms and conditions": 1.5, "valid till": 1, "sum insured": 3]
+            terms: documentTerms,
+            signals: [.documentField: 1.5],
+            phrases: ["policy number": 2.5, "member number": 2.5, "group number": 2.5, "terms and conditions": 1.5, "valid till": 1, "sum insured": 3]
         ),
     ]
 }
@@ -140,7 +221,7 @@ private extension HeuristicScreenshotCategorizer {
 
 private enum Signal {
     case money, amount, date, phone, link, address, handle, hashtag, code, otpCode
-    case chatLines, proseLines
+    case chatLines, proseLines, documentField, weekdayHeading, taskQuantity
 }
 
 // MARK: - Feature extraction
@@ -194,6 +275,9 @@ private struct Features {
             .code:      Double(Self.codeSignals(in: text)),
             .chatLines: isChat ? 1 : 0,
             .proseLines: isProse ? 1 : 0,
+            .documentField: Double(Self.count(Self.documentField, in: text)),
+            .weekdayHeading: Double(Self.count(Self.weekdayHeading, in: text)),
+            .taskQuantity: Double(Self.count(Self.taskQuantity, in: text)),
         ]
     }
 
@@ -208,6 +292,11 @@ private struct Features {
     private static let hashtag = regex(#"(?:^|\s)#\w{2,}"#)
     // A code-word adjacent to a 3–8 digit run, in either order — the shape of a real OTP message.
     private static let otpCode = regex(#"(?i)(?:otp|passcode|one[\s-]?time|verification|security)[^\d\n]{0,20}\b\d{3,8}\b|\b\d{3,8}\b[^\d\n]{0,20}(?:otp|passcode|verification|code)"#)
+    /// Generic labels found on IDs, membership cards, policies, and account records. The
+    /// following number/value must stay on the same OCR line, avoiding false positives in prose.
+    private static let documentField = regex(#"(?i)\b(?:policy|member|group|certificate|account|claim|subscriber|patient|provider|benefit|coverage|holder|insured)\s*(?:id|no\.?|number|#)?\s*(?::|#|-|\s)\s*(?:\d{3,}|[a-z]*\d[a-z0-9-]{2,})\b"#)
+    private static let weekdayHeading = regex(#"(?im)^\s*(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b"#)
+    private static let taskQuantity = regex(#"(?i)\b(?:\d+\s*[x×]\s*\d+|\d+\s*(?:reps?|sets?|minutes?|mins?|hours?|hrs?|km|kilometers?|miles?|steps?|rounds?|pages?|questions?|tasks?))\b"#)
 
     private static func regex(_ pattern: String) -> NSRegularExpression? {
         try? NSRegularExpression(pattern: pattern)

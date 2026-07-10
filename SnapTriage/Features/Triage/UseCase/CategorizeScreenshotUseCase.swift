@@ -9,7 +9,7 @@ import CoreGraphics
 
 struct CategorizeScreenshotUseCase {
 
-    let textCategorizer: ScreenshotCategorizer
+    let categorizer: ScreenshotCategorizer
     let imageClassifier: ImageContentClassifier
     let imageLoader: PhotoLibraryService
 
@@ -18,26 +18,39 @@ struct CategorizeScreenshotUseCase {
     private let minimumWords = 4
     private let longEdge: CGFloat = 1024
 
-    /// Warms the text model while OCR is still running, hiding model load behind it.
+    /// Warms the language model while OCR is still running, hiding model load behind it.
     func prewarm() {
-        textCategorizer.prewarm()
+        categorizer.prewarm()
     }
 
     func execute(_ result: OCRResult) async -> ScreenshotCategory {
-        guard isTextSparse(result) else {
-            let category = await textCategorizer.category(for: result)
-            guard category == .other else { return category }
-            return await visualCategory(for: result) ?? .other
+        // iOS 27's Foundation Model can inspect the actual screenshot. Route every screen
+        // through it: app and game interfaces are often text-rich, so word count is not a
+        // reliable proxy for whether pixels matter.
+        if #available(iOS 27.0, *) {
+            let image = await classifierImage(for: result)
+            let category = await categorizer.category(for: result, image: image)
+            guard category == .other, let image else { return category }
+            return await imageClassifier.category(for: image) ?? .other
         }
-        if let visual = await visualCategory(for: result) { return visual }
-        return await textCategorizer.category(for: result)
+
+        // On iOS 26, the system model is text-only. Preserve the inexpensive Vision fallback
+        // for image-led screenshots, then defer to OCR classification when it is inconclusive.
+        if isTextSparse(result), let image = await classifierImage(for: result),
+           let visual = await imageClassifier.category(for: image) {
+            return visual
+        }
+
+        let category = await categorizer.category(for: result, image: nil)
+        guard category == .other,
+              let image = await classifierImage(for: result) else {
+            return category
+        }
+        return await imageClassifier.category(for: image) ?? .other
     }
 
-    private func visualCategory(for result: OCRResult) async -> ScreenshotCategory? {
-        guard let image = await imageLoader.cgImage(for: result.screenshotID, longEdge: longEdge) else {
-            return nil
-        }
-        return await imageClassifier.category(for: image)
+    private func classifierImage(for result: OCRResult) async -> CGImage? {
+        await imageLoader.cgImage(for: result.screenshotID, longEdge: longEdge)
     }
 
     private func isTextSparse(_ result: OCRResult) -> Bool {

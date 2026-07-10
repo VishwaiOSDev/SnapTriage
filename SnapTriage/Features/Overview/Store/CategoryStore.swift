@@ -46,7 +46,7 @@ final class FileBackedCategoryStore: CategoryStore {
     /// Bump when the classifier (prompt, rules, or routing) changes: cached
     /// verdicts from the old classifier are stale, and a new file name makes
     /// the whole library re-classify on next launch.
-    private static let classifierVersion = 3
+    private static let classifierVersion = 5
 
     private let storage: PersistedDictionary<ScreenshotCategory>
 

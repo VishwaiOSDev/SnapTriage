@@ -16,11 +16,13 @@ final class StubScreenshotCategorizer: ScreenshotCategorizer, @unchecked Sendabl
     let result: ScreenshotCategory
     private(set) var categorizeCount = 0
     private(set) var prewarmCount = 0
+    private(set) var receivedImage = false
 
     init(_ result: ScreenshotCategory) { self.result = result }
 
-    func category(for result: OCRResult) async -> ScreenshotCategory {
+    func category(for result: OCRResult, image: CGImage?) async -> ScreenshotCategory {
         categorizeCount += 1
+        receivedImage = image != nil
         return self.result
     }
 
