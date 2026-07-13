@@ -105,6 +105,16 @@ struct HeuristicScreenshotCategorizer: Sendable {
 
         // Structural short-circuits. A membership card or record is protected
         // (promote to keep); a day/task routine has no category (resolve to other).
+        // Identity runs before the generic document check because passports,
+        // visas, and ID cards are themselves document-shaped and frequently
+        // contain phone-number-like digit groups that otherwise resemble chat.
+        if Self.isIdentityLike(features) {
+            return HeuristicResult(
+                category: .identity, runnerUp: nil, score: highScore, margin: highMargin,
+                tier: .high, evidence: [ClassificationEvidence("identityStructure")],
+                abstentionReason: nil
+            )
+        }
         if Self.isDocumentLike(features) {
             return HeuristicResult(
                 category: .document, runnerUp: nil, score: highScore, margin: highMargin,
@@ -151,6 +161,14 @@ struct HeuristicScreenshotCategorizer: Sendable {
     static func isStructuredPlan(_ result: OCRResult) -> Bool {
         guard !result.transcript.isEmpty else { return false }
         return isStructuredPlan(Features(text: result.transcript))
+    }
+
+    /// Whether OCR contains corroborated evidence of a government-issued
+    /// identity document. Kept separately from scoring so generic chat/phone
+    /// signals can never outvote a passport, visa, Aadhaar, PAN, or licence.
+    static func isIdentityDocument(_ result: OCRResult) -> Bool {
+        guard !result.transcript.isEmpty else { return false }
+        return isIdentityLike(Features(text: result.transcript))
     }
 
     private func score(_ rule: CategoryRule, _ f: Features) -> (Double, [ClassificationEvidence]) {
@@ -252,6 +270,17 @@ private extension HeuristicScreenshotCategorizer {
 
     static let reminderAnchors: Set<String> = ["reminder", "reminders", "remind", "todo", "checklist"]
 
+    static let identityTerms: Set<String> = [
+        "aadhaar", "aadhar", "uidai", "passport", "visa", "license", "licence",
+        "pan", "identification", "identity", "nationality", "citizenship",
+        "surname", "birth", "issued", "issue", "expiry", "expires", "authority",
+    ]
+
+    static let identityFields: Set<String> = [
+        "nationality", "citizenship", "surname", "birth", "sex", "gender",
+        "issued", "issue", "expiry", "expires", "authority", "signature",
+    ]
+
     static func hasRequiredEvidence(for category: ScreenshotCategory, features: Features) -> Bool {
         switch category {
         case .receipt:
@@ -266,6 +295,8 @@ private extension HeuristicScreenshotCategorizer {
             let gameCount = gameTerms.intersection(features.terms).count
             let strongCount = strongGameTerms.intersection(features.terms).count
             return (strongCount >= 1 && gameCount >= 2) || strongCount >= 2
+        case .identity:
+            return isIdentityLike(features)
         case .alarm:
             // Alarm/clock evidence — a clock time or number alone is not an alarm.
             return !alarmAnchors.intersection(features.terms).isEmpty
@@ -298,6 +329,50 @@ private extension HeuristicScreenshotCategorizer {
         // cards normally contain multiple labelled identifiers, while a chat mentioning a policy
         // does not. It only promotes toward the safer, useful disposition.
         return termCount >= 2 && fieldCount >= 1
+    }
+
+    /// Recognizes an official ID from an anchor plus corroborating structure.
+    /// `visa` and `pan` need issuer/field/number context so a Visa payment card
+    /// or the English word "pan" cannot become an identity false positive.
+    static func isIdentityLike(_ features: Features) -> Bool {
+        let text = features.lowercased
+        let terms = features.terms
+        let fieldCount = identityFields.intersection(terms).count
+        let hasNumber = features.value(for: .identityNumber) > 0
+        let hasIssuer = features.value(for: .governmentIssuer) > 0
+
+        let hasAadhaar = !Set(["aadhaar", "aadhar", "uidai"]).isDisjoint(with: terms)
+        if hasAadhaar && (hasNumber || hasIssuer || fieldCount >= 1) { return true }
+
+        if terms.contains("passport") && (hasNumber || hasIssuer || fieldCount >= 1) {
+            return true
+        }
+
+        let hasLicencePhrase = [
+            "driver license", "driver's license", "driver licence", "driver's licence",
+            "driving license", "driving licence",
+        ].contains { text.contains($0) }
+        if hasLicencePhrase && (hasNumber || hasIssuer || fieldCount >= 1) { return true }
+
+        let hasNationalID = text.contains("national id") || text.contains("national identity")
+        if hasNationalID && (hasNumber || hasIssuer || fieldCount >= 1) { return true }
+
+        let hasVisaContext = terms.contains("visa") && (
+            terms.contains("passport") || terms.contains("immigration") ||
+            terms.contains("nationality") || text.contains("visa number") ||
+            text.contains("visa no")
+        )
+        if hasVisaContext && (hasNumber || hasIssuer || fieldCount >= 1) { return true }
+
+        let hasPANContext = terms.contains("pan") && (
+            text.contains("permanent account") || text.contains("income tax") ||
+            text.contains("pan number") || text.contains("pan no")
+        )
+        if hasPANContext && (hasNumber || hasIssuer || fieldCount >= 1) { return true }
+
+        // OCR sometimes drops the document title while retaining the issuer,
+        // number, and labelled fields. Require all three in that degraded case.
+        return hasIssuer && hasNumber && fieldCount >= 1
     }
 
     static func isStructuredPlan(_ features: Features) -> Bool {
@@ -362,8 +437,15 @@ private extension HeuristicScreenshotCategorizer {
         ),
         CategoryRule(
             category: .identity,
-            terms: ["aadhaar", "aadhar", "uidai", "passport", "license", "licence", "pan", "identification", "nationality", "issued", "expiry"],
-            phrases: ["government of india": 3, "date of birth": 1.5, "unique identification": 3, "id no": 1.5]
+            terms: identityTerms,
+            termWeight: 1.5,
+            signals: [.identityNumber: 2, .governmentIssuer: 2],
+            phrases: [
+                "government of india": 3, "date of birth": 1.5,
+                "unique identification": 3, "permanent account number": 3,
+                "income tax department": 3, "national identity": 3,
+                "visa number": 2.5, "passport number": 2.5, "id no": 1.5,
+            ]
         ),
         CategoryRule(
             category: .document,
@@ -409,7 +491,8 @@ private extension HeuristicScreenshotCategorizer {
 
 private enum Signal {
     case money, amount, date, phone, link, address, handle, hashtag, code, otpCode
-    case chatLines, proseLines, documentField, weekdayHeading, taskQuantity, weekdayList
+    case chatLines, proseLines, documentField, identityNumber, governmentIssuer
+    case weekdayHeading, taskQuantity, weekdayList
 }
 
 // MARK: - Feature extraction
@@ -464,6 +547,8 @@ private struct Features {
             .chatLines: isChat ? 1 : 0,
             .proseLines: isProse ? 1 : 0,
             .documentField: Double(Self.count(Self.documentField, in: text)),
+            .identityNumber: Double(Self.count(Self.identityNumber, in: text)),
+            .governmentIssuer: Double(Self.count(Self.governmentIssuer, in: text)),
             .weekdayHeading: Double(Self.count(Self.weekdayHeading, in: text)),
             .taskQuantity: Double(Self.count(Self.taskQuantity, in: text)),
             // Distinct weekday names anywhere (an alarm's repeat toggles), capped so a
@@ -486,6 +571,10 @@ private struct Features {
     /// Generic labels found on IDs, membership cards, policies, and account records. The
     /// following number/value must stay on the same OCR line, avoiding false positives in prose.
     private static let documentField = regex(#"(?i)\b(?:policy|member|group|certificate|account|claim|subscriber|patient|provider|benefit|coverage|holder|insured)\s*(?:id|no\.?|number|#)?\s*(?::|#|-|\s)\s*(?:\d{3,}|[a-z]*\d[a-z0-9-]{2,})\b"#)
+    /// Common official-ID number shapes plus explicitly labelled identifiers.
+    /// The label-based branch stays on one OCR line to avoid absorbing prose.
+    private static let identityNumber = regex(#"(?im)(?:\b\d{4}[ -]\d{4}[ -]\d{4}\b|\b[a-z]{5}\d{4}[a-z]\b|\b[a-z]\d{7}\b|^[ \t]*(?:passport|visa|aadhaar|aadhar|uidai|uid|pan|national[ \t]+id|identity)[ \t]*(?:number|no\.?|#)?[ \t]*[:#-]?[ \t]*[a-z0-9<][a-z0-9< -]{4,20}[ \t]*$)"#)
+    private static let governmentIssuer = regex(#"(?i)\b(?:government|republic|ministry|department|immigration|uidai|issuing authority|income tax)\b"#)
     private static let weekdayHeading = regex(#"(?im)^\s*(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)\b"#)
     private static let weekdayName = regex(#"(?i)\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b"#)
     private static let taskQuantity = regex(#"(?i)\b(?:\d+\s*[x×]\s*\d+|\d+\s*(?:reps?|sets?|minutes?|mins?|hours?|hrs?|km|kilometers?|miles?|steps?|rounds?|pages?|questions?|tasks?))\b"#)

@@ -52,9 +52,10 @@ final class FileBackedCategoryStore: CategoryStore {
     /// name makes the whole library re-classify on next launch. User decisions
     /// live in a separate store and are never touched by this migration.
     ///
+    /// v7: protected government-ID routing.
     /// v6: cheap-first cascade; stores `ScreenshotClassification` (was a bare
     /// `ScreenshotCategory`), so the schema changed too.
-    private static let classifierVersion = 6
+    private static let classifierVersion = 7
 
     private let storage: PersistedDictionary<ScreenshotClassification>
 

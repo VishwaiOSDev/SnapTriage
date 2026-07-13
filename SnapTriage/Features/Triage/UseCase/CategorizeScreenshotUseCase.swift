@@ -106,6 +106,12 @@ struct CategorizeScreenshotUseCase {
             metrics.record(.vision, clock.now - visionStart)
             metrics.recordEngine(.vision, usedImage: true)
             if let visual, visual != .other {
+                // A generic Vision label such as "card" or "document" is less
+                // specific than corroborated official-ID text. Preserve the ID
+                // instead of allowing Vision to erase that distinction.
+                if HeuristicScreenshotCategorizer.isIdentityDocument(ocr) {
+                    return classification(from: result, source: .heuristic, confidence: .high)
+                }
                 return ScreenshotClassification(
                     category: visual, confidence: .medium, source: .vision,
                     evidence: [ClassificationEvidence("vision")]
@@ -167,6 +173,12 @@ struct CategorizeScreenshotUseCase {
         ocr: OCRResult
     ) -> ScreenshotCategory {
         let category = verdict.category
+        // Identity is a protected class: once issuer/number/field structure is
+        // corroborated, neither chat-like short lines nor a generic document
+        // model verdict may demote it.
+        if HeuristicScreenshotCategorizer.isIdentityDocument(ocr) {
+            return .identity
+        }
         if category.baseDisposition == .safeToDelete,
            HeuristicScreenshotCategorizer.isStructuredPlan(ocr) {
             return .other

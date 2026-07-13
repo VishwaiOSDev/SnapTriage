@@ -19,7 +19,10 @@ struct VisionTextRecognitionService: TextRecognitionService {
         request.usesLanguageCorrection = true
         request.automaticallyDetectsLanguage = true
         request.minimumTextHeightFraction = 0.012      // ignore sub-pixel noise
-        request.customWords = ["OTP", "PIN", "verification", "WiFi", "WPA"]
+        request.customWords = [
+            "OTP", "PIN", "verification", "WiFi", "WPA",
+            "Aadhaar", "Aadhar", "UIDAI", "passport", "visa", "PAN",
+        ]
 
         do {
             let observations = try await request.perform(on: image)

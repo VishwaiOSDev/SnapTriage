@@ -107,8 +107,9 @@ struct FoundationModelScreenshotCategorizer {
         - event: A calendar event, invite, meeting, or reservation for a specific date
           and time — a calendar UI, an RSVP, or an invitation with attendees or a venue.
         - email: An email message or inbox with subject, sender, and recipients.
-        - identity: A government or official ID — Aadhaar, passport, driver license, PAN,
-          national ID — with an ID number, holder name, date of birth, or issuing authority.
+        - identity: A government or official ID — Aadhaar, passport, entry visa, driver
+          license, PAN, national ID — with an ID number, holder name, date of birth, or
+          issuing authority. A Visa-branded payment card is not an identity document.
         - document: A formal document or card — insurance/health/member card or policy,
           bank statement, contract, agreement, certificate, official letter, or filled
           form — often label/value pairs like policy, group, member, or certificate
