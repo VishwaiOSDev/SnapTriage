@@ -11,22 +11,53 @@ import UIKit
 
 // MARK: - Test doubles
 
-/// Returns a fixed category and records whether the system under test reached it.
-final class StubScreenshotCategorizer: ScreenshotCategorizer, @unchecked Sendable {
-    let result: ScreenshotCategory
-    private(set) var categorizeCount = 0
-    private(set) var prewarmCount = 0
+/// A foundation-model stand-in that records how it was driven — call count, and
+/// whether an image reached it — so tests can assert the cascade invoked the
+/// model exactly as expected (zero calls for confident heuristics, one for
+/// ambiguous screens) without touching Apple Intelligence.
+final class RecordingModelClassifier: ScreenshotModelClassifier, @unchecked Sendable {
+    let verdict: ModelVerdict?
+    private(set) var callCount = 0
     private(set) var receivedImage = false
+    private(set) var prewarmCount = 0
 
-    init(_ result: ScreenshotCategory) { self.result = result }
+    /// `verdict == nil` models an unavailable / failed model.
+    init(_ verdict: ModelVerdict?) { self.verdict = verdict }
 
-    func category(for result: OCRResult, image: CGImage?) async -> ScreenshotCategory {
-        categorizeCount += 1
+    convenience init(category: ScreenshotCategory?, usedImage: Bool = false) {
+        self.init(category.map { ModelVerdict(category: $0, usedImage: usedImage) })
+    }
+
+    func classify(ocr: OCRResult, image: CGImage?) async -> ModelVerdict? {
+        callCount += 1
         receivedImage = image != nil
-        return self.result
+        return verdict
     }
 
     func prewarm() { prewarmCount += 1 }
+}
+
+/// Records routing/timing calls so tests can count heuristic / Vision / model
+/// resolutions and needs-review outcomes.
+final class RecordingClassificationMetrics: ClassificationMetrics, @unchecked Sendable {
+    private(set) var engineCalls: [ClassificationEngine: Int] = [:]
+    private(set) var resolutions: [ClassificationSource: Int] = [:]
+    private(set) var imageEngineCalls = 0
+    private(set) var needsReviewCount = 0
+    private(set) var failureCount = 0
+
+    func record(_ stage: ClassificationStage, _ duration: Duration) {}
+    func recordEngine(_ engine: ClassificationEngine, usedImage: Bool) {
+        engineCalls[engine, default: 0] += 1
+        if usedImage { imageEngineCalls += 1 }
+    }
+    func recordResolution(_ source: ClassificationSource) { resolutions[source, default: 0] += 1 }
+    func recordNeedsReview() { needsReviewCount += 1 }
+    func recordFailure() { failureCount += 1 }
+
+    var heuristicCalls: Int { engineCalls[.heuristic] ?? 0 }
+    var visionCalls: Int { engineCalls[.vision] ?? 0 }
+    var foundationModelCalls: Int { engineCalls[.foundationModel] ?? 0 }
 }
 
 /// Returns a configurable image verdict (or `nil` for "inconclusive").
@@ -73,5 +104,22 @@ enum Fixture {
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         )!
         return context.makeImage()!
+    }
+
+    /// Builds the cheap-first orchestrator with the real heuristic and injectable
+    /// Vision / model / image doubles, so tests exercise the actual cascade.
+    static func categorize(
+        vision: ImageContentClassifier = StubImageContentClassifier(result: nil),
+        model: ScreenshotModelClassifier = RecordingModelClassifier(nil),
+        loader: PhotoLibraryService,
+        metrics: ClassificationMetrics = NoopClassificationMetrics()
+    ) -> CategorizeScreenshotUseCase {
+        CategorizeScreenshotUseCase(
+            heuristic: HeuristicScreenshotCategorizer(),
+            vision: vision,
+            model: model,
+            imageLoader: loader,
+            metrics: metrics
+        )
     }
 }

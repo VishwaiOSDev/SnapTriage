@@ -18,7 +18,7 @@ final class TriageViewModel {
     struct State: Equatable {
         var authorization: PhotoLibraryAuthorization = .notDetermined
         var screenshots: [Screenshot] = []
-        var categories: [Screenshot.ID: ScreenshotCategory] = [:]
+        var classifications: [Screenshot.ID: ScreenshotClassification] = [:]
         var phase: Phase = .idle
         var errorMessage: String?
         var currentIndex = 0
@@ -52,8 +52,11 @@ final class TriageViewModel {
             currentIndex = next
         }
 
-        func category(for screenshot: Screenshot) -> ScreenshotCategory {
-            categories[screenshot.id] ?? .other
+        /// The verdict for a card, or `nil` while classification is still pending.
+        /// A pending card must show a neutral "Analyzing…" state, never `.other`
+        /// / safe-to-delete, so the view distinguishes "unknown yet" from "done".
+        func classification(for screenshot: Screenshot) -> ScreenshotClassification? {
+            classifications[screenshot.id]
         }
     }
 
@@ -243,14 +246,14 @@ final class TriageViewModel {
                 let window = self.state.screenshots
                     .dropFirst(self.state.currentIndex)
                     .prefix(self.classifyLookahead)
-                    .filter { self.state.categories[$0.id] == nil && !attempted.contains($0.id) }
+                    .filter { self.state.classifications[$0.id] == nil && !attempted.contains($0.id) }
                 guard !window.isEmpty else { return }
                 attempted.formUnion(window.map(\.id))
 
                 for await progress in self.classifyLibrary.execute(Array(window)) {
                     if Task.isCancelled { return }
-                    if let id = progress.id, let category = progress.category {
-                        self.state.categories[id] = category
+                    if let id = progress.id, let classification = progress.classification {
+                        self.state.classifications[id] = classification
                     }
                 }
             }
@@ -288,7 +291,9 @@ final class TriageViewModel {
         state.phase = .loaded
         state.authorization = .authorized
         state.screenshots = screenshots
-        state.categories = categories
+        state.classifications = categories.mapValues {
+            ScreenshotClassification(category: $0, confidence: .high, source: .heuristic)
+        }
     }
     #endif
 }

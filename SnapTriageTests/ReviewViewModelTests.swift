@@ -143,9 +143,9 @@ struct ReviewViewModelTests {
 
         #expect(decisions.decision(for: "1") == nil)
         #expect(decisions.decision(for: "2") == .keep)
-        #expect(await categories.category(for: "1") == nil)
-        #expect(await categories.category(for: "3") == nil)
-        #expect(await categories.category(for: "2") == .article)
+        #expect(await categories.classification(for: "1") == nil)
+        #expect(await categories.classification(for: "3") == nil)
+        #expect(await categories.classification(for: "2")?.category == .article)
     }
 
     @Test("Cancelling the system sheet prunes nothing")
@@ -162,7 +162,7 @@ struct ReviewViewModelTests {
         await waitUntil { vm.state.isDeleting == false && service.deleteCallCount == 1 }
 
         #expect(decisions.decision(for: "1") == .markForDeletion)
-        #expect(await categories.category(for: "1") == .social)
+        #expect(await categories.classification(for: "1")?.category == .social)
     }
 
     @Test("Denied access fails with a presentable message")

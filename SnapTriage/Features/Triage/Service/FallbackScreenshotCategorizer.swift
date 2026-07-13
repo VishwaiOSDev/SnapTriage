@@ -4,132 +4,178 @@
 //
 //  Created by Vishweshwaran on 20/06/26.
 //
+//  Runtime support for the classification cascade: the real foundation-model
+//  stage, the gate that serializes model inference, and the metrics sink.
+//
 
 import Foundation
 import CoreGraphics
+import os
 
-/// Prefers the foundation model, degrades to a heuristic when it can't run.
+// MARK: - Foundation model stage
+
+/// The real, last-resort model stage. Prefers the multimodal (pixels + OCR) path
+/// on iOS 27, falls back to text-only on iOS 26, and returns `nil` on any
+/// unavailable or error state (iOS < 26, Apple Intelligence off, model still
+/// downloading, inference failure) so the cascade can degrade to the heuristic.
 ///
-/// The model is unavailable on iOS < 26, when Apple Intelligence is off, while
-/// the model is still downloading, or on any inference error. In every one of
-/// those cases the user still gets a category — just from the rule table — so
-/// classification never throws and never returns empty to the view model.
-///
-/// The heuristic also acts as a second opinion in two places:
-/// - When the model answers `other` (its "don't know"), heuristic evidence for any
-///   keep-worthy category — anything the app treats as `.useful` — can rescue a real
-///   category. Deleting a boarding pass or invite the model punted on is unrecoverable.
-///   Safe-to-delete guesses like `game` must not overrule an abstention, because their
-///   evidence is ambiguous without the screenshot pixels.
-/// - When the model picks a safe-to-delete category but the rule table finds
-///   keep-worthy evidence (policy numbers, ID markers, totals), keep wins.
-///   Misclassification cost is asymmetric — deleting an insurance card is
-///   unrecoverable, keeping junk is a minor annoyance — so a single model
-///   verdict is never enough to send document-shaped text to the delete pile.
-///   A multimodal game verdict is the exception: visual gameplay evidence wins
-///   over receipt-shaped OCR unless the fallback finds a formal record or ID.
-struct FallbackScreenshotCategorizer: ScreenshotCategorizer {
+/// Every call funnels through ``FoundationModelGate`` so at most one inference
+/// runs at a time — the system model shares on-device hardware and overlapping
+/// sessions contend rather than speed up. Each screenshot runs in a fresh
+/// session (see ``FoundationModelScreenshotCategorizer``), so transcripts never
+/// bleed between screenshots.
+struct FoundationModelClassifier: ScreenshotModelClassifier {
 
-    typealias PrimaryCategorizer = @Sendable (OCRResult) async throws -> ScreenshotCategory
-    typealias MultimodalPrimaryCategorizer = @Sendable (OCRResult, CGImage) async throws -> ScreenshotCategory
-
-    private enum PrimarySource: Equatable {
-        case text
-        case multimodal
-    }
-
-    private struct PrimaryVerdict {
-        let category: ScreenshotCategory
-        let source: PrimarySource
-    }
-
-    /// `nil` means "use the foundation model"; tests inject a stub here.
-    private let primary: PrimaryCategorizer?
-    /// `nil` means "use the Foundation Models image attachment path on iOS 27+."
-    private let multimodalPrimary: MultimodalPrimaryCategorizer?
-    let fallback: ScreenshotCategorizer
-
-    init(
-        primary: PrimaryCategorizer? = nil,
-        multimodalPrimary: MultimodalPrimaryCategorizer? = nil,
-        fallback: ScreenshotCategorizer = HeuristicScreenshotCategorizer()
-    ) {
-        self.primary = primary
-        self.multimodalPrimary = multimodalPrimary
-        self.fallback = fallback
-    }
-
-    func category(for result: OCRResult, image: CGImage?) async -> ScreenshotCategory {
-        guard let verdict = await primaryCategory(for: result, image: image) else {
-            return await fallback.category(for: result, image: image)
-        }
-        let category = verdict.category
-
-        // A routine/checklist has no dedicated category. Its repeated day/task/quantity shape
-        // is stronger than incidental words such as "level" or "battle" in one exercise name.
-        if category.disposition == .safeToDelete,
-           HeuristicScreenshotCategorizer.isStructuredPlan(result) {
-            return .other
-        }
-        if category == .other {
-            let secondOpinion = await fallback.category(for: result, image: image)
-            return shouldRescueOther(with: secondOpinion) ? secondOpinion : .other
-        }
-        if category.disposition == .safeToDelete {
-            let secondOpinion = await fallback.category(for: result, image: image)
-            if secondOpinion.disposition == .useful,
-               shouldPreferFallback(secondOpinion, over: verdict) {
-                return secondOpinion
+    func classify(ocr: OCRResult, image: CGImage?) async -> ModelVerdict? {
+        await FoundationModelGate.shared.run {
+            if let image, #available(iOS 27.0, *) {
+                if let category = try? await FoundationModelScreenshotCategorizer().category(for: ocr, image: image) {
+                    return ModelVerdict(category: category, usedImage: true)
+                }
             }
-        }
-        return category
-    }
-
-    /// `nil` when no primary can run at all — older OS or inference failure.
-    private func primaryCategory(for result: OCRResult, image: CGImage?) async -> PrimaryVerdict? {
-        if let image, let multimodalPrimary, let category = try? await multimodalPrimary(result, image) {
-            return PrimaryVerdict(category: category, source: .multimodal)
-        }
-        if let primary {
-            guard let category = try? await primary(result) else { return nil }
-            return PrimaryVerdict(category: category, source: .text)
-        }
-        if let image, #available(iOS 27.0, *) {
-            if let category = try? await FoundationModelScreenshotCategorizer().category(for: result, image: image) {
-                return PrimaryVerdict(category: category, source: .multimodal)
+            if #available(iOS 26.0, *) {
+                guard let category = try? await FoundationModelScreenshotCategorizer().category(for: ocr) else {
+                    return nil
+                }
+                return ModelVerdict(category: category, usedImage: false)
             }
+            return nil
         }
-        if #available(iOS 26.0, *) {
-            guard let category = try? await FoundationModelScreenshotCategorizer().category(for: result) else {
-                return nil
-            }
-            return PrimaryVerdict(category: category, source: .text)
-        }
-        return nil
-    }
-
-    private func shouldPreferFallback(
-        _ fallbackCategory: ScreenshotCategory,
-        over primary: PrimaryVerdict
-    ) -> Bool {
-        // A multimodal game verdict has visual evidence that the OCR-only heuristic cannot see.
-        // Still allow an ID or formal record to win, because sending it to the delete queue has
-        // the highest cost. Other useful labels remain ordinary OCR tie-breaks.
-        guard primary.source == .multimodal, primary.category == .game else { return true }
-        return fallbackCategory == .document || fallbackCategory == .identity
-    }
-
-    private func shouldRescueOther(with category: ScreenshotCategory) -> Bool {
-        // Only upgrade toward keep. Every `.useful` category is one the app already treats as
-        // keep-worthy, so heuristic evidence for it can overrule the model's abstention. Safe-to-
-        // delete guesses (game, social, article, …) are excluded by the same rule: without the
-        // pixels their evidence is too ambiguous to overturn an explicit "don't know".
-        category.disposition == .useful
     }
 
     func prewarm() {
         if #available(iOS 26.0, *) {
             FoundationModelScreenshotCategorizer().prewarm()
         }
+    }
+}
+
+// MARK: - Serialization gate
+
+/// Serializes on-device model inference to one operation at a time, process-wide.
+/// Blindly running four model sessions in parallel (the old pipeline's fixed
+/// concurrency) contends on the ANE instead of scaling, so every model call is
+/// chained behind the previous one here. Cheap stages (heuristic, Vision) keep
+/// their own bounded concurrency; only the model funnels through this gate.
+actor FoundationModelGate {
+    static let shared = FoundationModelGate()
+
+    /// The tail of the serial chain: each new operation awaits the previous one
+    /// before it starts, so only one body executes at a time.
+    private var tail: Task<Void, Never>?
+
+    func run<T: Sendable>(_ body: @Sendable @escaping () async -> T) async -> T {
+        let previous = tail
+        let operation = Task<T, Never> {
+            await previous?.value
+            return await body()
+        }
+        tail = Task { _ = await operation.value }
+        return await operation.value
+    }
+}
+
+// MARK: - Metrics
+
+/// Where a screenshot's verdict came from, for aggregate routing counts.
+enum ClassificationEngine: String, Sendable {
+    case heuristic
+    case vision
+    case foundationModel
+}
+
+/// A timed stage of the per-screenshot pipeline.
+enum ClassificationStage: String, Sendable {
+    case imageLoad
+    case ocr
+    case heuristic
+    case vision
+    case foundationModel
+    case total
+}
+
+/// Lightweight instrumentation sink. Timing feeds Instruments (via signposts);
+/// counts feed the "how much of the library needed the model" question the MVP
+/// targets. Implementations must never log OCR text, codes, IDs, or other
+/// sensitive content — only stage names, engine names, and durations.
+protocol ClassificationMetrics: Sendable {
+    func record(_ stage: ClassificationStage, _ duration: Duration)
+    func recordEngine(_ engine: ClassificationEngine, usedImage: Bool)
+    func recordResolution(_ source: ClassificationSource)
+    func recordNeedsReview()
+    func recordFailure()
+}
+
+/// Default sink: emits `os_signpost` intervals per stage for Instruments and
+/// keeps running aggregate counts behind a lock, exposed via ``snapshot()`` for
+/// debug logging. Safe to share across the concurrent classify pipeline.
+final class OSLogClassificationMetrics: ClassificationMetrics, @unchecked Sendable {
+
+    struct Counts: Sendable, Equatable {
+        var heuristicCalls = 0
+        var visionCalls = 0
+        var foundationModelCalls = 0
+        var foundationModelImageCalls = 0
+        var heuristicResolutions = 0
+        var visionResolutions = 0
+        var foundationModelResolutions = 0
+        var cacheResolutions = 0
+        var fallbackResolutions = 0
+        var needsReview = 0
+        var failures = 0
+    }
+
+    private let signposter = OSSignposter(subsystem: "com.snaptriage.classification", category: .pointsOfInterest)
+    private let state = OSAllocatedUnfairLock(initialState: Counts())
+
+    func record(_ stage: ClassificationStage, _ duration: Duration) {
+        let id = signposter.makeSignpostID()
+        let interval = signposter.beginInterval("stage", id: id, "\(stage.rawValue)")
+        signposter.endInterval("stage", interval, "\(duration.milliseconds)ms")
+    }
+
+    func recordEngine(_ engine: ClassificationEngine, usedImage: Bool) {
+        state.withLock { counts in
+            switch engine {
+            case .heuristic: counts.heuristicCalls += 1
+            case .vision:    counts.visionCalls += 1
+            case .foundationModel:
+                counts.foundationModelCalls += 1
+                if usedImage { counts.foundationModelImageCalls += 1 }
+            }
+        }
+    }
+
+    func recordResolution(_ source: ClassificationSource) {
+        state.withLock { counts in
+            switch source {
+            case .heuristic:                                  counts.heuristicResolutions += 1
+            case .vision:                                     counts.visionResolutions += 1
+            case .foundationModelText, .foundationModelMultimodal: counts.foundationModelResolutions += 1
+            case .cached:                                     counts.cacheResolutions += 1
+            case .fallback:                                   counts.fallbackResolutions += 1
+            }
+        }
+    }
+
+    func recordNeedsReview() { state.withLock { $0.needsReview += 1 } }
+    func recordFailure()     { state.withLock { $0.failures += 1 } }
+
+    func snapshot() -> Counts { state.withLock { $0 } }
+}
+
+/// No-op sink for previews and tests that don't care about instrumentation.
+struct NoopClassificationMetrics: ClassificationMetrics {
+    func record(_ stage: ClassificationStage, _ duration: Duration) {}
+    func recordEngine(_ engine: ClassificationEngine, usedImage: Bool) {}
+    func recordResolution(_ source: ClassificationSource) {}
+    func recordNeedsReview() {}
+    func recordFailure() {}
+}
+
+private extension Duration {
+    var milliseconds: Int {
+        let (seconds, attoseconds) = components
+        return Int(seconds) * 1_000 + Int(attoseconds / 1_000_000_000_000_000)
     }
 }

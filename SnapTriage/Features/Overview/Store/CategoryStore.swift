@@ -7,30 +7,34 @@
 
 import Foundation
 
+/// Persists the full ``ScreenshotClassification`` — category, confidence, source,
+/// and evidence — not merely the category. Storing confidence is what lets
+/// retention stay correct across relaunch: a low-confidence verdict reloads as
+/// `needsReview`, never as a safe deletion candidate.
 protocol CategoryStore: Sendable {
-    func category(for id: Screenshot.ID) async -> ScreenshotCategory?
-    func save(_ category: ScreenshotCategory, for id: Screenshot.ID) async
-    /// Every category cached so far, keyed by screenshot id. The Review feature
-    /// reads this to build the "safe to delete" set without re-running the pipeline.
-    func allCategories() async -> [Screenshot.ID: ScreenshotCategory]
-    /// Drops the categories for screenshots that no longer exist, e.g. after
+    func classification(for id: Screenshot.ID) async -> ScreenshotClassification?
+    func save(_ classification: ScreenshotClassification, for id: Screenshot.ID) async
+    /// Every classification cached so far, keyed by screenshot id. Overview and
+    /// Review read this to build their summaries without re-running the pipeline.
+    func allClassifications() async -> [Screenshot.ID: ScreenshotClassification]
+    /// Drops the classifications for screenshots that no longer exist, e.g. after
     /// Review deletes them.
     func remove(_ ids: [Screenshot.ID]) async
 }
 
 actor InMemoryCategoryStore: CategoryStore {
 
-    private var cache: [Screenshot.ID: ScreenshotCategory] = [:]
+    private var cache: [Screenshot.ID: ScreenshotClassification] = [:]
 
-    func category(for id: Screenshot.ID) -> ScreenshotCategory? {
+    func classification(for id: Screenshot.ID) -> ScreenshotClassification? {
         cache[id]
     }
 
-    func save(_ category: ScreenshotCategory, for id: Screenshot.ID) {
-        cache[id] = category
+    func save(_ classification: ScreenshotClassification, for id: Screenshot.ID) {
+        cache[id] = classification
     }
 
-    func allCategories() -> [Screenshot.ID: ScreenshotCategory] {
+    func allClassifications() -> [Screenshot.ID: ScreenshotClassification] {
         cache
     }
 
@@ -43,29 +47,33 @@ actor InMemoryCategoryStore: CategoryStore {
 /// file lives in Caches — if the system purges it the pipeline just re-runs.
 final class FileBackedCategoryStore: CategoryStore {
 
-    /// Bump when the classifier (prompt, rules, or routing) changes: cached
-    /// verdicts from the old classifier are stale, and a new file name makes
-    /// the whole library re-classify on next launch.
-    private static let classifierVersion = 5
+    /// Bump when the classifier (rules, cascade, prompt, or the stored schema)
+    /// changes: cached verdicts from the old classifier are stale, and a new file
+    /// name makes the whole library re-classify on next launch. User decisions
+    /// live in a separate store and are never touched by this migration.
+    ///
+    /// v6: cheap-first cascade; stores `ScreenshotClassification` (was a bare
+    /// `ScreenshotCategory`), so the schema changed too.
+    private static let classifierVersion = 6
 
-    private let storage: PersistedDictionary<ScreenshotCategory>
+    private let storage: PersistedDictionary<ScreenshotClassification>
 
     init(directory: URL) {
         storage = PersistedDictionary(
-            name: "screenshot-categories-v\(Self.classifierVersion)",
+            name: "screenshot-classifications-v\(Self.classifierVersion)",
             directory: directory
         )
     }
 
-    func category(for id: Screenshot.ID) -> ScreenshotCategory? {
+    func classification(for id: Screenshot.ID) -> ScreenshotClassification? {
         storage[id]
     }
 
-    func save(_ category: ScreenshotCategory, for id: Screenshot.ID) {
-        storage.set(category, for: id)
+    func save(_ classification: ScreenshotClassification, for id: Screenshot.ID) {
+        storage.set(classification, for: id)
     }
 
-    func allCategories() -> [Screenshot.ID: ScreenshotCategory] {
+    func allClassifications() -> [Screenshot.ID: ScreenshotClassification] {
         storage.snapshot()
     }
 

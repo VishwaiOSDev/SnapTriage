@@ -7,21 +7,31 @@
 
 import Foundation
 
-/// Categorizes the whole screenshot library in the background and reports each
-/// result as it lands. Throttled to a small concurrency window so OCR + the
-/// classifier don't swamp the device, cached per screenshot so re-runs are cheap,
-/// and fully cancelable via the stream's termination.
+/// Classifies the whole screenshot library in the background and reports each
+/// result as it lands. Cached per screenshot so re-runs are cheap, and fully
+/// cancelable via the stream's termination.
+///
+/// Concurrency is *stage-aware*, not one blind number applied to the whole
+/// expensive pipeline. Cache hits return immediately. The cheap stages (OCR,
+/// heuristic, Vision) run at a small bounded window; the foundation model — the
+/// one stage that does not scale with parallelism — is serialized independently
+/// by ``FoundationModelGate`` inside the classifier, so raising this window never
+/// multiplies concurrent model sessions. Most screenshots resolve on the
+/// heuristic and never reach the model at all.
 struct ClassifyLibraryUseCase {
 
     let recognizeText: RecognizeScreenshotTextUseCase
     let categorize: CategorizeScreenshotUseCase
     let store: CategoryStore
 
-    private let concurrency = 4
+    /// Bounds the cheap OCR/heuristic/Vision stages. The model gate handles the
+    /// expensive stage separately, so this is a throughput knob, not a model-
+    /// concurrency knob.
+    private let cheapConcurrency = 4
 
     struct Progress: Sendable {
         let id: Screenshot.ID?
-        let category: ScreenshotCategory?
+        let classification: ScreenshotClassification?
         let completed: Int
         let total: Int
     }
@@ -35,8 +45,8 @@ struct ClassifyLibraryUseCase {
     /// Everything the store already knows, in one read. Callers fold these into
     /// their state before streaming `execute` over the remainder — streaming
     /// cache hits one by one after a relaunch animates totals up from zero.
-    func cachedCategories() async -> [Screenshot.ID: ScreenshotCategory] {
-        await store.allCategories()
+    func cachedClassifications() async -> [Screenshot.ID: ScreenshotClassification] {
+        await store.allClassifications()
     }
 
     // Utility priority throughout: OCR + inference saturate CPU/ANE, and at the
@@ -49,7 +59,7 @@ struct ClassifyLibraryUseCase {
                 var completed = 0
                 var index = 0
 
-                await withTaskGroup(of: (Screenshot.ID, ScreenshotCategory?)?.self) { group in
+                await withTaskGroup(of: (Screenshot.ID, ScreenshotClassification?)?.self) { group in
                     func addNext() {
                         guard index < screenshots.count else { return }
                         let shot = screenshots[index]
@@ -57,13 +67,13 @@ struct ClassifyLibraryUseCase {
                         group.addTask(priority: .utility) { await classify(shot) }
                     }
 
-                    for _ in 0..<min(concurrency, screenshots.count) { addNext() }
+                    for _ in 0..<min(cheapConcurrency, screenshots.count) { addNext() }
 
                     for await outcome in group {
                         if Task.isCancelled { break }
                         completed += 1
                         continuation.yield(
-                            Progress(id: outcome?.0, category: outcome?.1, completed: completed, total: total)
+                            Progress(id: outcome?.0, classification: outcome?.1, completed: completed, total: total)
                         )
                         addNext()
                     }
@@ -76,17 +86,17 @@ struct ClassifyLibraryUseCase {
 
     // Returns nil only when cancelled. A failed classification yields (id, nil)
     // so callers can count it as unknown rather than silently dropping it.
-    private func classify(_ shot: Screenshot) async -> (Screenshot.ID, ScreenshotCategory?)? {
+    private func classify(_ shot: Screenshot) async -> (Screenshot.ID, ScreenshotClassification?)? {
         if Task.isCancelled { return nil }
-        if let cached = await store.category(for: shot.id) {
-            return (shot.id, cached)
+        if let cached = await store.classification(for: shot.id) {
+            return (shot.id, cached.asCached())
         }
         do {
             let ocr = try await recognizeText.execute(screenshotID: shot.id)
             if Task.isCancelled { return nil }
-            let category = await categorize.execute(ocr)
-            await store.save(category, for: shot.id)
-            return (shot.id, category)
+            let classification = await categorize.execute(ocr)
+            await store.save(classification, for: shot.id)
+            return (shot.id, classification)
         } catch is CancellationError {
             return nil
         } catch {

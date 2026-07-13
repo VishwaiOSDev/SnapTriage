@@ -114,19 +114,21 @@ struct TriageView: View {
     @ViewBuilder
     private var categoryPill: some View {
         if let current = viewModel.state.current {
-            let category = viewModel.state.category(for: current)
+            // Pending classification shows a neutral "Analyzing…" pill — never a
+            // premature category or safe-to-delete verdict.
+            let classification = viewModel.state.classification(for: current)
             HStack(spacing: 6) {
-                Image(systemName: category.systemImage)
+                Image(systemName: classification?.category.systemImage ?? "hourglass")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Metrics.keep)
-                Text(category.title)
+                Text(classification?.category.title ?? Strings.Triage.analyzing)
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.white)
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 14)
             .liquidGlass(in: Capsule())
-            .animation(.default, value: category)
+            .animation(.default, value: classification)
         }
     }
 
@@ -166,7 +168,7 @@ struct TriageView: View {
     private func card(for screenshot: Screenshot) -> some View {
         TriageCardView(
             screenshot: screenshot,
-            category: viewModel.state.category(for: screenshot),
+            classification: viewModel.state.classification(for: screenshot),
             loadThumbnail: { id, size in
                 await viewModel.thumbnail(for: id, targetSize: size)
             }
@@ -405,6 +407,8 @@ private enum Metrics {
     static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
     static let keep = Color.blue
     static let delete = Color.red
+    static let review = Color.orange
+    static let neutral = Color.secondary
     static let controlKeep = Color(red: 0.08, green: 0.43, blue: 0.90)
     static let controlDelete = Color(red: 0.88, green: 0.20, blue: 0.29)
     static let cardCornerRadius: CGFloat = 32
@@ -469,7 +473,8 @@ private struct CircularIconButton: View {
 
 private struct TriageCardView: View {
     let screenshot: Screenshot
-    let category: ScreenshotCategory
+    /// `nil` while the pipeline is still classifying this card.
+    let classification: ScreenshotClassification?
     let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
 
     @Environment(\.displayScale) private var displayScale
@@ -522,7 +527,7 @@ private struct TriageCardView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            Image(systemName: category.systemImage)
+            Image(systemName: classification?.category.systemImage ?? "hourglass")
                 .font(.system(size: 56, weight: .light))
                 .foregroundStyle(.white.opacity(0.25))
         }
@@ -531,7 +536,7 @@ private struct TriageCardView: View {
     private var metadataBar: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(category.title)
+                Text(classification?.category.title ?? Strings.Triage.analyzing)
                     .font(.headline)
                     .foregroundStyle(.white)
                 Text(metadataText)
@@ -546,14 +551,21 @@ private struct TriageCardView: View {
         .background(Color.black.opacity(0.35))
     }
 
+    // Pending → neutral "Analyzing…"; otherwise the three retention states, so a
+    // needs-review card never reads as "safe to delete".
     private var dispositionBadge: some View {
-        let safe = category.disposition == .safeToDelete
-        return Text(safe ? Strings.Triage.safeToDelete : Strings.Triage.worthKeeping)
+        let (text, color): (String, Color) = switch classification?.disposition {
+        case .safeToDelete?: (Strings.Triage.safeToDelete, Metrics.delete)
+        case .useful?:       (Strings.Triage.worthKeeping, Metrics.keep)
+        case .needsReview?:  (Strings.Triage.needsReview, Metrics.review)
+        case nil:            (Strings.Triage.analyzing, Metrics.neutral)
+        }
+        return Text(text)
             .font(.caption2.weight(.semibold))
-            .foregroundStyle(safe ? Metrics.delete : Metrics.keep)
+            .foregroundStyle(color)
             .padding(.vertical, 5)
             .padding(.horizontal, 10)
-            .background((safe ? Metrics.delete : Metrics.keep).opacity(0.15), in: Capsule())
+            .background(color.opacity(0.15), in: Capsule())
     }
 
     // "Today, 9:41 AM • 1.8 MB"

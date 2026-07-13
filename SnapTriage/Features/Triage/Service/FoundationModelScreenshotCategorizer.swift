@@ -115,6 +115,19 @@ struct FoundationModelScreenshotCategorizer {
           numbers, a holder name, and helpline numbers.
         - photo: A captured photo of a person, scene, object, food, or place, with little
           to no meaningful text.
+        - alarm: An alarm or clock screen — an alarm list, an alarm being set or going off,
+          with alarm/snooze/wake-up labels, repeat weekday toggles, or a bedtime schedule.
+          A clock time or a number alone is NOT an alarm.
+        - entertainment: A movie, TV, or streaming screen — a film/show detail page, trailer,
+          cast and crew, episodes, cinema listings, or a movie-information screen. A release
+          date or showtime alone does NOT make it an `event`.
+        - finance: A banking, wallet, or investing screen — an account balance, statement,
+          transactions, a portfolio, or budgeting — that is NOT a single purchase receipt.
+        - shopping: A store, product, or cart screen — a product page, cart, checkout,
+          wishlist, or listing, before any completed purchase.
+        - settings: An app or system settings, preferences, or configuration screen — toggles,
+          permissions, and options with no other clear purpose.
+        - reminder: A reminders, to-do, or task-list screen with items to complete or due dates.
         - other: Nothing above fits even loosely.
 
         Tie-breakers:
@@ -125,10 +138,15 @@ struct FoundationModelScreenshotCategorizer {
         - An order or payment confirmation with an amount is `receipt`, even inside an email or chat.
         - A booking confirmation for a journey or stay is `travel`, even with a price on screen.
         - An article or post shared inside a chat thread is `conversation` — classify the thread.
+        - Alarm/snooze/wake-up controls with repeat weekday toggles are `alarm`, never `game`.
+        - A movie or show detail page (trailer, cast, episodes) is `entertainment`, never `event`.
+        - `event` needs event structure: an invitation, RSVP, attendees, a calendar UI, a
+          meeting, a reservation, a venue, or "add to calendar" — not merely a date or time.
         - A weekday heading does NOT make an `event`. A workout routine, diet plan,
           timetable, or checklist organized by day is a plan with tasks, not an
           invitation — classify it `other` unless another category clearly fits.
-        - App UI like settings, menus, or dashboards with no better fit is `other`.
+        - A settings, dashboard, or unsupported screen with no better fit is `settings` or
+          `other`; do not force it into the nearest category.
         """
     }
 }
@@ -152,25 +170,37 @@ enum GenerableScreenshotCategory {
     case identity
     case document
     case photo
+    case alarm
+    case entertainment
+    case finance
+    case shopping
+    case settings
+    case reminder
     case other
 
     var domain: ScreenshotCategory {
         switch self {
-        case .game:         .game
-        case .receipt:      .receipt
-        case .code:         .code
-        case .conversation: .conversation
-        case .article:      .article
-        case .social:       .social
-        case .location:     .location
-        case .otp:          .otp
-        case .travel:       .travel
-        case .event:        .event
-        case .email:        .email
-        case .identity:     .identity
-        case .document:     .document
-        case .photo:        .photo
-        case .other:        .other
+        case .game:          .game
+        case .receipt:       .receipt
+        case .code:          .code
+        case .conversation:  .conversation
+        case .article:       .article
+        case .social:        .social
+        case .location:      .location
+        case .otp:           .otp
+        case .travel:        .travel
+        case .event:         .event
+        case .email:         .email
+        case .identity:      .identity
+        case .document:      .document
+        case .photo:         .photo
+        case .alarm:         .alarm
+        case .entertainment: .entertainment
+        case .finance:       .finance
+        case .shopping:      .shopping
+        case .settings:      .settings
+        case .reminder:      .reminder
+        case .other:         .other
         }
     }
 }

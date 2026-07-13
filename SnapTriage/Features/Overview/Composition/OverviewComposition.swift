@@ -13,6 +13,7 @@ enum OverviewComposition {
         service: PhotoLibraryService,
         ocrStore: OCRStore,
         categoryStore: CategoryStore,
+        metrics: ClassificationMetrics = OSLogClassificationMetrics(),
         router: OverviewRouter
     ) -> OverviewViewModel {
         let recognizer = VisionTextRecognitionService()
@@ -22,11 +23,7 @@ enum OverviewComposition {
             recognizer: recognizer,
             store: ocrStore
         )
-        let categorize = CategorizeScreenshotUseCase(
-            categorizer: FallbackScreenshotCategorizer(),
-            imageClassifier: VisionImageContentClassifier(),
-            imageLoader: service
-        )
+        let categorize = CategorizeScreenshotUseCase(imageLoader: service, metrics: metrics)
 
         return OverviewViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),

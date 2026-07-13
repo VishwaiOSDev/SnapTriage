@@ -55,19 +55,25 @@ struct OverviewSummary: Equatable {
     var usefulBytes = 0
     var safeCount = 0
     var safeBytes = 0
+    /// Screenshots the pipeline classified but is not confident enough to auto-act
+    /// on (unknown, low-confidence, or ambiguous categories). Deliberately kept out
+    /// of the reclaimable figure — they are never a safe deletion candidate.
+    var reviewCount = 0
+    var reviewBytes = 0
     var totalCount = 0
     /// Screenshots that finished the pipeline but could not be classified
     /// (e.g. iCloud-only assets whose image failed to load).
     var unknownCount = 0
-    
-    /// Headline "reclaimable" figure is the size of the safe-to-delete set.
+
+    /// Headline "reclaimable" figure is the size of the safe-to-delete set only.
+    /// Needs-review bytes never count toward reclaimable space.
     var reclaimableBytes: Int { safeBytes }
-    
+
     /// Share of the library that is safe to delete (matches the reference's 85%).
     var reclaimableRatio: Double {
         totalCount == 0 ? 0 : Double(safeCount) / Double(totalCount)
     }
-    
+
     mutating func add(bytes: Int, disposition: ScreenshotDisposition) {
         switch disposition {
         case .useful:
@@ -76,6 +82,9 @@ struct OverviewSummary: Equatable {
         case .safeToDelete:
             safeCount += 1
             safeBytes += bytes
+        case .needsReview:
+            reviewCount += 1
+            reviewBytes += bytes
         }
     }
 }

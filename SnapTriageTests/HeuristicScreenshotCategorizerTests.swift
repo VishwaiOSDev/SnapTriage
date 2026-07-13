@@ -69,6 +69,35 @@ struct HeuristicScreenshotCategorizerTests {
         #expect(category != .receipt)
     }
 
+    @Test("Resolves the new taxonomy categories from their evidence", arguments: [
+        ("Alarm 7:00 AM\nRepeat Monday Tuesday Wednesday\nSnooze", ScreenshotCategory.alarm),
+        ("Dune Part Two\nWatch Trailer\nCast and Crew\nIMDb\nRelease Date March 1", .entertainment),
+        ("Birthday Dinner\nSaturday July 20, 7:00 PM\nRSVP\nAdd to Calendar\nLocation", .event),
+    ])
+    func classifiesNewCategories(transcript: String, expected: ScreenshotCategory) async {
+        let result = sut.evaluate(Fixture.ocrResult(transcript: transcript))
+        #expect(result.category == expected)
+        #expect(result.tier == .high)
+    }
+
+    @Test("A high-confidence evaluation exposes evidence and a runner-up gap")
+    func evaluateExposesConfidenceAndEvidence() async {
+        let result = sut.evaluate(Fixture.ocrResult(transcript: "Total $42.00\nSubtotal $38.00\nTax $4.00\nPaid"))
+
+        #expect(result.category == .receipt)
+        #expect(result.tier == .high)
+        #expect(result.margin > 0)
+        #expect(!result.evidence.isEmpty)
+        #expect(result.abstentionReason == nil)
+    }
+
+    @Test("An empty transcript abstains with a reason")
+    func abstainsWithReason() async {
+        let result = sut.evaluate(Fixture.ocrResult(transcript: ""))
+        #expect(result.category == .other)
+        #expect(result.abstentionReason != nil)
+    }
+
     @Test("Recurring task plans stay other despite incidental game-like words")
     func structuredPlanIsOther() async {
         let transcript = """

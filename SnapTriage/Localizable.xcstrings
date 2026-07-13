@@ -841,6 +841,78 @@
         }
       }
     },
+    "Category.alarm": {
+      "comment": "Screenshot category label for alarm/clock screens",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alarm"
+          }
+        }
+      }
+    },
+    "Category.entertainment": {
+      "comment": "Screenshot category label for movie/TV/streaming screens",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entertainment"
+          }
+        }
+      }
+    },
+    "Category.finance": {
+      "comment": "Screenshot category label for banking/wallet/investing screens",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finance"
+          }
+        }
+      }
+    },
+    "Category.shopping": {
+      "comment": "Screenshot category label for store/product/cart screens",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shopping"
+          }
+        }
+      }
+    },
+    "Category.settings": {
+      "comment": "Screenshot category label for settings/preferences screens",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Category.reminder": {
+      "comment": "Screenshot category label for reminders/to-do screens",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminder"
+          }
+        }
+      }
+    },
     "Category.other": {
       "comment": "Screenshot category label for uncategorized screenshots",
       "extractionState": "manual",
@@ -849,6 +921,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Other"
+          }
+        }
+      }
+    },
+    "Triage.analyzing": {
+      "comment": "Neutral status shown on a triage card while classification is pending",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing…"
+          }
+        }
+      }
+    },
+    "Triage.needsReview": {
+      "comment": "Retention badge for screenshots the app is unsure about",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
           }
         }
       }
