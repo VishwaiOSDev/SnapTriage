@@ -162,6 +162,31 @@ assigns domain state and a `loaded`/`failed` phase → SwiftUI re-renders.
 
 ---
 
+## Classification pipeline
+
+Screenshots are categorized by an on-device **cheap-first cascade**. A
+deterministic rule scorer (lemmatized OCR + structural signals) runs first;
+Vision handles image-led screens; Apple's Foundation Model is the **last resort**
+for genuinely ambiguous screens only — bounded to two independent sessions at a
+time. Most screenshots resolve on the heuristic and never invoke the model.
+
+- **`ScreenshotClassification`** carries `category`, a coarse `confidence` tier,
+  the `source` (which stage decided), and lightweight `evidence` — no OCR text or
+  sensitive content is stored or logged.
+- **Retention is decoupled** from category (`RetentionPolicy`): every screenshot
+  is `useful`, `safeToDelete`, or **`needsReview`**. Unknown, low-confidence, and
+  pending screenshots are `needsReview` — never counted as reclaimable space,
+  never pre-selected for deletion, shown as a neutral "Analyzing…" state. A user's
+  Keep / Mark-for-Deletion always wins.
+- **Instrumented** via `os_signpost` + aggregate counts (`ClassificationMetrics`)
+  so the "how much of the library needed the model" target (< 25%) can be measured
+  on a physical device. Custom Core ML classification is deliberately deferred.
+
+See [`ARCHITECTURE.md` §15](ARCHITECTURE.md) for the full cascade, the retention
+rules, and how to profile the pipeline on a device.
+
+---
+
 ## License
 
 Released under the [MIT License](LICENSE). Copyright (c) 2026 Vishweshwaran Ravi.
