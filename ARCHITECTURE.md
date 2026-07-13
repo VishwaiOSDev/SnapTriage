@@ -342,3 +342,99 @@ Rules:
 - Navigation is state; Router mutates the path.
 - Separate **domain state** (UseCase-only) from **UI/transient state** (VM-managed).
 - Every async input is a tracked, cancellable Task keyed by kind.
+
+---
+
+## 15. Classification pipeline (cheap-first cascade)
+
+Screenshots are classified by a **cheap-first cascade**, the reverse of a
+model-first pipeline. Most screens resolve on a deterministic rule scorer and
+never load pixels or invoke Apple Intelligence.
+
+### The cascade (`CategorizeScreenshotUseCase`)
+
+1. **Cache** — `CategoryStore` returns a stored `ScreenshotClassification`; no work re-run.
+2. **Heuristic** (`HeuristicScreenshotCategorizer`) — lemmatized OCR + structural
+   signals scored against one declarative rule table. Returns a rich
+   `HeuristicResult`: winner, runner-up, score, margin, confidence tier, matched
+   evidence, and an abstention reason.
+3. **Deterministic bypass** — a heuristic verdict returns immediately (no model)
+   only when it clears the category's minimum score, satisfies that category's
+   **required evidence**, has an adequate **margin** over the runner-up, and no
+   protected (keep-worthy) signal conflicts with it.
+4. **Vision** (`ImageContentClassifier`) — for sparse/image-led screens the text
+   can't describe (a photo, a signature, a scanned card).
+5. **Foundation model** — only the remaining ambiguous screens. Bounded to two
+   independent inferences by `FoundationModelGate`; each call runs in a fresh,
+   stateless session so the framework's one-request-per-session rule is preserved.
+   Guided generation constrains output to the known categories. Availability
+   fallbacks for iOS < 26 / Apple Intelligence off are preserved.
+6. **Needs review** — when nothing has adequate evidence, the screen is
+   `unresolved` (never an automatic deletion candidate).
+
+### Classification, confidence, source, evidence
+
+The pipeline returns `ScreenshotClassification { category, confidence, source,
+evidence }`, not a bare category:
+
+- **confidence**: `low` / `medium` / `high` — a coarse tier, *not* a probability.
+  The model's self-reported certainty is treated as uncalibrated (a real model
+  verdict is `medium`, never `high`).
+- **source**: `heuristic`, `vision`, `foundationModelText`,
+  `foundationModelMultimodal`, `fallback`, `cached` — the routing path.
+- **evidence**: lightweight, persistable signal *labels* and weights
+  (`"terms"`, `"otpCode"`, `"model"`) — never OCR text, codes, or IDs.
+
+### Retention is decoupled from category (`RetentionPolicy`)
+
+Category → retention is computed in one place, producing three states:
+`useful` / `safeToDelete` / **`needsReview`**. Missing, low-confidence, and
+`.other` classifications are `needsReview`: excluded from reclaimable bytes,
+never pre-selected for deletion, shown as a neutral "Analyzing…" / review state
+in the UI. A user's explicit Keep / Mark-for-Deletion always overrides the
+automatic recommendation.
+
+### Concurrency (stage-aware)
+
+`ClassifyLibraryUseCase` streams results incrementally with cancellation. Cheap
+stages (OCR, heuristic, Vision) run at a small bounded window; the model gate
+admits at most two concurrent sessions — independent of that window, so raising
+cheap-stage throughput never creates an unbounded model burst. Cache hits return
+immediately; the current Triage card plus a short lookahead are prioritized over
+the background library.
+
+### Instrumentation & profiling on a physical device
+
+`ClassificationMetrics` (default `OSLogClassificationMetrics`) emits `os_signpost`
+intervals per stage (image load, OCR, heuristic, Vision, foundation model, total)
+and keeps aggregate counts (cache/heuristic/Vision/model resolutions,
+needs-review, failures, and how many model calls used an image). It never logs
+OCR text or sensitive content.
+
+To profile the real pipeline:
+
+1. Run on a recent physical iPhone (Apple Intelligence enabled) — the simulator
+   has no Neural Engine and no on-device model, so timings are meaningless.
+2. Open **Instruments → os_signpost** (or Time Profiler) and filter the
+   `com.snaptriage.classification` subsystem to see per-stage durations.
+3. Read `OSLogClassificationMetrics.snapshot()` to get the share of the library
+   that reached the model — the MVP targets **< 25%**, and initial processing of
+   ~160 screenshots **under five minutes**. These are product targets to measure,
+   not CI assertions.
+
+### Cache migration
+
+The classification cache is versioned (`screenshot-classifications-v7`); bumping
+the version renames the file so stale verdicts re-classify on next launch. OCR
+uses its own version (`ocr-results-v3`) and is also refreshed when recognition
+settings change. **Persisted user decisions are never touched** by either cache
+migration.
+
+### Deferred: custom Core ML
+
+On-device Core ML classification is deliberately deferred to a future phase. The
+current architecture is the groundwork: `ScreenshotClassification` records the
+`source` and `evidence` behind every verdict, and every user Keep / Mark-for-
+Deletion override is persisted. Those overrides — verdict vs. correction — are
+exactly the labeled pairs a future training phase would consume, without changing
+today's MVP pipeline.
