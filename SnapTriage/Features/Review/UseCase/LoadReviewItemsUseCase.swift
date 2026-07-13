@@ -8,11 +8,13 @@
 import Foundation
 
 /// Produces the deletion set for the Review screen. It drives the (cache-first)
-/// classification pipeline to completion so every screenshot has a category in
-/// the shared store, then folds in the user's triage swipes: a swipe always
-/// overrides the classifier, and screenshots without a verdict fall back to the
-/// classifier's safe-to-delete judgement. When Overview has already classified,
-/// this is effectively free — every screenshot is a cache hit.
+/// classification pipeline to completion so every screenshot has a classification
+/// in the shared store, then folds in the user's triage swipes: a swipe always
+/// overrides the classifier, and screenshots without a verdict are included only
+/// when the classifier's retention judgement is `safeToDelete`. Needs-review and
+/// useful screenshots are never pre-selected for deletion — the user decides.
+/// When Overview has already classified, this is effectively free — every
+/// screenshot is a cache hit.
 struct LoadReviewItemsUseCase {
 
     let loadScreenshots: LoadScreenshotsUseCase
@@ -29,18 +31,19 @@ struct LoadReviewItemsUseCase {
             try Task.checkCancellation()
         }
 
-        let categories = await store.allCategories()
+        let classifications = await store.allClassifications()
         let verdicts = decisions.allDecisions()
         return screenshots.compactMap { shot in
             switch verdicts[shot.id] {
             case .keep:
                 return nil
             case .markForDeletion:
-                return ReviewItem(id: shot.id, category: categories[shot.id] ?? .other, byteSize: shot.byteSize)
-            case nil:
-                guard let category = categories[shot.id],
-                      category.disposition == .safeToDelete else { return nil }
+                let category = classifications[shot.id]?.category ?? .other
                 return ReviewItem(id: shot.id, category: category, byteSize: shot.byteSize)
+            case nil:
+                guard let classification = classifications[shot.id],
+                      classification.disposition == .safeToDelete else { return nil }
+                return ReviewItem(id: shot.id, category: classification.category, byteSize: shot.byteSize)
             }
         }
     }

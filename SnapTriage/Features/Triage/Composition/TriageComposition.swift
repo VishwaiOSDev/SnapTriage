@@ -14,6 +14,7 @@ enum TriageComposition {
         ocrStore: OCRStore,
         categoryStore: CategoryStore,
         decisionStore: TriageDecisionStore,
+        metrics: ClassificationMetrics = OSLogClassificationMetrics(),
         router: TriageRouter
     ) -> TriageViewModel {
         let recognizer = VisionTextRecognitionService()
@@ -23,11 +24,7 @@ enum TriageComposition {
             recognizer: recognizer,
             store: ocrStore
         )
-        let categorize = CategorizeScreenshotUseCase(
-            categorizer: FallbackScreenshotCategorizer(),
-            imageClassifier: VisionImageContentClassifier(),
-            imageLoader: service
-        )
+        let categorize = CategorizeScreenshotUseCase(imageLoader: service, metrics: metrics)
 
         return TriageViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),

@@ -95,6 +95,39 @@ struct LoadReviewItemsUseCaseTests {
         #expect(items.map(\.id) == ["1"])
     }
 
+    @Test("Needs-review classifications are never pre-selected for deletion", .tags(.fast))
+    func needsReviewNotPreselected() async throws {
+        let shots = [
+            Fixture.screenshot(id: "1", byteSize: 100),   // shopping    -> needsReview
+            Fixture.screenshot(id: "2", byteSize: 200),   // other/low   -> needsReview
+            Fixture.screenshot(id: "3", byteSize: 300)    // social/low  -> needsReview
+        ]
+        let service = FakePhotoLibraryService(screenshots: shots)
+        let store = SeededCategoryStore(classifications: [
+            "1": ScreenshotClassification(category: .shopping, confidence: .high, source: .heuristic),
+            "2": ScreenshotClassification(category: .other, confidence: .low, source: .fallback),
+            "3": ScreenshotClassification(category: .social, confidence: .low, source: .foundationModelText)
+        ])
+        let sut = Fixture.loadReviewItems(service: service, store: store)
+
+        let items = try await sut.execute()
+
+        #expect(items.isEmpty)
+    }
+
+    @Test("A cache hit builds items without re-running OCR", .tags(.fast))
+    func cacheHitSkipsOCR() async throws {
+        // The inert recognizer throws if OCR runs; a fully cached store must
+        // never reach it, so the safe-to-delete item still surfaces.
+        let shots = [Fixture.screenshot(id: "1", byteSize: 100)]
+        let service = FakePhotoLibraryService(screenshots: shots)
+        let sut = Fixture.loadReviewItems(service: service, store: SeededCategoryStore(["1": .social]))
+
+        let items = try await sut.execute()
+
+        #expect(items.map(\.id) == ["1"])
+    }
+
     @Test("Denied access throws before classifying", .tags(.fast))
     func deniedThrows() async {
         let service = FakePhotoLibraryService(authorization: .denied)

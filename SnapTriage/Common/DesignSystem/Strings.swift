@@ -51,6 +51,8 @@ enum Strings {
         static let doneHint = String(localized: .triageDoneHint)
         static let safeToDelete = String(localized: .triageSafeToDelete)
         static let worthKeeping = String(localized: .triageWorthKeeping)
+        static let needsReview = String(localized: .triageNeedsReview)
+        static let analyzing = String(localized: .triageAnalyzing)
         static func today(_ time: String) -> String { String(localized: .triageToday(time)) }
         static func yesterday(_ time: String) -> String { String(localized: .triageYesterday(time)) }
     }
@@ -95,6 +97,12 @@ enum Strings {
         static let identity = String(localized: .categoryIdentity)
         static let document = String(localized: .categoryDocument)
         static let photo = String(localized: .categoryPhoto)
+        static let alarm = String(localized: .categoryAlarm)
+        static let entertainment = String(localized: .categoryEntertainment)
+        static let finance = String(localized: .categoryFinance)
+        static let shopping = String(localized: .categoryShopping)
+        static let settings = String(localized: .categorySettings)
+        static let reminder = String(localized: .categoryReminder)
         static let other = String(localized: .categoryOther)
     }
 

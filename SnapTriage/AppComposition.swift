@@ -25,6 +25,9 @@ final class AppComposition {
     private let ocrStore = FileBackedOCRStore(directory: URL.cachesDirectory)
     private let categoryStore = FileBackedCategoryStore(directory: URL.cachesDirectory)
     private let decisionStore = FileBackedTriageDecisionStore(directory: URL.applicationSupportDirectory)
+    /// One metrics sink across features, so aggregate routing/timing counts (how
+    /// much of the library needed the model) are cumulative rather than per-tab.
+    private let metrics = OSLogClassificationMetrics()
 
     /// Forces pending store writes to disk; called when the scene backgrounds,
     /// after which the process may be killed without further notice.
@@ -39,6 +42,7 @@ final class AppComposition {
             service: service,
             ocrStore: ocrStore,
             categoryStore: categoryStore,
+            metrics: metrics,
             router: router ?? SystemOverviewRouter()
         )
     }
@@ -49,6 +53,7 @@ final class AppComposition {
             ocrStore: ocrStore,
             categoryStore: categoryStore,
             decisionStore: decisionStore,
+            metrics: metrics,
             router: router ?? SystemTriageRouter()
         )
     }
@@ -59,6 +64,7 @@ final class AppComposition {
             ocrStore: ocrStore,
             categoryStore: categoryStore,
             decisionStore: decisionStore,
+            metrics: metrics,
             router: router ?? SystemReviewRouter()
         )
     }

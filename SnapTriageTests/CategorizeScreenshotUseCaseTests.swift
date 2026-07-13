@@ -8,140 +8,178 @@
 import Testing
 @testable import SnapTriage
 
-@Suite("Categorize routing", .tags(.categorization, .routing))
+@Suite("Categorize cascade", .tags(.categorization, .routing))
 struct CategorizeScreenshotUseCaseTests {
 
-    private func makeSUT(
-        text: StubScreenshotCategorizer,
-        image: StubImageContentClassifier,
-        loader: StubPhotoLibraryService
-    ) -> CategorizeScreenshotUseCase {
-        CategorizeScreenshotUseCase(categorizer: text, imageClassifier: image, imageLoader: loader)
+    // A screenshot the heuristic resolves with high confidence — a full receipt.
+    private let receiptTranscript = """
+    Order #123
+    Subtotal $38.00
+    Tax $4.00
+    Total $42.00
+    Paid
+    """
+
+    @Test("A high-confidence heuristic skips Vision and the model entirely", .tags(.fast))
+    func highConfidenceHeuristicSkipsModel() async {
+        let model = RecordingModelClassifier(category: .conversation)
+        let loader = StubPhotoLibraryService(image: Fixture.image())
+        let sut = Fixture.categorize(model: model, loader: loader)
+
+        let result = await sut.execute(Fixture.ocrResult(transcript: receiptTranscript))
+
+        #expect(result.category == .receipt)
+        #expect(result.confidence == .high)
+        #expect(result.source == .heuristic)
+        #expect(model.callCount == 0)          // requirement: zero model calls for confident fixtures
+        #expect(loader.cgImageRequested == false)
     }
 
-    @Test("Text-rich screenshots use the multimodal path when the OS supports it", .tags(.fast))
-    func textRichUsesAvailableModelInput() async {
-        let text = StubScreenshotCategorizer(.receipt)
-        let loader = StubPhotoLibraryService(image: Fixture.image())
-        let sut = makeSUT(text: text, image: StubImageContentClassifier(result: .photo), loader: loader)
+    @Test("An ambiguous screenshot invokes the model exactly once", .tags(.fast))
+    func ambiguousInvokesModelExactlyOnce() async {
+        let model = RecordingModelClassifier(category: .conversation)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: Fixture.image()))
 
-        let category = await sut.execute(Fixture.ocrResult(transcript: "Total amount paid today"))
+        let result = await sut.execute(Fixture.ocrResult(transcript: "hey what time is the thing tomorrow"))
 
-        #expect(category == .receipt)
-        if #available(iOS 27.0, *) {
-            #expect(loader.cgImageRequested)
-            #expect(text.receivedImage)
-        } else {
-            #expect(loader.cgImageRequested == false)
-            #expect(text.receivedImage == false)
-        }
+        #expect(model.callCount == 1)          // requirement: exactly one model call for ambiguity
+        #expect(result.category == .conversation)
+        #expect(result.source == .foundationModelText)
     }
 
-    @Test("Sparse text routes to the image classifier")
-    func sparseTextUsesImage() async {
+    @Test("An unresolved screenshot is needs-review, never safe to delete", .tags(.fast))
+    func unresolvedIsNeedsReview() async {
+        // Model unavailable + weak text: safe fallback, no crash, no auto-delete.
+        let model = RecordingModelClassifier(nil)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: nil))
+
+        let result = await sut.execute(Fixture.ocrResult(transcript: "lorem ipsum dolor sit amet"))
+
+        #expect(result.category == .other)
+        #expect(result.disposition == .needsReview)
+        #expect(result.disposition != .safeToDelete)
+    }
+
+    @Test("Sparse text routes to Vision without the model")
+    func sparseTextUsesVision() async {
+        let model = RecordingModelClassifier(category: .conversation)
         let loader = StubPhotoLibraryService(image: Fixture.image())
-        let sut = makeSUT(
-            text: StubScreenshotCategorizer(.other),
-            image: StubImageContentClassifier(result: .photo),
+        let sut = Fixture.categorize(
+            vision: StubImageContentClassifier(result: .photo),
+            model: model,
             loader: loader
         )
 
-        let category = await sut.execute(Fixture.ocrResult(transcript: "hi"))
+        let result = await sut.execute(Fixture.ocrResult(transcript: "hi"))
 
-        #expect(category == .photo)
+        #expect(result.category == .photo)
+        #expect(result.source == .vision)
         #expect(loader.cgImageRequested)
+        #expect(model.callCount == 0)
     }
 
-    @Test("Inconclusive image falls back to the text model", .tags(.fallback))
-    func imageInconclusiveFallsBackToText() async {
-        let text = StubScreenshotCategorizer(.otp)
-        let sut = makeSUT(
-            text: text,
-            image: StubImageContentClassifier(result: nil),
+    @Test("An inconclusive Vision result falls through to the model")
+    func sparseInconclusiveFallsToModel() async {
+        let model = RecordingModelClassifier(category: .otp)
+        let sut = Fixture.categorize(
+            vision: StubImageContentClassifier(result: nil),
+            model: model,
             loader: StubPhotoLibraryService(image: Fixture.image())
         )
 
-        let category = await sut.execute(Fixture.ocrResult(transcript: "847291"))
+        let result = await sut.execute(Fixture.ocrResult(transcript: "hi"))
 
-        #expect(category == .otp)
-        #expect(text.categorizeCount == 1)
+        #expect(model.callCount == 1)
+        #expect(result.category == .otp)
     }
 
-    @Test("Missing image falls back to the text model", .tags(.fallback))
-    func missingImageFallsBackToText() async {
-        let sut = makeSUT(
-            text: StubScreenshotCategorizer(.other),
-            image: StubImageContentClassifier(result: .photo),
-            loader: StubPhotoLibraryService(image: nil)
-        )
+    @Test("Keep-worthy heuristic evidence overrides a delete-leaning model verdict")
+    func keepWorthyOverridesSafeModelVerdict() async {
+        // "Total $50.00" scores receipt at medium — reaches the model, but a
+        // safe-to-delete verdict must not overrule keep-worthy transaction evidence.
+        let model = RecordingModelClassifier(category: .conversation)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: Fixture.image()))
 
-        let category = await sut.execute(Fixture.ocrResult(transcript: "hi"))
+        let result = await sut.execute(Fixture.ocrResult(transcript: "Total $50.00\nAmount paid"))
 
-        #expect(category == .other)
+        #expect(result.category == .receipt)
+        #expect(result.disposition == .useful)
     }
 
-    @Test("Text-rich `other` verdict is rescued by the image classifier", .tags(.fallback))
-    func textRichOtherRescuedByImage() async {
-        let loader = StubPhotoLibraryService(image: Fixture.image())
-        let sut = makeSUT(
-            text: StubScreenshotCategorizer(.other),
-            image: StubImageContentClassifier(result: .photo),
-            loader: loader
-        )
+    @Test("A model `other` is rescued toward keep-worthy heuristic evidence")
+    func modelOtherRescuedByKeepHeuristic() async {
+        let model = RecordingModelClassifier(category: .other)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: Fixture.image()))
 
-        let category = await sut.execute(Fixture.ocrResult(transcript: "daily specials fresh pasta salad"))
+        let result = await sut.execute(Fixture.ocrResult(transcript: "Total $50.00\nAmount paid"))
 
-        #expect(category == .photo)
-        #expect(loader.cgImageRequested)
+        #expect(result.category == .receipt)
     }
 
-    @Test("Text-rich `other` verdict stays `other` when the image is inconclusive", .tags(.fallback))
-    func textRichOtherStaysOtherWhenImageInconclusive() async {
-        let sut = makeSUT(
-            text: StubScreenshotCategorizer(.other),
-            image: StubImageContentClassifier(result: nil),
-            loader: StubPhotoLibraryService(image: Fixture.image())
-        )
+    @Test("A structured task plan resolves to other without calling the model")
+    func structuredPlanResolvesWithoutModel() async {
+        let model = RecordingModelClassifier(category: .game)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: nil))
+        let transcript = """
+        Monday
+        Battle ropes 3 x 12
+        Tuesday
+        Push ups 3 x 10
+        Wednesday
+        Plank 2 minutes
+        """
 
-        let category = await sut.execute(Fixture.ocrResult(transcript: "one two three four five"))
+        let result = await sut.execute(Fixture.ocrResult(transcript: transcript))
 
-        #expect(category == .other)
+        #expect(result.category == .other)
+        #expect(result.disposition == .needsReview)
+        #expect(model.callCount == 0)
     }
 
-    @Test("Word count only routes legacy text-only systems", .tags(.fast), arguments: [
-        ("one two three", true),      // 3 words -> Vision first on iOS 26
-        ("one two three four", false) // 4 words -> text first on iOS 26
-    ])
-    func wordCountBoundary(transcript: String, expectsImagePath: Bool) async {
-        let loader = StubPhotoLibraryService(image: Fixture.image())
-        let sut = makeSUT(
-            text: StubScreenshotCategorizer(.receipt),
-            image: StubImageContentClassifier(result: .photo),
-            loader: loader
+    @Test("A visual game verdict is not overturned by receipt-shaped OCR")
+    func multimodalGameBeatsReceiptOCR() async {
+        let model = RecordingModelClassifier(category: .game, usedImage: true)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: Fixture.image()))
+
+        let result = await sut.execute(
+            Fixture.ocrResult(transcript: "Cash balance $1,200.00\nCard table\nCurrent score 900")
         )
 
-        let category = await sut.execute(Fixture.ocrResult(transcript: transcript))
-
-        if #available(iOS 27.0, *) {
-            #expect(loader.cgImageRequested)
-            #expect(category == .receipt)
-        } else {
-            #expect(loader.cgImageRequested == expectsImagePath)
-            #expect(category == (expectsImagePath ? .photo : .receipt))
-        }
+        #expect(result.category == .game)
+        #expect(result.source == .foundationModelMultimodal)
     }
 
-    @Test("Prewarm is forwarded to the text model", .tags(.fast))
-    func prewarmForwardsToTextModel() {
-        let text = StubScreenshotCategorizer(.other)
-        let sut = makeSUT(
-            text: text,
-            image: StubImageContentClassifier(result: nil),
-            loader: StubPhotoLibraryService(image: nil)
-        )
+    @Test("The model unavailable leaves a confident heuristic verdict intact", .tags(.fast))
+    func modelUnavailableKeepsConfidentHeuristic() async {
+        let model = RecordingModelClassifier(nil)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: nil))
+
+        let result = await sut.execute(Fixture.ocrResult(transcript: receiptTranscript))
+
+        #expect(result.category == .receipt)   // bypassed before the model was ever consulted
+        #expect(model.callCount == 0)
+    }
+
+    @Test("Metrics record the routing path", .tags(.fast))
+    func metricsRecordRouting() async {
+        let metrics = RecordingClassificationMetrics()
+        let model = RecordingModelClassifier(category: .conversation)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: Fixture.image()), metrics: metrics)
+
+        _ = await sut.execute(Fixture.ocrResult(transcript: "hey what time is the thing tomorrow"))
+
+        #expect(metrics.heuristicCalls == 1)
+        #expect(metrics.foundationModelCalls == 1)
+        #expect(metrics.resolutions[.foundationModelText] == 1)
+    }
+
+    @Test("Prewarm is forwarded to the model", .tags(.fast))
+    func prewarmForwardsToModel() {
+        let model = RecordingModelClassifier(nil)
+        let sut = Fixture.categorize(model: model, loader: StubPhotoLibraryService(image: nil))
 
         sut.prewarm()
 
-        #expect(text.prewarmCount == 1)
+        #expect(model.prewarmCount == 1)
     }
 }

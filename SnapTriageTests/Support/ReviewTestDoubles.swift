@@ -61,18 +61,27 @@ final class FakePhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
 
 // MARK: - Category store fake
 
-/// A category store pre-seeded with a fixed map. `allCategories()` returns the
-/// seed so Review's classification pass is entirely cache hits.
+/// A classification store pre-seeded with a fixed map. `allClassifications()`
+/// returns the seed so Review's classification pass is entirely cache hits.
 actor SeededCategoryStore: CategoryStore {
-    private var cache: [Screenshot.ID: ScreenshotCategory]
+    private var cache: [Screenshot.ID: ScreenshotClassification]
 
-    init(_ seed: [Screenshot.ID: ScreenshotCategory]) {
-        self.cache = seed
+    /// Seed by category, stored as a confident heuristic verdict so retention
+    /// follows the category's base leaning.
+    init(_ categories: [Screenshot.ID: ScreenshotCategory]) {
+        self.cache = categories.mapValues {
+            ScreenshotClassification(category: $0, confidence: .high, source: .heuristic)
+        }
     }
 
-    func category(for id: Screenshot.ID) -> ScreenshotCategory? { cache[id] }
-    func save(_ category: ScreenshotCategory, for id: Screenshot.ID) { cache[id] = category }
-    func allCategories() -> [Screenshot.ID: ScreenshotCategory] { cache }
+    /// Seed full classifications when confidence/source matter to the test.
+    init(classifications: [Screenshot.ID: ScreenshotClassification]) {
+        self.cache = classifications
+    }
+
+    func classification(for id: Screenshot.ID) -> ScreenshotClassification? { cache[id] }
+    func save(_ classification: ScreenshotClassification, for id: Screenshot.ID) { cache[id] = classification }
+    func allClassifications() -> [Screenshot.ID: ScreenshotClassification] { cache }
     func remove(_ ids: [Screenshot.ID]) { ids.forEach { cache[$0] = nil } }
 }
 
@@ -121,8 +130,8 @@ extension Fixture {
             store: InMemoryOCRStore()
         )
         let categorize = CategorizeScreenshotUseCase(
-            categorizer: StubScreenshotCategorizer(.other),
-            imageClassifier: StubImageContentClassifier(result: nil),
+            vision: StubImageContentClassifier(result: nil),
+            model: RecordingModelClassifier(nil),
             imageLoader: service
         )
         return ClassifyLibraryUseCase(

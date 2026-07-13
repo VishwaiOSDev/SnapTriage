@@ -120,14 +120,14 @@ final class OverviewViewModel {
             uniquingKeysWith: { first, _ in first }
         )
 
-        let cached = await classifyLibrary.cachedCategories()
+        let cached = await classifyLibrary.cachedClassifications()
         if Task.isCancelled { return }
         var summary = OverviewSummary()
         summary.totalCount = screenshots.count
         var pending: [Screenshot] = []
         for screenshot in screenshots {
-            if let category = cached[screenshot.id] {
-                summary.add(bytes: screenshot.byteSize, disposition: category.disposition)
+            if let classification = cached[screenshot.id] {
+                summary.add(bytes: screenshot.byteSize, disposition: classification.disposition)
             } else {
                 pending.append(screenshot)
             }
@@ -171,10 +171,10 @@ final class OverviewViewModel {
                 if Task.isCancelled { break }
                 self.state.classifiedCount = base + progress.completed
                 guard let id = progress.id else { continue }
-                if let category = progress.category {
+                if let classification = progress.classification {
                     self.state.summary.add(
                         bytes: self.sizes[id] ?? 0,
-                        disposition: category.disposition
+                        disposition: classification.disposition
                     )
                 } else {
                     self.state.summary.unknownCount += 1

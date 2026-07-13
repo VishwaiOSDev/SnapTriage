@@ -14,6 +14,7 @@ enum ReviewComposition {
         ocrStore: OCRStore,
         categoryStore: CategoryStore,
         decisionStore: TriageDecisionStore,
+        metrics: ClassificationMetrics = OSLogClassificationMetrics(),
         router: ReviewRouter
     ) -> ReviewViewModel {
         let recognizer = VisionTextRecognitionService()
@@ -23,11 +24,7 @@ enum ReviewComposition {
             recognizer: recognizer,
             store: ocrStore
         )
-        let categorize = CategorizeScreenshotUseCase(
-            categorizer: FallbackScreenshotCategorizer(),
-            imageClassifier: VisionImageContentClassifier(),
-            imageLoader: service
-        )
+        let categorize = CategorizeScreenshotUseCase(imageLoader: service, metrics: metrics)
 
         return ReviewViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
