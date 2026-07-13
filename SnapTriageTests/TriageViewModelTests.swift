@@ -33,6 +33,7 @@ struct TriageViewModelTests {
             loadScreenshots: LoadScreenshotsUseCase(service: service),
             classifyLibrary: Fixture.classifyLibrary(service: service, store: store),
             recordDecision: RecordTriageDecisionUseCase(store: decisions),
+            undoDecision: UndoTriageDecisionUseCase(store: decisions),
             clearDecisions: ClearTriageDecisionsUseCase(store: decisions),
             loadProgress: LoadTriageProgressUseCase(store: decisions),
             observeLibrary: ObservePhotoLibraryUseCase(service: service),
@@ -144,6 +145,79 @@ struct TriageViewModelTests {
         #expect(decisions.decision(for: "1") == .markForDeletion)
         #expect(vm.state.currentIndex == 1)
         #expect(vm.state.markedCount == 1)
+    }
+
+    @Test("Undo restores the latest card and removes its stored verdict")
+    func undoRestoresLatestCard() async {
+        let (vm, decisions, _) = makeSUT()
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.decide(.keep))
+        vm.send(.decide(.markForDeletion))
+        #expect(vm.state.current?.id == "3")
+
+        vm.send(.undo)
+
+        #expect(vm.state.current?.id == "2")
+        #expect(decisions.decision(for: "2") == nil)
+        #expect(decisions.decision(for: "1") == .keep)
+        #expect(vm.state.keptCount == 1)
+        #expect(vm.state.markedCount == 0)
+        #expect(vm.state.canUndo)
+    }
+
+    @Test("Undo can step backward through every swipe from this session")
+    func repeatedUndoIsLastInFirstOut() async {
+        let (vm, decisions, _) = makeSUT()
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.decide(.keep))
+        vm.send(.decide(.markForDeletion))
+        vm.send(.undo)
+        vm.send(.undo)
+
+        #expect(vm.state.current?.id == "1")
+        #expect(decisions.allDecisions().isEmpty)
+        #expect(vm.state.keptCount == 0)
+        #expect(vm.state.markedCount == 0)
+        #expect(!vm.state.canUndo)
+    }
+
+    @Test("Undo reopens the last card from the finished screen")
+    func undoReopensFinishedDeck() async {
+        let (vm, decisions, _) = makeSUT()
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.decide(.keep))
+        vm.send(.decide(.keep))
+        vm.send(.decide(.markForDeletion))
+        vm.send(.decide(.keep))
+        #expect(vm.state.isFinished)
+
+        vm.send(.undo)
+
+        #expect(!vm.state.isFinished)
+        #expect(vm.state.current?.id == "4")
+        #expect(decisions.decision(for: "4") == nil)
+        #expect(vm.state.keptCount == 2)
+        #expect(vm.state.markedCount == 1)
+    }
+
+    @Test("Persisted verdicts are not treated as ordered undo history")
+    func restoredProgressDoesNotInventUndoHistory() async {
+        let decisions = SeededTriageDecisionStore(["1": .keep])
+        let (vm, _, _) = makeSUT(decisions: decisions)
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.undo)
+
+        #expect(vm.state.current?.id == "2")
+        #expect(decisions.decision(for: "1") == .keep)
+        #expect(!vm.state.canUndo)
     }
 }
 
