@@ -39,6 +39,7 @@ enum Strings {
         static func progress(_ current: String, _ total: String) -> String { String(localized: .triageProgress(current, total)) }
         static let keep = String(localized: .triageKeep)
         static let delete = String(localized: .triageDelete)
+        static let undo = String(localized: .triageUndo)
         static let keepBadge = String(localized: .triageKeepBadge)
         static let deleteBadge = String(localized: .triageDeleteBadge)
         static let swipeRightHint = String(localized: .triageSwipeRightHint)
@@ -46,6 +47,12 @@ enum Strings {
         static let close = String(localized: .triageClose)
         static let more = String(localized: .triageMore)
         static let startOver = String(localized: .triageStartOver)
+        static let restartTriage = String(localized: .triageRestartTriage)
+        static let startOverConfirmTitle = String(localized: .triageStartOverConfirmTitle)
+        static let startOverConfirmMessage = String(localized: .triageStartOverConfirmMessage)
+        static let cancel = String(localized: .triageCancel)
+        static let fitImage = String(localized: .triageFitImage)
+        static let fillImage = String(localized: .triageFillImage)
         static let doneTitle = String(localized: .triageDoneTitle)
         static func doneMessage(_ kept: String, _ marked: String) -> String { String(localized: .triageDoneMessage(kept, marked)) }
         static let doneHint = String(localized: .triageDoneHint)

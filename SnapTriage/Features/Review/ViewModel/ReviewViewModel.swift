@@ -92,7 +92,7 @@ final class ReviewViewModel {
 
     // Transient read for grid cells, not domain state, so bypasses send.
     func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? {
-        await imageLoader.thumbnail(for: id, targetSize: targetSize)
+        await imageLoader.thumbnail(for: id, targetSize: targetSize, mode: .fill)
     }
 
     private func loadFlow() {

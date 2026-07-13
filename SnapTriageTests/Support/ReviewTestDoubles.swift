@@ -21,6 +21,8 @@ final class FakePhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
 
     private(set) var deletedIDs: [Screenshot.ID] = []
     private(set) var deleteCallCount = 0
+    private(set) var fetchCallCount = 0
+    private(set) var requestedThumbnailMode: PhotoThumbnailMode?
     private var changeContinuations: [AsyncStream<Void>.Continuation] = []
 
     init(
@@ -35,8 +37,18 @@ final class FakePhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
 
     func currentAuthorization() -> PhotoLibraryAuthorization { authorization }
     func requestAuthorization() async -> PhotoLibraryAuthorization { authorization }
-    func fetchScreenshots() async -> [Screenshot] { screenshots }
-    func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? { nil }
+    func fetchScreenshots() async -> [Screenshot] {
+        fetchCallCount += 1
+        return screenshots
+    }
+    func thumbnail(
+        for id: Screenshot.ID,
+        targetSize: CGSize,
+        mode: PhotoThumbnailMode
+    ) async -> UIImage? {
+        requestedThumbnailMode = mode
+        return nil
+    }
     func cgImage(for id: Screenshot.ID, longEdge: CGFloat) async -> CGImage? { nil }
 
     func deleteScreenshots(_ ids: [Screenshot.ID]) async throws {

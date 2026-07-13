@@ -6,6 +6,7 @@
 //
 
 import Testing
+import CoreGraphics
 @testable import SnapTriage
 
 @MainActor
@@ -61,6 +62,7 @@ struct TriageViewModelTests {
         #expect(vm.state.currentIndex == 0)
         #expect(vm.state.keptCount == 0)
         #expect(vm.state.markedCount == 0)
+        #expect(!vm.state.hasProgress)
     }
 
     @Test("Stored verdicts resume the deck at the first undecided card")
@@ -75,6 +77,7 @@ struct TriageViewModelTests {
         #expect(vm.state.current?.id == "3")
         #expect(vm.state.keptCount == 1)
         #expect(vm.state.markedCount == 1)
+        #expect(vm.state.hasProgress)
     }
 
     @Test("A fully decided deck resumes on the finished screen")
@@ -95,16 +98,27 @@ struct TriageViewModelTests {
     @Test("Start Over clears the stored verdicts and rewinds the deck")
     func startOverRewinds() async {
         let decisions = SeededTriageDecisionStore(["1": .keep, "2": .keep])
-        let (vm, _, _) = makeSUT(decisions: decisions)
+        let (vm, _, service) = makeSUT(decisions: decisions)
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
+        let loadedScreenshots = vm.state.screenshots
+        let fetchCount = service.fetchCallCount
 
         vm.send(.startOver)
-        await waitUntil { vm.state.currentIndex == 0 }
 
         #expect(decisions.allDecisions().isEmpty)
+        #expect(vm.state.phase == .loaded)
+        #expect(vm.state.screenshots == loadedScreenshots)
+        #expect(vm.state.currentIndex == 0)
         #expect(vm.state.keptCount == 0)
         #expect(vm.state.markedCount == 0)
+        #expect(!vm.state.hasProgress)
+        #expect(!vm.state.canUndo)
+
+        // Restart is an in-memory operation: it must not flash loading or
+        // issue another PhotoKit fetch on the next run-loop turn.
+        await Task.yield()
+        #expect(service.fetchCallCount == fetchCount)
     }
 
     @Test("A library change folds a new screenshot in without losing progress")
@@ -145,6 +159,15 @@ struct TriageViewModelTests {
         #expect(decisions.decision(for: "1") == .markForDeletion)
         #expect(vm.state.currentIndex == 1)
         #expect(vm.state.markedCount == 1)
+    }
+
+    @Test("Triage requests an uncropped thumbnail for Fit and Fill")
+    func triageRequestsFittedThumbnail() async {
+        let (vm, _, service) = makeSUT()
+
+        _ = await vm.thumbnail(for: "1", targetSize: CGSize(width: 300, height: 500))
+
+        #expect(service.requestedThumbnailMode == .fit)
     }
 
     @Test("Undo restores the latest card and removes its stored verdict")
