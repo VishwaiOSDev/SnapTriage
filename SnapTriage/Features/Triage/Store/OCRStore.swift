@@ -38,7 +38,8 @@ final class FileBackedOCRStore: OCRStore {
 
     /// OCR ordering feeds the classifier. Bump when recognition settings or reading-order logic
     /// changes so cached transcripts do not preserve stale structure.
-    private static let ocrVersion = 2
+    /// v3 adds official-ID vocabulary to Vision's language-correction hints.
+    private static let ocrVersion = 3
 
     private let storage: PersistedDictionary<OCRResult>
 

@@ -24,6 +24,80 @@ struct HeuristicScreenshotCategorizerTests {
         #expect(category == expected)
     }
 
+    @Test("Government IDs use protected structural evidence", arguments: [
+        (
+            """
+            PASSPORT
+            Passport No A1234567
+            Surname DOE
+            Nationality CANADIAN
+            Date of Birth 01 JAN 1990
+            Date of Expiry 01 JAN 2030
+            """,
+            ScreenshotCategory.identity
+        ),
+        (
+            """
+            UNITED STATES OF AMERICA
+            VISA
+            Visa Number 12345678
+            Passport A1234567
+            Nationality INDIA
+            Expiry Date 12 OCT 2030
+            """,
+            .identity
+        ),
+        (
+            """
+            INCOME TAX DEPARTMENT
+            GOVERNMENT OF INDIA
+            Permanent Account Number
+            ABCDE1234F
+            Date of Birth 01/01/1990
+            """,
+            .identity
+        ),
+        (
+            """
+            DRIVER LICENCE
+            D1234567
+            Date of Birth 1990-01-01
+            Date of Expiry 2030-01-01
+            Issuing Authority Ontario
+            """,
+            .identity
+        ),
+    ])
+    func governmentIDStructureWins(transcript: String, expected: ScreenshotCategory) async {
+        let result = sut.evaluate(Fixture.ocrResult(transcript: transcript))
+
+        #expect(result.category == expected)
+        #expect(result.tier == .high)
+    }
+
+    @Test("A Visa payment card is not treated as a government ID")
+    func paymentCardIsNotIdentity() async {
+        let transcript = """
+        VISA
+        Credit card
+        Expires 08/29
+        Payment method
+        """
+
+        let result = sut.evaluate(Fixture.ocrResult(transcript: transcript))
+
+        #expect(result.category != .identity)
+    }
+
+    @Test("A passport application mention is not treated as the passport itself")
+    func passportApplicationIsNotIdentity() async {
+        let transcript = "Passport application renewal checklist and appointment instructions"
+
+        let result = sut.evaluate(Fixture.ocrResult(transcript: transcript))
+
+        #expect(result.category != .identity)
+    }
+
     @Test("Phone-heavy insurance card is a document, not a conversation", .tags(.fallback))
     func insuranceCardBeatsPhoneSignals() async {
         let transcript = """
