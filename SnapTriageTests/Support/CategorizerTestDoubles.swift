@@ -76,7 +76,11 @@ final class StubPhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
     func currentAuthorization() -> PhotoLibraryAuthorization { .authorized }
     func requestAuthorization() async -> PhotoLibraryAuthorization { .authorized }
     func fetchScreenshots() async -> [Screenshot] { [] }
-    func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? { nil }
+    func thumbnail(
+        for id: Screenshot.ID,
+        targetSize: CGSize,
+        mode: PhotoThumbnailMode
+    ) async -> UIImage? { nil }
     func cgImage(for id: Screenshot.ID, longEdge: CGFloat) async -> CGImage? {
         cgImageRequested = true
         return image

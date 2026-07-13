@@ -8,11 +8,20 @@
 import Photos
 import UIKit
 
+enum PhotoThumbnailMode: Sendable, Equatable {
+    case fit
+    case fill
+}
+
 protocol PhotoLibraryService: Sendable {
     func currentAuthorization() -> PhotoLibraryAuthorization
     func requestAuthorization() async -> PhotoLibraryAuthorization
     func fetchScreenshots() async -> [Screenshot]
-    func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage?
+    func thumbnail(
+        for id: Screenshot.ID,
+        targetSize: CGSize,
+        mode: PhotoThumbnailMode
+    ) async -> UIImage?
     func cgImage(for id: Screenshot.ID, longEdge: CGFloat) async -> CGImage?
     /// Deletes the given assets from the photo library. iOS presents its own
     /// confirmation sheet; declining it throws `TriageError.deletionCancelled`,
@@ -89,9 +98,18 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
         return asset.pixelWidth * asset.pixelHeight * 4
     }
     
-    func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? {
+    func thumbnail(
+        for id: Screenshot.ID,
+        targetSize: CGSize,
+        mode: PhotoThumbnailMode
+    ) async -> UIImage? {
         let fetch = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
         guard let asset = fetch.firstObject else { return nil }
+
+        let contentMode: PHImageContentMode = switch mode {
+        case .fit: .aspectFit
+        case .fill: .aspectFill
+        }
         
         let options = PHImageRequestOptions()
         options.deliveryMode = .highQualityFormat    // one final callback, no interim images
@@ -104,7 +122,7 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
             imageManager.requestImage(
                 for: asset,
                 targetSize: targetSize,
-                contentMode: .aspectFill,
+                contentMode: contentMode,
                 options: options
             ) { image, _ in
                 once.run { continuation.resume(returning: image) }

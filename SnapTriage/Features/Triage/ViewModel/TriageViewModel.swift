@@ -144,9 +144,7 @@ final class TriageViewModel {
         case .undo:
             undo()
         case .startOver:
-            // A fresh pass: previous verdicts are void, counters reset in loadFlow.
-            clearDecisions.execute()
-            loadFlow()
+            startOver()
         case .openSettings:
             router.openSettings()
         case .clearError:
@@ -156,7 +154,9 @@ final class TriageViewModel {
 
     // Transient read for the card image, not domain state, so bypasses send.
     func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? {
-        await imageLoader.thumbnail(for: id, targetSize: targetSize)
+        // Triage switches presentation modes at runtime, so PhotoKit must return
+        // the complete asset; a pre-cropped thumbnail cannot later be fitted.
+        await imageLoader.thumbnail(for: id, targetSize: targetSize, mode: .fit)
     }
 
     private func loadFlow() {
@@ -272,6 +272,19 @@ final class TriageViewModel {
             classifyWindow()
             return
         }
+    }
+
+    /// Resets the pass without refetching PhotoKit or flashing a loading state.
+    /// The loaded deck and its classifications remain valid presentation data.
+    private func startOver() {
+        guard state.hasProgress else { return }
+        clearDecisions.execute()
+        state.currentIndex = 0
+        state.keptCount = 0
+        state.markedCount = 0
+        state.decidedIDs.removeAll()
+        state.decisionHistory.removeAll()
+        classifyWindow()
     }
 
     // Classifies the visible card plus a small lookahead so the category pill

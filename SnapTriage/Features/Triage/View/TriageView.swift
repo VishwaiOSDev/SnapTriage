@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+private enum CardImageMode: String {
+    case fit
+    case fill
+
+    var toggled: Self { self == .fit ? .fill : .fit }
+}
+
 struct TriageView: View {
     @State private var viewModel: TriageViewModel
     private let onClose: () -> Void
@@ -15,11 +22,18 @@ struct TriageView: View {
     /// ViewModel. Only the final decision crosses the boundary via `send`.
     @State private var drag: CGSize = .zero
     @State private var isDismissing = false
+    @State private var isUndoing = false
     @State private var fullScreenShot: Screenshot?
+
+    /// A presentation preference, not domain state. Fit is the safer default:
+    /// the user sees the whole screenshot unless they explicitly choose crop.
+    @AppStorage("triage.imageDisplayMode") private var imageMode: CardImageMode = .fit
+    @State private var showStartOverConfirmation = false
 
     /// Shared and prepared ahead of the first swipe: creating a generator and
     /// firing it cold spins up the haptic engine, which stalls the first fly-off.
     @State private var haptic = UIImpactFeedbackGenerator(style: .medium)
+    @State private var undoHaptic = UIImpactFeedbackGenerator(style: .soft)
 
     init(viewModel: TriageViewModel, onClose: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
@@ -34,11 +48,24 @@ struct TriageView: View {
         .task {
             viewModel.send(.onAppear)
             haptic.prepare()
+            undoHaptic.prepare()
         }
         .fullScreenCover(item: $fullScreenShot) { screenshot in
             ScreenshotViewerView(screenshot: screenshot) { id, size in
                 await viewModel.thumbnail(for: id, targetSize: size)
             }
+        }
+        .sensoryFeedback(.selection, trigger: imageMode)
+        .alert(
+            Strings.Triage.startOverConfirmTitle,
+            isPresented: $showStartOverConfirmation
+        ) {
+            Button(Strings.Triage.cancel, role: .cancel) {}
+            Button(Strings.Triage.startOver, role: .destructive) {
+                viewModel.send(.startOver)
+            }
+        } message: {
+            Text(Strings.Triage.startOverConfirmMessage)
         }
     }
 
@@ -103,10 +130,53 @@ struct TriageView: View {
             HStack {
                 CircularIconButton(systemImage: "xmark", accessibilityLabel: Strings.Triage.close, action: onClose)
                 Spacer()
-                CircularIconButton(systemImage: "ellipsis", accessibilityLabel: Strings.Triage.more) {}
+                overflowMenu
             }
         }
         .animation(.default, value: viewModel.state.currentIndex)
+    }
+
+    // MARK: - Overflow menu
+
+    private var overflowMenu: some View {
+        Menu {
+            Button {
+                withAnimation(.easeInOut(duration: Metrics.imageModeTransitionDuration)) {
+                    imageMode = imageMode.toggled
+                }
+            } label: {
+                Label(
+                    imageMode == .fill
+                        ? Strings.Triage.fitImage
+                        : Strings.Triage.fillImage,
+                    systemImage: imageMode == .fill
+                        ? "arrow.down.forward.and.arrow.up.backward"
+                        : "arrow.up.left.and.arrow.down.right"
+                )
+            }
+
+            // Only offer a mid-pass restart while there is progress to discard;
+            // the finished screen already exposes its own restart control.
+            if viewModel.state.hasProgress && !viewModel.state.isFinished {
+                Divider()
+                // This only opens a confirmation; reserve destructive red for
+                // the action that actually clears the pass.
+                Button {
+                    requestStartOver()
+                } label: {
+                    Label(Strings.Triage.restartTriage, systemImage: "arrow.counterclockwise")
+                }
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .frame(width: 38, height: 38)
+                .liquidGlass(in: Circle())
+                .padding(3)
+                .contentShape(Circle())
+        }
+        .accessibilityLabel(Strings.Triage.more)
     }
 
     // MARK: - Category pill
@@ -151,7 +221,7 @@ struct TriageView: View {
             : 0.92 + 0.08 * dragProgress
         let rotation: Double = isTop ? Double(drag.width / 18) : 0
         return card(for: screenshot)
-            .overlay { if isTop { decisionStamps } }
+            .overlay { if isTop && !isUndoing { decisionStamps } }
             .scaleEffect(scale)
             .opacity(isTop ? 1 : 0.6 + 0.4 * Double(dragProgress))
             .offset(isTop ? drag : .zero)
@@ -169,6 +239,7 @@ struct TriageView: View {
         TriageCardView(
             screenshot: screenshot,
             classification: viewModel.state.classification(for: screenshot),
+            imageMode: imageMode,
             loadThumbnail: { id, size in
                 await viewModel.thumbnail(for: id, targetSize: size)
             }
@@ -240,6 +311,35 @@ struct TriageView: View {
             var transaction = Transaction()
             transaction.disablesAnimations = true
             withTransaction(transaction) { drag = .zero }
+            isDismissing = false
+        }
+    }
+
+    /// Reintroduces the last card from the same edge it left. Mutating the deck
+    /// and positioning the card happen without animation; the next run-loop
+    /// animates only the return to center, avoiding a flash at the origin.
+    private func undo() {
+        guard !isDismissing, let decision = viewModel.state.lastDecision else { return }
+        isDismissing = true
+        isUndoing = true
+        undoHaptic.impactOccurred()
+        undoHaptic.prepare()
+
+        let direction: CGFloat = decision == .keep ? 1 : -1
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            viewModel.send(.undo)
+            drag = CGSize(width: direction * 640, height: 40)
+        }
+
+        Task { @MainActor in
+            await Task.yield()
+            withAnimation(.spring(response: 0.48, dampingFraction: 0.82)) {
+                drag = .zero
+            }
+            try? await Task.sleep(for: .milliseconds(480))
+            isUndoing = false
             isDismissing = false
         }
     }
@@ -329,6 +429,19 @@ struct TriageView: View {
                 fly(.markForDeletion)
             }
         }
+        // Overlaying the conditional utility keeps both primary verdict
+        // controls anchored, so their tap targets never shift after a swipe.
+        .overlay {
+            if viewModel.state.canUndo {
+                UndoButton(action: undo)
+                    .allowsHitTesting(!isDismissing)
+                    .transition(.scale(scale: 0.72).combined(with: .opacity))
+            }
+        }
+        .animation(
+            .spring(response: 0.32, dampingFraction: 0.78),
+            value: viewModel.state.canUndo
+        )
         .padding(.horizontal, Metrics.screenPadding)
         .padding(.top, 4)
     }
@@ -353,10 +466,19 @@ struct TriageView: View {
                 .font(.footnote)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
-            Button(Strings.Triage.startOver) { viewModel.send(.startOver) }
-                .buttonStyle(.bordered)
-                .tint(Metrics.keep)
-                .padding(.top, 8)
+            if viewModel.state.canUndo {
+                UndoButton(action: undo)
+                    .allowsHitTesting(!isDismissing)
+                    .padding(.top, 8)
+                    .transition(.scale(scale: 0.72).combined(with: .opacity))
+            }
+            Button(action: requestStartOver) {
+                Label(Strings.Triage.restartTriage, systemImage: "arrow.counterclockwise")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .tint(.white.opacity(0.78))
+            .padding(.top, 8)
         }
         .padding(.horizontal, Metrics.screenPadding)
     }
@@ -394,6 +516,10 @@ struct TriageView: View {
         Self.counter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
+    private func requestStartOver() {
+        showStartOverConfirmation = true
+    }
+
     private static let counter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
@@ -411,6 +537,7 @@ private enum Metrics {
     static let neutral = Color.secondary
     static let controlKeep = Color(red: 0.08, green: 0.43, blue: 0.90)
     static let controlDelete = Color(red: 0.88, green: 0.20, blue: 0.29)
+    static let controlUndo = Color(red: 0.48, green: 0.38, blue: 0.95)
     static let cardCornerRadius: CGFloat = 32
     static let cardStroke = Color.white.opacity(0.08)
     static let surfaceFill = Color.white.opacity(0.05)
@@ -419,11 +546,14 @@ private enum Metrics {
     static let decisionThreshold: CGFloat = 120
     static let actionButtonSize: CGFloat = 64
     static let actionButtonHaloPadding: CGFloat = 12
+    static let undoButtonHeight: CGFloat = 40
+    static let undoButtonHorizontalPadding: CGFloat = 12
     static let hintArrowSize: CGFloat = 24
     static let hintArrowSpacing: CGFloat = 10
     static let hintTextWidth: CGFloat = 72
     static let hintGroupSpacing: CGFloat = 12
     static let hintDividerHeight: CGFloat = 32
+    static let imageModeTransitionDuration = 0.18
 }
 
 // MARK: - Liquid Glass
@@ -432,22 +562,28 @@ private enum Metrics {
 /// translucent material + hairline border on older systems.
 private struct LiquidGlassModifier<S: InsettableShape>: ViewModifier {
     let shape: S
+    let tint: Color?
 
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
-            content.glassEffect(.regular, in: shape)
+            content.glassEffect(.regular.tint(tint), in: shape)
         } else {
             content
-                .background(Metrics.surfaceFill, in: shape)
+                .background(tint?.opacity(0.2) ?? Metrics.surfaceFill, in: shape)
                 .background(.ultraThinMaterial, in: shape)
-                .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
+                .overlay {
+                    shape.strokeBorder(
+                        tint?.opacity(0.4) ?? Metrics.cardStroke,
+                        lineWidth: 1
+                    )
+                }
         }
     }
 }
 
 private extension View {
-    func liquidGlass<S: InsettableShape>(in shape: S) -> some View {
-        modifier(LiquidGlassModifier(shape: shape))
+    func liquidGlass<S: InsettableShape>(in shape: S, tint: Color? = nil) -> some View {
+        modifier(LiquidGlassModifier(shape: shape, tint: tint))
     }
 }
 
@@ -475,6 +611,7 @@ private struct TriageCardView: View {
     let screenshot: Screenshot
     /// `nil` while the pipeline is still classifying this card.
     let classification: ScreenshotClassification?
+    let imageMode: CardImageMode
     let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
 
     @Environment(\.displayScale) private var displayScale
@@ -486,23 +623,32 @@ private struct TriageCardView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            preview
-                .frame(width: proxy.size.width, height: proxy.size.height)
-                .overlay(alignment: .bottom) { metadataBar }
-                .clipShape(shape)
-                .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
-                // Flatten before the shadow so the blur sees one layer, not the
-                // whole subtree, per frame while the card drags and rotates.
-                .compositingGroup()
-                .shadow(color: .black.opacity(0.45), radius: 24, y: 12)
-                .task(id: screenshot.id) {
-                    // Request in pixels, not points, so PhotoKit downscales to the right size.
-                    let target = CGSize(
-                        width: proxy.size.width * displayScale,
-                        height: proxy.size.height * displayScale
-                    )
-                    image = await loadThumbnail(screenshot.id, target)
-                }
+            VStack(spacing: 0) {
+                preview
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // A dedicated footer keeps Fit genuinely unobscured; metadata
+                // no longer covers the bottom of the screenshot.
+                metadataBar
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            // Backs the letterbox bars in Fit mode.
+            .background(Color.black)
+            .clipShape(shape)
+            .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
+            // Flatten before the shadow so the blur sees one layer, not the
+            // whole subtree, per frame while the card drags and rotates.
+            .compositingGroup()
+            .shadow(color: .black.opacity(0.45), radius: 24, y: 12)
+            .task(id: screenshot.id) {
+                // Request the complete source at enough resolution for the
+                // cropped Fill presentation as well as the smaller Fit one.
+                let target = thumbnailTargetSize(
+                    filling: proxy.size,
+                    displayScale: displayScale
+                )
+                image = await loadThumbnail(screenshot.id, target)
+            }
         }
         .aspectRatio(Spacing.thumbnailAspectRatio, contentMode: .fit)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -511,12 +657,56 @@ private struct TriageCardView: View {
     @ViewBuilder
     private var preview: some View {
         if let image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
+            GeometryReader { proxy in
+                // Explicitly constrain both layers to the viewport. Without
+                // this, the invisible Fill layer can still determine ZStack's
+                // layout and make the Fit presentation appear cropped.
+                ZStack {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .opacity(imageMode == .fit ? 1 : 0)
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .clipped()
+                        .opacity(imageMode == .fill ? 1 : 0)
+                }
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .clipped()
+            }
+            .animation(
+                .easeInOut(duration: Metrics.imageModeTransitionDuration),
+                value: imageMode
+            )
         } else {
             placeholder
         }
+    }
+
+    private func thumbnailTargetSize(
+        filling viewport: CGSize,
+        displayScale: CGFloat
+    ) -> CGSize {
+        let source = CGSize(
+            width: CGFloat(screenshot.pixelWidth),
+            height: CGFloat(screenshot.pixelHeight)
+        )
+        let viewportPixels = CGSize(
+            width: viewport.width * displayScale,
+            height: viewport.height * displayScale
+        )
+        guard source.width > 0, source.height > 0 else { return viewportPixels }
+
+        // Match the source aspect ratio and size it for aspect-fill. PhotoKit
+        // can then return an uncropped image with no quality loss when toggled.
+        let scale = min(
+            max(viewportPixels.width / source.width, viewportPixels.height / source.height),
+            1
+        )
+        return CGSize(width: source.width * scale, height: source.height * scale)
     }
 
     // Polished stand-in while PhotoKit loads (or in previews with no library).
@@ -714,6 +904,52 @@ private struct DecisionButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(accessibilityLabel)
+    }
+}
+
+/// Compact on-demand utility: violet identifies a reversible action without
+/// borrowing the blue Keep or red Delete semantics of the primary controls.
+private struct UndoButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 13, weight: .semibold))
+                Text(Strings.Triage.undo)
+                    .font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(.white.opacity(0.94))
+            .padding(.horizontal, Metrics.undoButtonHorizontalPadding)
+            .frame(height: Metrics.undoButtonHeight)
+            .liquidGlass(in: Capsule(), tint: Metrics.controlUndo.opacity(0.5))
+            .overlay {
+                Capsule()
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                .white.opacity(0.38),
+                                Metrics.controlUndo.opacity(0.5)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 0.75
+                    )
+            }
+            .shadow(
+                color: Metrics.controlUndo.opacity(0.32),
+                radius: 10,
+                y: 4
+            )
+            // The visible capsule stays compact while its effective touch
+            // target meets the 44pt minimum.
+            .padding(.vertical, 2)
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Strings.Triage.undo)
     }
 }
 
