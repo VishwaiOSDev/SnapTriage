@@ -7,6 +7,14 @@
 
 import CoreGraphics
 
+/// OCR plus the exact decoded image used to produce it. Keeping the image alive
+/// for the remainder of one classification avoids fetching and decoding the
+/// same PhotoKit asset again for Vision or multimodal inference.
+struct RecognizedScreenshotContent: @unchecked Sendable {
+    let result: OCRResult
+    let sourceImage: CGImage?
+}
+
 struct RecognizeScreenshotTextUseCase {
     
     let imageLoader: PhotoLibraryService
@@ -17,8 +25,14 @@ struct RecognizeScreenshotTextUseCase {
     private let minimumConfidence: Float = 0.3
 
     func execute(screenshotID: Screenshot.ID) async throws -> OCRResult {
+        try await executeWithSourceImage(screenshotID: screenshotID).result
+    }
+
+    func executeWithSourceImage(screenshotID: Screenshot.ID) async throws -> RecognizedScreenshotContent {
         if let cached = await store.result(for: screenshotID) {
-            return cached
+            // The OCR cache intentionally stores text only. If pixels are needed,
+            // the categorizer will perform one appropriately-sized image request.
+            return RecognizedScreenshotContent(result: cached, sourceImage: nil)
         }
 
         guard let image = await imageLoader.cgImage(for: screenshotID, longEdge: longEdge) else {
@@ -33,7 +47,7 @@ struct RecognizeScreenshotTextUseCase {
 
         let result = OCRResult(screenshotID: screenshotID, lines: ordered)
         await store.save(result)
-        return result
+        return RecognizedScreenshotContent(result: result, sourceImage: image)
     }
 
     /// Vision coordinates start at the lower-left. Group adjacent observations into visual rows
