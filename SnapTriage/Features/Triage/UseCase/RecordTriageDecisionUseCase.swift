@@ -17,3 +17,17 @@ struct RecordTriageDecisionUseCase {
         store.save(decision, for: id)
     }
 }
+
+/// Reverts one recorded swipe. Returning the removed verdict lets the caller
+/// update the matching counter without trusting transient UI history as the
+/// source of truth.
+struct UndoTriageDecisionUseCase {
+
+    let store: TriageDecisionStore
+
+    func execute(for id: Screenshot.ID) -> TriageDecision? {
+        guard let decision = store.decision(for: id) else { return nil }
+        store.remove([id])
+        return decision
+    }
+}

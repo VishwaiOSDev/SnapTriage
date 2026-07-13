@@ -35,6 +35,7 @@ enum TriageComposition {
                 store: categoryStore
             ),
             recordDecision: RecordTriageDecisionUseCase(store: decisionStore),
+            undoDecision: UndoTriageDecisionUseCase(store: decisionStore),
             clearDecisions: ClearTriageDecisionsUseCase(store: decisionStore),
             loadProgress: LoadTriageProgressUseCase(store: decisionStore),
             observeLibrary: ObservePhotoLibraryUseCase(service: service),

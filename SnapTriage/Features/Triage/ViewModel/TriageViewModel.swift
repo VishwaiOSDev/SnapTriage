@@ -15,6 +15,11 @@ final class TriageViewModel {
 
     enum Phase: Equatable { case idle, loading, loaded, failed }
 
+    struct DecisionRecord: Equatable {
+        let screenshotID: Screenshot.ID
+        let decision: TriageDecision
+    }
+
     struct State: Equatable {
         var authorization: PhotoLibraryAuthorization = .notDetermined
         var screenshots: [Screenshot] = []
@@ -28,6 +33,10 @@ final class TriageViewModel {
         /// first, so a screenshot taken mid-pass surfaces above already-swiped
         /// cards — advancing must skip decided cards, not step by one.
         var decidedIDs: Set<Screenshot.ID> = []
+        /// Ordered session-only history. Persisted verdicts intentionally do
+        /// not become undoable after relaunch because the store has no reliable
+        /// action order; every swipe made in this session can be stepped back.
+        var decisionHistory: [DecisionRecord] = []
 
         var current: Screenshot? {
             screenshots.indices.contains(currentIndex) ? screenshots[currentIndex] : nil
@@ -41,6 +50,13 @@ final class TriageViewModel {
         var isFinished: Bool {
             phase == .loaded && !screenshots.isEmpty && current == nil
         }
+
+        /// Any stored or session verdict means restarting would discard work.
+        var hasProgress: Bool { !decidedIDs.isEmpty }
+
+        var canUndo: Bool { !decisionHistory.isEmpty }
+
+        var lastDecision: TriageDecision? { decisionHistory.last?.decision }
 
         /// Moves to the next card without a verdict; lands on `count` (finished)
         /// when none remain.
@@ -64,6 +80,7 @@ final class TriageViewModel {
         case onAppear
         case retry
         case decide(TriageDecision)
+        case undo
         case startOver
         case openSettings
         case clearError
@@ -75,6 +92,7 @@ final class TriageViewModel {
     private let loadScreenshots: LoadScreenshotsUseCase
     private let classifyLibrary: ClassifyLibraryUseCase
     private let recordDecision: RecordTriageDecisionUseCase
+    private let undoDecision: UndoTriageDecisionUseCase
     private let clearDecisions: ClearTriageDecisionsUseCase
     private let loadProgress: LoadTriageProgressUseCase
     private let observeLibrary: ObservePhotoLibraryUseCase
@@ -93,6 +111,7 @@ final class TriageViewModel {
         loadScreenshots: LoadScreenshotsUseCase,
         classifyLibrary: ClassifyLibraryUseCase,
         recordDecision: RecordTriageDecisionUseCase,
+        undoDecision: UndoTriageDecisionUseCase,
         clearDecisions: ClearTriageDecisionsUseCase,
         loadProgress: LoadTriageProgressUseCase,
         observeLibrary: ObservePhotoLibraryUseCase,
@@ -103,6 +122,7 @@ final class TriageViewModel {
         self.loadScreenshots = loadScreenshots
         self.classifyLibrary = classifyLibrary
         self.recordDecision = recordDecision
+        self.undoDecision = undoDecision
         self.clearDecisions = clearDecisions
         self.loadProgress = loadProgress
         self.observeLibrary = observeLibrary
@@ -121,6 +141,8 @@ final class TriageViewModel {
             loadFlow()
         case .decide(let decision):
             decide(decision)
+        case .undo:
+            undo()
         case .startOver:
             // A fresh pass: previous verdicts are void, counters reset in loadFlow.
             clearDecisions.execute()
@@ -183,6 +205,10 @@ final class TriageViewModel {
         state.currentIndex = progress.firstUndecidedIndex
         state.keptCount = progress.keptCount
         state.markedCount = progress.markedCount
+        // Loading or externally reordering the library establishes a new deck
+        // baseline. Stored verdicts remain intact, but their interaction order
+        // can no longer be reconstructed safely for undo.
+        state.decisionHistory.removeAll()
     }
 
     // Silent re-sync after the library changed underneath us — a screenshot
@@ -223,8 +249,29 @@ final class TriageViewModel {
         case .markForDeletion: state.markedCount += 1
         }
         state.decidedIDs.insert(screenshot.id)
+        state.decisionHistory.append(DecisionRecord(
+            screenshotID: screenshot.id,
+            decision: decision
+        ))
         state.advance()
         classifyWindow()
+    }
+
+    private func undo() {
+        while let record = state.decisionHistory.popLast() {
+            guard let index = state.screenshots.firstIndex(where: { $0.id == record.screenshotID }),
+                  let removedDecision = undoDecision.execute(for: record.screenshotID)
+            else { continue }
+
+            switch removedDecision {
+            case .keep:            state.keptCount = max(0, state.keptCount - 1)
+            case .markForDeletion: state.markedCount = max(0, state.markedCount - 1)
+            }
+            state.decidedIDs.remove(record.screenshotID)
+            state.currentIndex = index
+            classifyWindow()
+            return
+        }
     }
 
     // Classifies the visible card plus a small lookahead so the category pill
