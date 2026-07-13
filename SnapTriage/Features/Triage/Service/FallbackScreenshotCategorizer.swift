@@ -19,11 +19,10 @@ import os
 /// unavailable or error state (iOS < 26, Apple Intelligence off, model still
 /// downloading, inference failure) so the cascade can degrade to the heuristic.
 ///
-/// Every call funnels through ``FoundationModelGate`` so at most one inference
-/// runs at a time — the system model shares on-device hardware and overlapping
-/// sessions contend rather than speed up. Each screenshot runs in a fresh
-/// session (see ``FoundationModelScreenshotCategorizer``), so transcripts never
-/// bleed between screenshots.
+/// Every call funnels through ``FoundationModelGate`` so only a small bounded
+/// number of independent sessions can infer concurrently. Each screenshot runs
+/// in a fresh session (see ``FoundationModelScreenshotCategorizer``), so
+/// transcripts never bleed between screenshots.
 struct FoundationModelClassifier: ScreenshotModelClassifier {
 
     func classify(ocr: OCRResult, image: CGImage?) async -> ModelVerdict? {
@@ -50,28 +49,49 @@ struct FoundationModelClassifier: ScreenshotModelClassifier {
     }
 }
 
-// MARK: - Serialization gate
+// MARK: - Bounded model gate
 
-/// Serializes on-device model inference to one operation at a time, process-wide.
-/// Blindly running four model sessions in parallel (the old pipeline's fixed
-/// concurrency) contends on the ANE instead of scaling, so every model call is
-/// chained behind the previous one here. Cheap stages (heuristic, Vision) keep
-/// their own bounded concurrency; only the model funnels through this gate.
+/// Allows two independent model sessions at a time, process-wide. Apple forbids
+/// concurrent requests *within one LanguageModelSession*; this classifier uses a
+/// fresh session per screenshot, so a small two-lane window is valid while still
+/// preventing a four-item OCR burst from overwhelming the model/ANE.
 actor FoundationModelGate {
-    static let shared = FoundationModelGate()
+    static let shared = FoundationModelGate(maxConcurrentRequests: 2)
 
-    /// The tail of the serial chain: each new operation awaits the previous one
-    /// before it starts, so only one body executes at a time.
-    private var tail: Task<Void, Never>?
+    private let maxConcurrentRequests: Int
+    private var availablePermits: Int
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    init(maxConcurrentRequests: Int = 2) {
+        precondition(maxConcurrentRequests > 0)
+        self.maxConcurrentRequests = maxConcurrentRequests
+        self.availablePermits = maxConcurrentRequests
+    }
 
     func run<T: Sendable>(_ body: @Sendable @escaping () async -> T) async -> T {
-        let previous = tail
-        let operation = Task<T, Never> {
-            await previous?.value
-            return await body()
+        await acquire()
+        defer { release() }
+        return await body()
+    }
+
+    private func acquire() async {
+        if availablePermits > 0 {
+            availablePermits -= 1
+            return
         }
-        tail = Task { _ = await operation.value }
-        return await operation.value
+
+        await withCheckedContinuation { continuation in
+            waiters.append(continuation)
+        }
+    }
+
+    private func release() {
+        if waiters.isEmpty {
+            availablePermits += 1
+            assert(availablePermits <= maxConcurrentRequests)
+        } else {
+            waiters.removeFirst().resume()
+        }
     }
 }
 

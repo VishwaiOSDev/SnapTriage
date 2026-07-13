@@ -93,6 +93,50 @@ struct CategorizeScreenshotUseCaseTests {
         #expect(result.category == .otp)
     }
 
+    @Test("A decoded OCR image is reused instead of loading the asset twice")
+    func sourceImageIsReused() async {
+        let model = RecordingModelClassifier(category: .conversation)
+        let loader = StubPhotoLibraryService(image: Fixture.image())
+        let sut = Fixture.categorize(
+            vision: StubImageContentClassifier(result: nil),
+            model: model,
+            loader: loader
+        )
+
+        _ = await sut.execute(
+            Fixture.ocrResult(transcript: "hello there"),
+            sourceImage: Fixture.image()
+        )
+
+        #expect(loader.cgImageRequested == false)
+        #expect(model.receivedImage)
+    }
+
+    @Test("Corroborated government ID evidence cannot become conversation")
+    func identityCannotBecomeConversation() async {
+        let model = RecordingModelClassifier(category: .conversation, usedImage: true)
+        let sut = Fixture.categorize(
+            vision: StubImageContentClassifier(result: .document),
+            model: model,
+            loader: StubPhotoLibraryService(image: Fixture.image())
+        )
+        let transcript = """
+        PASSPORT
+        Passport No A1234567
+        Surname DOE
+        Nationality CANADIAN
+        Date of Birth 01 JAN 1990
+        Helpline +1 800 555 0199
+        """
+
+        let result = await sut.execute(Fixture.ocrResult(transcript: transcript))
+
+        #expect(result.category == .identity)
+        #expect(result.confidence == .high)
+        #expect(result.source == .heuristic)
+        #expect(model.callCount == 0)
+    }
+
     @Test("Keep-worthy heuristic evidence overrides a delete-leaning model verdict")
     func keepWorthyOverridesSafeModelVerdict() async {
         // "Total $50.00" scores receipt at medium — reaches the model, but a
@@ -182,4 +226,40 @@ struct CategorizeScreenshotUseCaseTests {
 
         #expect(model.prewarmCount == 1)
     }
+
+    @Test("The foundation-model gate permits two requests and no more")
+    func modelGateHasTwoLanes() async {
+        let gate = FoundationModelGate(maxConcurrentRequests: 2)
+        let probe = ConcurrencyProbe()
+
+        await withTaskGroup(of: Void.self) { group in
+            for _ in 0..<6 {
+                group.addTask {
+                    await gate.run {
+                        await probe.enter()
+                        try? await Task.sleep(for: .milliseconds(20))
+                        await probe.leave()
+                    }
+                }
+            }
+        }
+
+        #expect(await probe.peakCount() == 2)
+    }
+}
+
+private actor ConcurrencyProbe {
+    private var active = 0
+    private var peak = 0
+
+    func enter() {
+        active += 1
+        peak = max(peak, active)
+    }
+
+    func leave() {
+        active -= 1
+    }
+
+    func peakCount() -> Int { peak }
 }

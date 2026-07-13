@@ -16,8 +16,8 @@ import Foundation
 ///    with the category's required evidence and no conflicting protected signal
 ///    returns immediately, spending *no* model work.
 /// 3. **Vision** — for sparse/image-led screens the transcript can't describe.
-/// 4. **Foundation model** — only the remaining ambiguous screens, serialized
-///    through ``FoundationModelGate``.
+/// 4. **Foundation model** — only the remaining ambiguous screens, bounded to
+///    two independent sessions through ``FoundationModelGate``.
 /// 5. **Fallback / needs-review** — when the model can't run, the deterministic
 ///    verdict stands if it has real evidence; otherwise the screen is
 ///    `unresolved` (needs review), never an automatic deletion candidate.
@@ -60,17 +60,24 @@ struct CategorizeScreenshotUseCase {
         model.prewarm()
     }
 
-    func execute(_ ocr: OCRResult) async -> ScreenshotClassification {
+    func execute(
+        _ ocr: OCRResult,
+        sourceImage: CGImage? = nil
+    ) async -> ScreenshotClassification {
         let clock = ContinuousClock()
         let start = clock.now
-        let classification = await classify(ocr, clock: clock)
+        let classification = await classify(ocr, sourceImage: sourceImage, clock: clock)
         metrics.record(.total, clock.now - start)
         metrics.recordResolution(classification.source)
         if classification.disposition == .needsReview { metrics.recordNeedsReview() }
         return classification
     }
 
-    private func classify(_ ocr: OCRResult, clock: ContinuousClock) async -> ScreenshotClassification {
+    private func classify(
+        _ ocr: OCRResult,
+        sourceImage: CGImage?,
+        clock: ContinuousClock
+    ) async -> ScreenshotClassification {
         // 1. Heuristic — cheap and deterministic.
         let heuristicStart = clock.now
         let result = heuristic.evaluate(ocr)
@@ -92,8 +99,8 @@ struct CategorizeScreenshotUseCase {
         let sparse = isTextSparse(ocr)
         var wantsImage = sparse
         if #available(iOS 27.0, *) { wantsImage = true } // the multimodal model reads the interface
-        var image: CGImage?
-        if wantsImage {
+        var image = sourceImage
+        if wantsImage, image == nil {
             let imageStart = clock.now
             image = await imageLoader.cgImage(for: ocr.screenshotID, longEdge: longEdge)
             metrics.record(.imageLoad, clock.now - imageStart)
@@ -119,7 +126,7 @@ struct CategorizeScreenshotUseCase {
             }
         }
 
-        // 5. Foundation model — only the ambiguous remainder, serialized by the gate.
+        // 5. Foundation model — only the ambiguous remainder, bounded by the gate.
         let modelStart = clock.now
         let verdict = await model.classify(ocr: ocr, image: image)
         metrics.record(.foundationModel, clock.now - modelStart)

@@ -13,11 +13,9 @@ import Foundation
 ///
 /// Concurrency is *stage-aware*, not one blind number applied to the whole
 /// expensive pipeline. Cache hits return immediately. The cheap stages (OCR,
-/// heuristic, Vision) run at a small bounded window; the foundation model — the
-/// one stage that does not scale with parallelism — is serialized independently
-/// by ``FoundationModelGate`` inside the classifier, so raising this window never
-/// multiplies concurrent model sessions. Most screenshots resolve on the
-/// heuristic and never reach the model at all.
+/// heuristic, Vision) run at a small bounded window; the foundation model has
+/// its own smaller two-request limiter inside ``FoundationModelGate``. Most
+/// screenshots resolve on the heuristic and never reach the model at all.
 struct ClassifyLibraryUseCase {
 
     let recognizeText: RecognizeScreenshotTextUseCase
@@ -25,7 +23,7 @@ struct ClassifyLibraryUseCase {
     let store: CategoryStore
 
     /// Bounds the cheap OCR/heuristic/Vision stages. The model gate handles the
-    /// expensive stage separately, so this is a throughput knob, not a model-
+    /// expensive stage separately, so this is a throughput knob, not the model-
     /// concurrency knob.
     private let cheapConcurrency = 4
 
@@ -92,9 +90,12 @@ struct ClassifyLibraryUseCase {
             return (shot.id, cached.asCached())
         }
         do {
-            let ocr = try await recognizeText.execute(screenshotID: shot.id)
+            let recognized = try await recognizeText.executeWithSourceImage(screenshotID: shot.id)
             if Task.isCancelled { return nil }
-            let classification = await categorize.execute(ocr)
+            let classification = await categorize.execute(
+                recognized.result,
+                sourceImage: recognized.sourceImage
+            )
             await store.save(classification, for: shot.id)
             return (shot.id, classification)
         } catch is CancellationError {
