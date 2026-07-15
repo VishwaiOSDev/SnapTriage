@@ -53,6 +53,7 @@
 		0A0A1B270000000000000001 /* ClassifyLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */; };
 		0A0A1B280000000000000001 /* HeroMetricText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A280000000000000001 /* HeroMetricText.swift */; };
 		0A0A1B300000000000000001 /* AppComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A300000000000000001 /* AppComposition.swift */; };
+		0A0A1B500000000000000001 /* BackgroundClassificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A500000000000000001 /* BackgroundClassificationCoordinator.swift */; };
 		0A0A1B310000000000000001 /* ReviewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A310000000000000001 /* ReviewItem.swift */; };
 		0A0A1B320000000000000001 /* LoadReviewItemsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A320000000000000001 /* LoadReviewItemsUseCase.swift */; };
 		0A0A1B330000000000000001 /* DeleteScreenshotsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0A1A330000000000000001 /* DeleteScreenshotsUseCase.swift */; };
@@ -135,6 +136,7 @@
 		0A0A1A270000000000000001 /* ClassifyLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassifyLibraryUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A280000000000000001 /* HeroMetricText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroMetricText.swift; sourceTree = "<group>"; };
 		0A0A1A300000000000000001 /* AppComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppComposition.swift; sourceTree = "<group>"; };
+		0A0A1A500000000000000001 /* BackgroundClassificationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClassificationCoordinator.swift; sourceTree = "<group>"; };
 		0A0A1A310000000000000001 /* ReviewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewItem.swift; sourceTree = "<group>"; };
 		0A0A1A320000000000000001 /* LoadReviewItemsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCase.swift; sourceTree = "<group>"; };
 		0A0A1A330000000000000001 /* DeleteScreenshotsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCase.swift; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 				0A0A00100000000000000001 /* SnapTriageApp.swift */,
 				0A0A00110000000000000001 /* ContentView.swift */,
 				0A0A1A300000000000000001 /* AppComposition.swift */,
+				0A0A1A500000000000000001 /* BackgroundClassificationCoordinator.swift */,
 				0A0A1C010000000000000001 /* Features */,
 				0A0A1C100000000000000001 /* Common */,
 				88FB6D832FFED75800613B50 /* Resources */,
@@ -657,6 +660,7 @@
 				0A0A1B270000000000000001 /* ClassifyLibraryUseCase.swift in Sources */,
 				0A0A1B280000000000000001 /* HeroMetricText.swift in Sources */,
 				0A0A1B300000000000000001 /* AppComposition.swift in Sources */,
+				0A0A1B500000000000000001 /* BackgroundClassificationCoordinator.swift in Sources */,
 				0A0A1B310000000000000001 /* ReviewItem.swift in Sources */,
 				0A0A1B320000000000000001 /* LoadReviewItemsUseCase.swift in Sources */,
 				0A0A1B330000000000000001 /* DeleteScreenshotsUseCase.swift in Sources */,
@@ -835,6 +839,7 @@
 				DEVELOPMENT_TEAM = 5Q2G7C7C3U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SnapTriage/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SnapTriage;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapTriage reads your screenshots so it can help you review, keep, or delete them. Your photos never leave your device.";
@@ -869,6 +874,7 @@
 				DEVELOPMENT_TEAM = 5Q2G7C7C3U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SnapTriage/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SnapTriage;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapTriage reads your screenshots so it can help you review, keep, or delete them. Your photos never leave your device.";

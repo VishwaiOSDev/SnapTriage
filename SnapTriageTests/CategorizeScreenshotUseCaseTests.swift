@@ -235,7 +235,7 @@ struct CategorizeScreenshotUseCaseTests {
         await withTaskGroup(of: Void.self) { group in
             for _ in 0..<6 {
                 group.addTask {
-                    await gate.run {
+                    await gate.run(unlessCancelled: ()) {
                         await probe.enter()
                         try? await Task.sleep(for: .milliseconds(20))
                         await probe.leave()
@@ -245,6 +245,29 @@ struct CategorizeScreenshotUseCaseTests {
         }
 
         #expect(await probe.peakCount() == 2)
+    }
+
+    @Test("Cancelling a queued model request removes it from the gate")
+    func modelGateCancellationIsCooperative() async {
+        let gate = FoundationModelGate(maxConcurrentRequests: 1)
+        let latch = AsyncLatch()
+        let holder = Task {
+            await gate.run(unlessCancelled: ()) {
+                await latch.hold()
+            }
+        }
+        await latch.waitUntilHeld()
+
+        let queued = Task {
+            await gate.run(unlessCancelled: -1) { 42 }
+        }
+        await Task.yield()
+        queued.cancel()
+
+        #expect(await queued.value == -1)
+        await latch.release()
+        _ = await holder.value
+        #expect(await gate.run(unlessCancelled: -1) { 7 } == 7)
     }
 }
 
@@ -262,4 +285,27 @@ private actor ConcurrencyProbe {
     }
 
     func peakCount() -> Int { peak }
+}
+
+private actor AsyncLatch {
+    private var isHeld = false
+    private var holdContinuation: CheckedContinuation<Void, Never>?
+    private var enteredContinuations: [CheckedContinuation<Void, Never>] = []
+
+    func hold() async {
+        isHeld = true
+        enteredContinuations.forEach { $0.resume() }
+        enteredContinuations.removeAll()
+        await withCheckedContinuation { holdContinuation = $0 }
+    }
+
+    func waitUntilHeld() async {
+        guard !isHeld else { return }
+        await withCheckedContinuation { enteredContinuations.append($0) }
+    }
+
+    func release() {
+        holdContinuation?.resume()
+        holdContinuation = nil
+    }
 }

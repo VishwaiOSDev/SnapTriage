@@ -84,6 +84,9 @@ final class TriageViewModel {
         case startOver
         case openSettings
         case clearError
+        #if DEBUG
+        case recategorizeAll
+        #endif
     }
 
     private(set) var state = State()
@@ -149,8 +152,40 @@ final class TriageViewModel {
             router.openSettings()
         case .clearError:
             state.errorMessage = nil
+        #if DEBUG
+        case .recategorizeAll:
+            recategorizeAll()
+        #endif
         }
     }
+
+    #if DEBUG
+    // Debug-only: wipe every cached verdict and re-classify the whole library.
+    // If the app backgrounds during this pass, the app-level coordinator joins
+    // the same single-flight operations and owns durable completion/notification.
+    private func recategorizeAll() {
+        tasks[.classify]?.cancel()
+        isClassifying = true
+
+        tasks[.classify] = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                self.isClassifying = false
+            }
+            await self.classifyLibrary.clearCache()
+            if Task.isCancelled { return }
+            self.state.classifications = [:]
+
+            for await progress in self.classifyLibrary.execute(self.state.screenshots) {
+                if Task.isCancelled { return }
+                if let id = progress.id, let classification = progress.classification {
+                    self.state.classifications[id] = classification
+                }
+            }
+            await self.classifyLibrary.flush()
+        }
+    }
+    #endif
 
     // Transient read for the card image, not domain state, so bypasses send.
     func thumbnail(for id: Screenshot.ID, targetSize: CGSize) async -> UIImage? {
@@ -297,7 +332,9 @@ final class TriageViewModel {
 
         tasks[.classify] = Task { [weak self] in
             guard let self else { return }
-            defer { self.isClassifying = false }
+            defer {
+                self.isClassifying = false
+            }
 
             // Failed classifications stay uncached; skipping already-attempted ids
             // bounds this run. The next swipe starts a fresh task that retries them.

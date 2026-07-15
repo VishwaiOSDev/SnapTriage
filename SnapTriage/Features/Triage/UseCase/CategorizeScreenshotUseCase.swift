@@ -24,7 +24,7 @@ import Foundation
 ///
 /// The reverse of the old model-first pipeline: most screenshots now resolve at
 /// step 2 without ever loading pixels or invoking Apple Intelligence.
-struct CategorizeScreenshotUseCase {
+struct CategorizeScreenshotUseCase: Sendable {
 
     let heuristic: HeuristicScreenshotCategorizer
     let vision: ImageContentClassifier

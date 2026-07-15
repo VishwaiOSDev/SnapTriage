@@ -11,30 +11,17 @@ enum ReviewComposition {
     @MainActor
     static func make(
         service: PhotoLibraryService,
-        ocrStore: OCRStore,
+        classifyLibrary: ClassifyLibraryUseCase,
         categoryStore: CategoryStore,
+        ocrStore: OCRStore,
         decisionStore: TriageDecisionStore,
-        metrics: ClassificationMetrics = OSLogClassificationMetrics(),
         router: ReviewRouter
     ) -> ReviewViewModel {
-        let recognizer = VisionTextRecognitionService()
-
-        let recognizeText = RecognizeScreenshotTextUseCase(
-            imageLoader: service,
-            recognizer: recognizer,
-            store: ocrStore
-        )
-        let categorize = CategorizeScreenshotUseCase(imageLoader: service, metrics: metrics)
-
         return ReviewViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
             loadItems: LoadReviewItemsUseCase(
                 loadScreenshots: LoadScreenshotsUseCase(service: service),
-                classifyLibrary: ClassifyLibraryUseCase(
-                    recognizeText: recognizeText,
-                    categorize: categorize,
-                    store: categoryStore
-                ),
+                classifyLibrary: classifyLibrary,
                 store: categoryStore,
                 decisions: decisionStore
             ),

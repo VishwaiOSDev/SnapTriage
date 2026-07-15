@@ -26,7 +26,7 @@ import os
 struct FoundationModelClassifier: ScreenshotModelClassifier {
 
     func classify(ocr: OCRResult, image: CGImage?) async -> ModelVerdict? {
-        await FoundationModelGate.shared.run {
+        await FoundationModelGate.shared.run(unlessCancelled: nil) {
             if let image, #available(iOS 27.0, *) {
                 if let category = try? await FoundationModelScreenshotCategorizer().category(for: ocr, image: image) {
                     return ModelVerdict(category: category, usedImage: true)
@@ -60,7 +60,12 @@ actor FoundationModelGate {
 
     private let maxConcurrentRequests: Int
     private var availablePermits: Int
-    private var waiters: [CheckedContinuation<Void, Never>] = []
+    private struct Waiter {
+        let id: UUID
+        let continuation: CheckedContinuation<Bool, Never>
+    }
+
+    private var waiters: [Waiter] = []
 
     init(maxConcurrentRequests: Int = 2) {
         precondition(maxConcurrentRequests > 0)
@@ -68,20 +73,34 @@ actor FoundationModelGate {
         self.availablePermits = maxConcurrentRequests
     }
 
-    func run<T: Sendable>(_ body: @Sendable @escaping () async -> T) async -> T {
-        await acquire()
+    func run<T: Sendable>(
+        unlessCancelled fallback: T,
+        _ body: @Sendable @escaping () async -> T
+    ) async -> T {
+        guard await acquire() else { return fallback }
         defer { release() }
+        guard !Task.isCancelled else { return fallback }
         return await body()
     }
 
-    private func acquire() async {
+    private func acquire() async -> Bool {
+        guard !Task.isCancelled else { return false }
         if availablePermits > 0 {
             availablePermits -= 1
-            return
+            return true
         }
 
-        await withCheckedContinuation { continuation in
-            waiters.append(continuation)
+        let id = UUID()
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                if Task.isCancelled {
+                    continuation.resume(returning: false)
+                } else {
+                    waiters.append(Waiter(id: id, continuation: continuation))
+                }
+            }
+        } onCancel: {
+            Task { await self.cancelWaiter(id: id) }
         }
     }
 
@@ -90,8 +109,13 @@ actor FoundationModelGate {
             availablePermits += 1
             assert(availablePermits <= maxConcurrentRequests)
         } else {
-            waiters.removeFirst().resume()
+            waiters.removeFirst().continuation.resume(returning: true)
         }
+    }
+
+    private func cancelWaiter(id: UUID) {
+        guard let index = waiters.firstIndex(where: { $0.id == id }) else { return }
+        waiters.remove(at: index).continuation.resume(returning: false)
     }
 }
 

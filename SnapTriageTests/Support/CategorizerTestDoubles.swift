@@ -69,13 +69,17 @@ struct StubImageContentClassifier: ImageContentClassifier {
 /// Serves a preset `CGImage` and records whether the image path actually asked for it.
 final class StubPhotoLibraryService: PhotoLibraryService, @unchecked Sendable {
     let image: CGImage?
+    let screenshots: [Screenshot]
     private(set) var cgImageRequested = false
 
-    init(image: CGImage?) { self.image = image }
+    init(image: CGImage?, screenshots: [Screenshot] = []) {
+        self.image = image
+        self.screenshots = screenshots
+    }
 
     func currentAuthorization() -> PhotoLibraryAuthorization { .authorized }
     func requestAuthorization() async -> PhotoLibraryAuthorization { .authorized }
-    func fetchScreenshots() async -> [Screenshot] { [] }
+    func fetchScreenshots() async -> [Screenshot] { screenshots }
     func thumbnail(
         for id: Screenshot.ID,
         targetSize: CGSize,

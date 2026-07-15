@@ -20,6 +20,20 @@ protocol CategoryStore: Sendable {
     /// Drops the classifications for screenshots that no longer exist, e.g. after
     /// Review deletes them.
     func remove(_ ids: [Screenshot.ID]) async
+
+    /// Forces any write-behind persistence to disk. In-memory stores use the
+    /// default no-op implementation.
+    func flushPendingWrites() async
+
+    #if DEBUG
+    /// Wipes the whole cache so the next pass re-classifies from scratch. Debug
+    /// affordance for exercising the classification pipeline end to end.
+    func removeAll() async
+    #endif
+}
+
+extension CategoryStore {
+    func flushPendingWrites() async {}
 }
 
 actor InMemoryCategoryStore: CategoryStore {
@@ -41,6 +55,12 @@ actor InMemoryCategoryStore: CategoryStore {
     func remove(_ ids: [Screenshot.ID]) {
         ids.forEach { cache[$0] = nil }
     }
+
+    #if DEBUG
+    func removeAll() {
+        cache.removeAll()
+    }
+    #endif
 }
 
 /// Disk-backed store so classifications survive relaunch. Recomputable, so the
@@ -82,7 +102,17 @@ final class FileBackedCategoryStore: CategoryStore {
         storage.remove(ids)
     }
 
+    #if DEBUG
+    func removeAll() {
+        storage.removeAll()
+    }
+    #endif
+
     func flush() {
+        storage.flush()
+    }
+
+    func flushPendingWrites() async {
         storage.flush()
     }
 }

@@ -15,7 +15,7 @@ struct RecognizedScreenshotContent: @unchecked Sendable {
     let sourceImage: CGImage?
 }
 
-struct RecognizeScreenshotTextUseCase {
+struct RecognizeScreenshotTextUseCase: Sendable {
     
     let imageLoader: PhotoLibraryService
     let recognizer: TextRecognitionService
@@ -48,6 +48,10 @@ struct RecognizeScreenshotTextUseCase {
         let result = OCRResult(screenshotID: screenshotID, lines: ordered)
         await store.save(result)
         return RecognizedScreenshotContent(result: result, sourceImage: image)
+    }
+
+    func flush() async {
+        await store.flushPendingWrites()
     }
 
     /// Vision coordinates start at the lower-left. Group adjacent observations into visual rows
