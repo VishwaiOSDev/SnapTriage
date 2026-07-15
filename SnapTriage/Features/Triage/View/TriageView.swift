@@ -27,7 +27,7 @@ struct TriageView: View {
 
     /// A presentation preference, not domain state. Fit is the safer default:
     /// the user sees the whole screenshot unless they explicitly choose crop.
-    @AppStorage("triage.imageDisplayMode") private var imageMode: CardImageMode = .fit
+    @AppStorage("triage.imageDisplayMode") private var imageMode: CardImageMode = .fill
     @State private var showStartOverConfirmation = false
 
     /// Shared and prepared ahead of the first swipe: creating a generator and
