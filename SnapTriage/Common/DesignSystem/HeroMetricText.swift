@@ -93,15 +93,19 @@ private extension View {
     }
 }
 
-#Preview {
-    ZStack {
-        Color(red: 0.04, green: 0.05, blue: 0.07).ignoresSafeArea()
-        VStack(spacing: 0) {
-            HeroMetricText("3.2 GB")
-            HeroMetricText("18.4 GB", size: 64)
-            HeroMetricText("512 MB", size: 48)
+#if DEBUG
+private struct HeroMetricText_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            Color(red: 0.04, green: 0.05, blue: 0.07).ignoresSafeArea()
+            VStack(spacing: 0) {
+                HeroMetricText("3.2 GB")
+                HeroMetricText("18.4 GB", size: 64)
+                HeroMetricText("512 MB", size: 48)
+            }
+            .padding()
         }
-        .padding()
+        .preferredColorScheme(.dark)
     }
-    .preferredColorScheme(.dark)
 }
+#endif
