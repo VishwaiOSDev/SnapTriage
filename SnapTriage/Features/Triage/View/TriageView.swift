@@ -167,6 +167,17 @@ struct TriageView: View {
                     Label(Strings.Triage.restartTriage, systemImage: "arrow.counterclockwise")
                 }
             }
+
+            #if DEBUG
+            Divider()
+            // Wipes the classification cache and re-runs the pipeline. Debug-only:
+            // for exercising categorization (and the background pass) end to end.
+            Button {
+                viewModel.send(.recategorizeAll)
+            } label: {
+                Label("Re-categorize all (debug)", systemImage: "wand.and.stars")
+            }
+            #endif
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 16, weight: .semibold))

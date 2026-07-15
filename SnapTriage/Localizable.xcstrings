@@ -325,6 +325,28 @@
         }
       }
     },
+    "notification.classificationReady.body": {
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%lld screenshots have been sorted. Open SnapTriage to review them."
+          }
+        }
+      }
+    },
+    "notification.classificationReady.title": {
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Screenshots ready to triage"
+          }
+        }
+      }
+    },
     "Overview.analyzing": {
       "comment": "Progress label while classifying the library; both %@ are counts",
       "extractionState": "manual",

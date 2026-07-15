@@ -114,19 +114,33 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
         let options = PHImageRequestOptions()
         options.deliveryMode = .highQualityFormat    // one final callback, no interim images
         options.resizeMode = .fast
-        options.isNetworkAccessAllowed = false        // local-only; don't stall on iCloud
+        // A screenshot may have been evicted to iCloud. Returning nil here made
+        // the classifier permanently retry the asset without ever finishing.
+        options.isNetworkAccessAllowed = true
         options.isSynchronous = false
-        
-        return await withCheckedContinuation { continuation in
-            let once = ResumeOnce()
-            imageManager.requestImage(
-                for: asset,
-                targetSize: targetSize,
-                contentMode: contentMode,
-                options: options
-            ) { image, _ in
-                once.run { continuation.resume(returning: image) }
+
+        let cancellation = PhotoRequestCancellation()
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                let once = ResumeOnce()
+                let requestID = imageManager.requestImage(
+                    for: asset,
+                    targetSize: targetSize,
+                    contentMode: contentMode,
+                    options: options
+                ) { image, _ in
+                    once.run { continuation.resume(returning: image) }
+                    cancellation.finish()
+                }
+                cancellation.install(
+                    requestID: requestID,
+                    manager: imageManager
+                ) {
+                    once.run { continuation.resume(returning: nil) }
+                }
             }
+        } onCancel: {
+            cancellation.cancel(manager: imageManager)
         }
     }
 
@@ -144,21 +158,36 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
         let options = PHImageRequestOptions()
         options.deliveryMode = .highQualityFormat
         options.resizeMode = .exact
-        options.isNetworkAccessAllowed = false        // local-only; don't stall on iCloud
+        // Classification must include iCloud-only screenshots. PhotoKit handles
+        // the download and the BG task stays network-agnostic because local
+        // assets can still make progress while offline.
+        options.isNetworkAccessAllowed = true
         options.isSynchronous = false
 
-        return await withCheckedContinuation { continuation in
-            let once = ResumeOnce()
-            imageManager.requestImage(
-                for: asset,
-                targetSize: target,
-                contentMode: .aspectFit,
-                options: options
-            ) { image, info in
-                // PhotoKit may fire a degraded interim image first; wait for the final one.
-                if let degraded = info?[PHImageResultIsDegradedKey] as? Bool, degraded { return }
-                once.run { continuation.resume(returning: image?.cgImage) }
+        let cancellation = PhotoRequestCancellation()
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                let once = ResumeOnce()
+                let requestID = imageManager.requestImage(
+                    for: asset,
+                    targetSize: target,
+                    contentMode: .aspectFit,
+                    options: options
+                ) { image, info in
+                    // PhotoKit may fire a degraded interim image first; wait for the final one.
+                    if let degraded = info?[PHImageResultIsDegradedKey] as? Bool, degraded { return }
+                    once.run { continuation.resume(returning: image?.cgImage) }
+                    cancellation.finish()
+                }
+                cancellation.install(
+                    requestID: requestID,
+                    manager: imageManager
+                ) {
+                    once.run { continuation.resume(returning: nil) }
+                }
             }
+        } onCancel: {
+            cancellation.cancel(manager: imageManager)
         }
     }
 
@@ -263,5 +292,63 @@ private final class ResumeOnce: @unchecked Sendable {
         guard !hasRun else { return }
         hasRun = true
         body()
+    }
+}
+
+/// Couples Swift task cancellation to PhotoKit's request identifier and resumes
+/// the async continuation even when PhotoKit does not send a terminal callback
+/// after cancellation. All transitions are lock-protected because cancellation
+/// and PhotoKit callbacks can arrive on different queues.
+private final class PhotoRequestCancellation: @unchecked Sendable {
+    private let lock = NSLock()
+    private var requestID: PHImageRequestID?
+    private var cancellationHandler: (() -> Void)?
+    private var isCancelled = false
+    private var isFinished = false
+
+    func install(
+        requestID: PHImageRequestID,
+        manager: PHImageManager,
+        onCancel: @escaping () -> Void
+    ) {
+        lock.lock()
+        guard !isFinished else {
+            lock.unlock()
+            return
+        }
+        if isCancelled {
+            lock.unlock()
+            manager.cancelImageRequest(requestID)
+            onCancel()
+            return
+        }
+        self.requestID = requestID
+        cancellationHandler = onCancel
+        lock.unlock()
+    }
+
+    func cancel(manager: PHImageManager) {
+        lock.lock()
+        guard !isFinished, !isCancelled else {
+            lock.unlock()
+            return
+        }
+        isCancelled = true
+        let requestID = requestID
+        let cancellationHandler = cancellationHandler
+        lock.unlock()
+
+        if let requestID {
+            manager.cancelImageRequest(requestID)
+        }
+        cancellationHandler?()
+    }
+
+    func finish() {
+        lock.lock()
+        isFinished = true
+        requestID = nil
+        cancellationHandler = nil
+        lock.unlock()
     }
 }

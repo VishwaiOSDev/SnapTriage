@@ -21,13 +21,42 @@ import Foundation
 @MainActor
 final class AppComposition {
 
-    private let service = PhotoKitLibraryService()
-    private let ocrStore = FileBackedOCRStore(directory: URL.cachesDirectory)
-    private let categoryStore = FileBackedCategoryStore(directory: URL.cachesDirectory)
-    private let decisionStore = FileBackedTriageDecisionStore(directory: URL.applicationSupportDirectory)
+    private let service: PhotoKitLibraryService
+    private let ocrStore: FileBackedOCRStore
+    private let categoryStore: FileBackedCategoryStore
+    private let decisionStore: FileBackedTriageDecisionStore
     /// One metrics sink across features, so aggregate routing/timing counts (how
     /// much of the library needed the model) are cumulative rather than per-tab.
-    private let metrics = OSLogClassificationMetrics()
+    private let metrics: OSLogClassificationMetrics
+    /// One process-wide engine. All feature requests and background passes join
+    /// the same per-screenshot work through this use case.
+    private let classifyLibrary: ClassifyLibraryUseCase
+
+    init() {
+        let service = PhotoKitLibraryService()
+        let ocrStore = FileBackedOCRStore(directory: URL.cachesDirectory)
+        let categoryStore = FileBackedCategoryStore(directory: URL.cachesDirectory)
+        let decisionStore = FileBackedTriageDecisionStore(directory: URL.applicationSupportDirectory)
+        let metrics = OSLogClassificationMetrics()
+        let recognizeText = RecognizeScreenshotTextUseCase(
+            imageLoader: service,
+            recognizer: VisionTextRecognitionService(),
+            store: ocrStore
+        )
+        let categorize = CategorizeScreenshotUseCase(imageLoader: service, metrics: metrics)
+        let engine = LibraryClassificationEngine(
+            recognizeText: recognizeText,
+            categorize: categorize,
+            store: categoryStore
+        )
+
+        self.service = service
+        self.ocrStore = ocrStore
+        self.categoryStore = categoryStore
+        self.decisionStore = decisionStore
+        self.metrics = metrics
+        self.classifyLibrary = ClassifyLibraryUseCase(engine: engine)
+    }
 
     /// Forces pending store writes to disk; called when the scene backgrounds,
     /// after which the process may be killed without further notice.
@@ -40,9 +69,7 @@ final class AppComposition {
     func makeOverview(router: (any OverviewRouter)? = nil) -> OverviewViewModel {
         OverviewComposition.make(
             service: service,
-            ocrStore: ocrStore,
-            categoryStore: categoryStore,
-            metrics: metrics,
+            classifyLibrary: classifyLibrary,
             router: router ?? SystemOverviewRouter()
         )
     }
@@ -50,10 +77,8 @@ final class AppComposition {
     func makeTriage(router: (any TriageRouter)? = nil) -> TriageViewModel {
         TriageComposition.make(
             service: service,
-            ocrStore: ocrStore,
-            categoryStore: categoryStore,
+            classifyLibrary: classifyLibrary,
             decisionStore: decisionStore,
-            metrics: metrics,
             router: router ?? SystemTriageRouter()
         )
     }
@@ -61,11 +86,25 @@ final class AppComposition {
     func makeReview(router: (any ReviewRouter)? = nil) -> ReviewViewModel {
         ReviewComposition.make(
             service: service,
-            ocrStore: ocrStore,
+            classifyLibrary: classifyLibrary,
             categoryStore: categoryStore,
+            ocrStore: ocrStore,
             decisionStore: decisionStore,
-            metrics: metrics,
             router: router ?? SystemReviewRouter()
+        )
+    }
+
+    /// Builds the suspended-library classifier from the same shared service and
+    /// stores as the foreground features, so its background pass writes into the
+    /// exact cache the deck and Overview read from.
+    func makeBackgroundClassificationCoordinator(
+        navigation: AppNavigation
+    ) -> BackgroundClassificationCoordinator {
+        return BackgroundClassificationCoordinator(
+            loadScreenshots: LoadScreenshotsUseCase(service: service),
+            classifyLibrary: classifyLibrary,
+            decisions: decisionStore,
+            onOpenTriage: { navigation.requestSelection(.triage) }
         )
     }
 }

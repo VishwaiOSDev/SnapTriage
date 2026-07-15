@@ -11,29 +11,14 @@ enum TriageComposition {
     @MainActor
     static func make(
         service: PhotoLibraryService,
-        ocrStore: OCRStore,
-        categoryStore: CategoryStore,
+        classifyLibrary: ClassifyLibraryUseCase,
         decisionStore: TriageDecisionStore,
-        metrics: ClassificationMetrics = OSLogClassificationMetrics(),
         router: TriageRouter
     ) -> TriageViewModel {
-        let recognizer = VisionTextRecognitionService()
-
-        let recognizeText = RecognizeScreenshotTextUseCase(
-            imageLoader: service,
-            recognizer: recognizer,
-            store: ocrStore
-        )
-        let categorize = CategorizeScreenshotUseCase(imageLoader: service, metrics: metrics)
-
         return TriageViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
             loadScreenshots: LoadScreenshotsUseCase(service: service),
-            classifyLibrary: ClassifyLibraryUseCase(
-                recognizeText: recognizeText,
-                categorize: categorize,
-                store: categoryStore
-            ),
+            classifyLibrary: classifyLibrary,
             recordDecision: RecordTriageDecisionUseCase(store: decisionStore),
             undoDecision: UndoTriageDecisionUseCase(store: decisionStore),
             clearDecisions: ClearTriageDecisionsUseCase(store: decisionStore),
