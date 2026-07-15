@@ -224,14 +224,21 @@ private struct EmptyReviewView: View {
 }
 
 #if DEBUG
-#Preview {
-    let viewModel = AppComposition().makeReview()
-    viewModel.seedForPreview([
-        ReviewItem(id: "1", category: .social, byteSize: 2_400_000),
-        ReviewItem(id: "2", category: .article, byteSize: 1_800_000),
-        ReviewItem(id: "3", category: .conversation, byteSize: 3_100_000),
-        ReviewItem(id: "4", category: .photo, byteSize: 5_600_000)
-    ])
-    return ReviewView(viewModel: viewModel)
+@MainActor
+private struct ReviewView_Previews: PreviewProvider {
+    static var previews: some View {
+        makePreview()
+    }
+
+    private static func makePreview() -> some View {
+        let viewModel = AppComposition().makeReview()
+        viewModel.seedForPreview([
+            ReviewItem(id: "1", category: .social, byteSize: 2_400_000),
+            ReviewItem(id: "2", category: .article, byteSize: 1_800_000),
+            ReviewItem(id: "3", category: .conversation, byteSize: 3_100_000),
+            ReviewItem(id: "4", category: .photo, byteSize: 5_600_000)
+        ])
+        return ReviewView(viewModel: viewModel)
+    }
 }
 #endif

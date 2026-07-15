@@ -467,8 +467,17 @@ private struct EmptyOverviewView: View {
     }
 }
 
-#Preview {
-    let viewModel = AppComposition().makeOverview()
-    viewModel.seedForPreview(.sample)
-    return OverviewView(viewModel: viewModel) {}
+#if DEBUG
+@MainActor
+private struct OverviewView_Previews: PreviewProvider {
+    static var previews: some View {
+        makePreview()
+    }
+
+    private static func makePreview() -> some View {
+        let viewModel = AppComposition().makeOverview()
+        viewModel.seedForPreview(.sample)
+        return OverviewView(viewModel: viewModel) {}
+    }
 }
+#endif
