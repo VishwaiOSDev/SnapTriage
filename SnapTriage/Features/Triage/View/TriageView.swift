@@ -15,8 +15,9 @@ private enum CardImageMode: String {
 }
 
 struct TriageView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: TriageViewModel
-    private let onClose: () -> Void
+    private let onReview: () -> Void
 
     /// Drag state is pure UI: it lives in the view and never reaches the
     /// ViewModel. Only the final decision crosses the boundary via `send`.
@@ -35,9 +36,12 @@ struct TriageView: View {
     @State private var haptic = UIImpactFeedbackGenerator(style: .medium)
     @State private var undoHaptic = UIImpactFeedbackGenerator(style: .soft)
 
-    init(viewModel: TriageViewModel, onClose: @escaping () -> Void = {}) {
+    init(
+        viewModel: TriageViewModel,
+        onReview: @escaping () -> Void = {}
+    ) {
         _viewModel = State(initialValue: viewModel)
-        self.onClose = onClose
+        self.onReview = onReview
     }
 
     var body: some View {
@@ -128,7 +132,7 @@ struct TriageView: View {
                     .contentTransition(.numericText())
             }
             HStack {
-                CircularIconButton(systemImage: "xmark", accessibilityLabel: Strings.Triage.close, action: onClose)
+                CircularIconButton(systemImage: "xmark", accessibilityLabel: Strings.Triage.close) { dismiss() }
                 Spacer()
                 overflowMenu
             }
@@ -477,6 +481,19 @@ struct TriageView: View {
                 .font(.footnote)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
+            // The marked set is waiting in Review; hand the user straight there
+            // instead of relying on a tab they'd have to find.
+            if viewModel.state.markedCount > 0 {
+                Button(action: onReview) {
+                    Label(Strings.Review.title, systemImage: "trash")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Metrics.controlDelete)
+                .padding(.top, 12)
+            }
             if viewModel.state.canUndo {
                 UndoButton(action: undo)
                     .allowsHitTesting(!isDismissing)

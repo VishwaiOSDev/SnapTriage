@@ -25,9 +25,6 @@ enum Strings {
         static let onDeviceSubtitle = String(localized: .overviewOnDeviceSubtitle)
         static let intelligentTitle = String(localized: .overviewIntelligentTitle)
         static let intelligentSubtitle = String(localized: .overviewIntelligentSubtitle)
-        static let tabOverview = String(localized: .overviewTabOverview)
-        static let tabTriage = String(localized: .overviewTabTriage)
-        static let tabReview = String(localized: .overviewTabReview)
         static let settings = String(localized: .overviewSettings)
     }
 
@@ -77,6 +74,7 @@ enum Strings {
 
     enum Access {
         static let title = String(localized: .accessTitle)
+        static let back = String(localized: .accessBack)
         static let openSettings = String(localized: .accessOpenSettings)
         static let retry = String(localized: .accessRetry)
     }

@@ -1,6 +1,18 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Access.back": {
+      "comment": "Accessibility label for the button that returns from Review",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
     "Access.openSettings": {
       "comment": "Button that deep-links to the system Settings app",
       "extractionState": "manual",

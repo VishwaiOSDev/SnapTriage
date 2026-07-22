@@ -11,27 +11,46 @@ import Observation
 @MainActor
 @Observable
 final class AppNavigation {
-    var selection: OverviewTab = .overview
+    /// The one pushed destination. Triage isn't here — it's a full-screen
+    /// session, not a peer place, so it presents rather than pushes.
+    enum Route: Hashable { case review }
+
+    /// Push stack rooted at Overview.
+    var path: [Route] = []
+    /// Triage runs as a focused, full-screen session with an explicit exit.
+    var isTriagePresented = false
 
     @ObservationIgnored private var isSceneActive = false
-    @ObservationIgnored private var pendingSelection: OverviewTab?
+    @ObservationIgnored private var pendingTriage = false
 
-    /// Notification responses can arrive before SwiftUI has connected an
-    /// active scene. Queue the destination instead of mutating TabView during
-    /// launch or scene restoration.
-    func requestSelection(_ selection: OverviewTab) {
+    /// Notification responses can arrive before SwiftUI has connected an active
+    /// scene. Queue the presentation instead of mutating navigation during launch
+    /// or scene restoration.
+    func presentTriage() {
         guard isSceneActive else {
-            pendingSelection = selection
+            pendingTriage = true
             return
         }
-        self.selection = selection
+        isTriagePresented = true
+    }
+
+    /// Show Review as a pushed destination on the Overview stack.
+    func showReview() {
+        path = [.review]
+    }
+
+    /// Leave the triage session and land the user on Review to confirm deletions.
+    /// Dismisses the cover and pushes Review underneath in one step.
+    func finishToReview() {
+        isTriagePresented = false
+        path = [.review]
     }
 
     func sceneDidBecomeActive() {
         isSceneActive = true
-        guard let pendingSelection else { return }
-        self.pendingSelection = nil
-        selection = pendingSelection
+        guard pendingTriage else { return }
+        pendingTriage = false
+        isTriagePresented = true
     }
 
     func sceneDidLeaveActive() {
@@ -63,18 +82,29 @@ struct ContentView: View {
 
     var body: some View {
         @Bindable var navigation = navigation
-        TabView(selection: $navigation.selection) {
-            Tab(OverviewTab.overview.title, systemImage: OverviewTab.overview.systemImage, value: .overview) {
-                OverviewView(viewModel: overviewModel) { navigation.selection = .triage }
-            }
-            Tab(OverviewTab.triage.title, systemImage: OverviewTab.triage.systemImage, value: .triage) {
-                TriageView(viewModel: triageModel) { navigation.selection = .overview }
-            }
-            Tab(OverviewTab.review.title, systemImage: OverviewTab.review.systemImage, value: .review) {
-                ReviewView(viewModel: reviewModel)
+        NavigationStack(path: $navigation.path) {
+            OverviewView(
+                viewModel: overviewModel,
+                onStartTriage: { navigation.presentTriage() },
+                onOpenReview: { navigation.showReview() }
+            )
+            .navigationDestination(for: AppNavigation.Route.self) { route in
+                switch route {
+                case .review:
+                    // Review carries its own header and back control, so the
+                    // system bar would only double the chrome.
+                    ReviewView(viewModel: reviewModel)
+                        .toolbar(.hidden, for: .navigationBar)
+                }
             }
         }
-        .tint(.blue)
+        .fullScreenCover(isPresented: $navigation.isTriagePresented) {
+            TriageView(
+                viewModel: triageModel,
+                onReview: { navigation.finishToReview() }
+            )
+        }
+        .tint(Color("AccentColor"))
         .preferredColorScheme(.dark)
         .onChange(of: overviewModel.state.isClassifying, initial: true) { _, isClassifying in
             // Only prompt after the user granted Photos access and actual work
