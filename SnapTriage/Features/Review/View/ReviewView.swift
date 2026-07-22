@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ReviewView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ReviewViewModel
 
     init(viewModel: ReviewViewModel) {
@@ -75,11 +76,15 @@ struct ReviewView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(systemName: "trash.fill")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 38, height: 38)
-                .background(Metrics.accent, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+            Button(action: { dismiss() }) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .frame(width: 38, height: 38)
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Strings.Access.back)
             Text(Strings.Review.title)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.white)

@@ -24,7 +24,6 @@ struct TriageStat: Identifiable, Equatable {
     let detail: String?
     let indicator: Indicator
 }
-
 struct FeatureHighlight: Identifiable, Equatable {
     let id = UUID()
     let systemImage: String
@@ -100,26 +99,4 @@ extension OverviewSummary {
         safeBytes: 3_200_000_000,
         totalCount: 1_241
     )
-}
-
-enum OverviewTab: CaseIterable, Hashable {
-    case overview
-    case triage
-    case review
-    
-    var title: String {
-        switch self {
-        case .overview: Strings.Overview.tabOverview
-        case .triage:   Strings.Overview.tabTriage
-        case .review:   Strings.Overview.tabReview
-        }
-    }
-    
-    var systemImage: String {
-        switch self {
-        case .overview: "square.grid.2x2.fill"
-        case .triage:   "clock"
-        case .review:   "trash"
-        }
-    }
 }

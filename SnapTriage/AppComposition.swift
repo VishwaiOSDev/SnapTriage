@@ -104,7 +104,7 @@ final class AppComposition {
             loadScreenshots: LoadScreenshotsUseCase(service: service),
             classifyLibrary: classifyLibrary,
             decisions: decisionStore,
-            onOpenTriage: { navigation.requestSelection(.triage) }
+            onOpenTriage: { navigation.presentTriage() }
         )
     }
 }

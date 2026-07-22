@@ -112,25 +112,36 @@ struct AppNavigationTests {
     func notificationRouteWaitsForActiveScene() {
         let navigation = AppNavigation()
 
-        navigation.requestSelection(.triage)
-        #expect(navigation.selection == .overview)
+        navigation.presentTriage()
+        #expect(navigation.isTriagePresented == false)
 
         navigation.sceneDidBecomeActive()
-        #expect(navigation.selection == .triage)
+        #expect(navigation.isTriagePresented == true)
     }
 
-    @Test("A notification route is queued again while backgrounded")
+    @Test("A triage route is queued again while backgrounded")
     func backgroundRouteIsQueued() {
         let navigation = AppNavigation()
         navigation.sceneDidBecomeActive()
-        navigation.requestSelection(.triage)
         navigation.sceneDidLeaveActive()
 
-        navigation.requestSelection(.review)
-        #expect(navigation.selection == .triage)
+        navigation.presentTriage()
+        #expect(navigation.isTriagePresented == false)
 
         navigation.sceneDidBecomeActive()
-        #expect(navigation.selection == .review)
+        #expect(navigation.isTriagePresented == true)
+    }
+
+    @Test("Finishing triage dismisses the session and lands on Review")
+    func finishToReviewPushesReview() {
+        let navigation = AppNavigation()
+        navigation.sceneDidBecomeActive()
+        navigation.presentTriage()
+
+        navigation.finishToReview()
+
+        #expect(navigation.isTriagePresented == false)
+        #expect(navigation.path == [.review])
     }
 }
 

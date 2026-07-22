@@ -10,10 +10,16 @@ import SwiftUI
 struct OverviewView: View {
     @State private var viewModel: OverviewViewModel
     private let onStartTriage: () -> Void
+    private let onOpenReview: () -> Void
 
-    init(viewModel: OverviewViewModel, onStartTriage: @escaping () -> Void) {
+    init(
+        viewModel: OverviewViewModel,
+        onStartTriage: @escaping () -> Void,
+        onOpenReview: @escaping () -> Void
+    ) {
         _viewModel = State(initialValue: viewModel)
         self.onStartTriage = onStartTriage
+        self.onOpenReview = onOpenReview
     }
 
     var body: some View {
@@ -95,37 +101,52 @@ struct OverviewView: View {
         }
     }
 
+    // The reclaimable figure is the reward and the door to Review: tapping it
+    // takes the user straight to the final delete list, so Review needs no tab.
     private var hero: some View {
         let summary = viewModel.state.summary
-        return VStack(spacing: 6) {
-            VStack(spacing: 2) {
-                HeroMetricText(sizeText(summary.reclaimableBytes), size: 72)
-                Text(Strings.Overview.reclaimableHeadline)
-                    .font(.system(size: 46, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            }
-            .multilineTextAlignment(.center)
+        let hasReclaimable = summary.safeCount > 0
+        return Button(action: onOpenReview) {
+            VStack(spacing: 6) {
+                VStack(spacing: 2) {
+                    HeroMetricText(sizeText(summary.reclaimableBytes), size: 72)
+                    Text(Strings.Overview.reclaimableHeadline)
+                        .font(.system(size: 46, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                }
+                .multilineTextAlignment(.center)
 
-            Text(Strings.Overview.heroCaption(countText(summary.totalCount)))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                HStack(spacing: 4) {
+                    Text(Strings.Overview.heroCaption(countText(summary.totalCount)))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    if hasReclaimable {
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .accessibilityHidden(true)
+                    }
+                }
 
-            if viewModel.state.isClassifying {
-                Label(
-                    Strings.Overview.analyzing(
-                        countText(viewModel.state.classifiedCount),
-                        countText(summary.totalCount)
-                    ),
-                    systemImage: "wand.and.stars"
-                )
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+                if viewModel.state.isClassifying {
+                    Label(
+                        Strings.Overview.analyzing(
+                            countText(viewModel.state.classifiedCount),
+                            countText(summary.totalCount)
+                        ),
+                        systemImage: "wand.and.stars"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .buttonStyle(.plain)
     }
 
     private var summaryCard: some View {
@@ -477,7 +498,7 @@ private struct OverviewView_Previews: PreviewProvider {
     private static func makePreview() -> some View {
         let viewModel = AppComposition().makeOverview()
         viewModel.seedForPreview(.sample)
-        return OverviewView(viewModel: viewModel) {}
+        return OverviewView(viewModel: viewModel, onStartTriage: {}, onOpenReview: {})
     }
 }
 #endif
