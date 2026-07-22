@@ -150,36 +150,48 @@ struct OverviewView: View {
     }
 
     private var summaryCard: some View {
-        GlassCard {
-            VStack(spacing: 20) {
-                HStack(alignment: .top, spacing: 12) {
-                    ForEach(stats) { stat in
-                        OverviewStatCard(stat: stat)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
+        ZStack {
+            // Give the neutral glass a real blue light source to sample. Keeping
+            // this behind the material is more natural than tinting the card.
+            RoundedRectangle(cornerRadius: Metrics.cardCornerRadius, style: .continuous)
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Metrics.accent.opacity(0.24),
+                            Metrics.accent.opacity(0.08),
+                            .clear
+                        ],
+                        center: .top,
+                        startRadius: 0,
+                        endRadius: 230
+                    )
+                )
+                .blur(radius: 30)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .accessibilityHidden(true)
 
-                Button(action: onStartTriage) {
-                    HStack {
-                        Text(Strings.Overview.startTriage)
-                            .font(.headline)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.subheadline.weight(.semibold))
+            GlassCard {
+                VStack(spacing: 20) {
+                    HStack(alignment: .top, spacing: 12) {
+                        ForEach(stats) { stat in
+                            OverviewStatCard(stat: stat)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
-                    .foregroundStyle(.white)
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 18)
-                    .frame(maxWidth: .infinity)
-                    .background(Metrics.accent, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                }
-                .buttonStyle(.plain)
 
-                Text(Strings.Overview.startTriageHelper)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    PrimaryActionButton(
+                        title: Strings.Overview.startTriage,
+                        systemImage: "chevron.right",
+                        action: onStartTriage
+                    )
+
+                    Text(Strings.Overview.startTriageHelper)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(Metrics.cardPadding)
             }
-            .padding(Metrics.cardPadding)
         }
     }
 
@@ -270,13 +282,38 @@ struct OverviewView: View {
 
 private enum Metrics {
     static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
-    static let accent = Color.blue
+    static let accent = Color("AccentColor")
     static let cardCornerRadius: CGFloat = 28
     static let cardPadding: CGFloat = 20
     static let screenPadding: CGFloat = 20
     static let sectionSpacing: CGFloat = 20
     static let cardStroke = Color.white.opacity(0.08)
     static let surfaceFill = Color.white.opacity(0.05)
+
+    // Sampled from the Figma primary action reference. A diagonal transition
+    // preserves its brighter leading edge and slightly deeper trailing edge.
+    static let primaryActionFill = LinearGradient(
+        colors: [
+            accent,
+            Color(red: 0.13, green: 0.41, blue: 0.87)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    static let primaryActionSheen = LinearGradient(
+        colors: [.white.opacity(0.025), .clear],
+        startPoint: .top,
+        endPoint: .center
+    )
+    static let primaryActionRim = LinearGradient(
+        colors: [
+            Color(red: 0.31, green: 0.61, blue: 1.0).opacity(0.9),
+            Color(red: 0.17, green: 0.51, blue: 0.97).opacity(0.7)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    static let primaryActionGlow = Color(red: 0.08, green: 0.38, blue: 0.95)
 }
 
 // MARK: - Liquid Glass
@@ -325,6 +362,60 @@ private struct GlassCard<Content: View>: View {
         content
             .frame(maxWidth: .infinity)
             .liquidGlass(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+    }
+}
+
+private struct PrimaryActionButton: View {
+    let title: String
+    let systemImage: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.body.weight(.medium))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity)
+                .overlay(alignment: .trailing) {
+                    Image(systemName: systemImage)
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.94))
+                        .accessibilityHidden(true)
+                }
+                .padding(.horizontal, 22)
+                .padding(.vertical, 15)
+                .frame(minHeight: 56)
+                .contentShape(Capsule())
+        }
+        .buttonStyle(PrimaryActionButtonStyle())
+    }
+}
+
+private struct PrimaryActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background {
+                Capsule()
+                    .fill(Metrics.primaryActionFill)
+                    .overlay {
+                        Capsule().fill(Metrics.primaryActionSheen)
+                    }
+                    .overlay {
+                        Capsule()
+                            .strokeBorder(Metrics.primaryActionRim, lineWidth: 1)
+                    }
+            }
+            .shadow(
+                color: Metrics.primaryActionGlow.opacity(configuration.isPressed ? 0.06 : 0.10),
+                radius: configuration.isPressed ? 5 : 8,
+                y: 2
+            )
+            .shadow(color: .black.opacity(0.30), radius: 4, y: 3)
+            .brightness(configuration.isPressed ? -0.05 : 0)
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
     }
 }
 
