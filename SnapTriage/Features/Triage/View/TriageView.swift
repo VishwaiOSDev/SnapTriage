@@ -235,13 +235,12 @@ struct TriageView: View {
             ? 1 - min(abs(drag.width) / 2400, 0.04)
             : 0.92 + 0.08 * dragProgress
         let rotation: Double = isTop ? Double(drag.width / 18) : 0
-        return card(for: screenshot)
+        return card(for: screenshot, onTap: isTop ? { fullScreenShot = screenshot } : {})
             .overlay { if isTop && !isUndoing { decisionStamps } }
             .scaleEffect(scale)
             .opacity(isTop ? 1 : 0.6 + 0.4 * Double(dragProgress))
             .offset(isTop ? drag : .zero)
             .rotationEffect(.degrees(rotation), anchor: .bottom)
-            .onTapGesture { if isTop { fullScreenShot = screenshot } }
             .gesture(isTop ? dragGesture : nil)
     }
 
@@ -250,14 +249,15 @@ struct TriageView: View {
         [viewModel.state.upNext, viewModel.state.current].compactMap(\.self)
     }
 
-    private func card(for screenshot: Screenshot) -> some View {
+    private func card(for screenshot: Screenshot, onTap: @escaping () -> Void) -> some View {
         TriageCardView(
             screenshot: screenshot,
             classification: viewModel.state.classification(for: screenshot),
             imageMode: imageMode,
             loadThumbnail: { id, size in
                 await viewModel.thumbnail(for: id, targetSize: size)
-            }
+            },
+            onTap: onTap
         )
     }
 
@@ -641,6 +641,7 @@ private struct TriageCardView: View {
     let classification: ScreenshotClassification?
     let imageMode: CardImageMode
     let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
+    var onTap: () -> Void = {}
 
     @Environment(\.displayScale) private var displayScale
     @State private var image: UIImage?
@@ -664,6 +665,10 @@ private struct TriageCardView: View {
             .background(Color.black)
             .clipShape(shape)
             .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
+            // Tap-to-zoom is confined to the card itself; the surrounding deck
+            // padding must stay inert so it can't swallow header/close taps.
+            .contentShape(shape)
+            .onTapGesture(perform: onTap)
             // Flatten before the shadow so the blur sees one layer, not the
             // whole subtree, per frame while the card drags and rotates.
             .compositingGroup()
