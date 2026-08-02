@@ -961,6 +961,18 @@
         }
       }
     },
+    "Review.deselect": {
+      "comment": "VoiceOver label for the tile control that excludes a screenshot from the delete batch",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deselect"
+          }
+        }
+      }
+    },
     "Review.deselectAll": {
       "comment": "Button that deselects every suggested screenshot",
       "extractionState": "manual",
@@ -1161,6 +1173,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Everything else here"
+          }
+        }
+      }
+    },
+    "Review.select": {
+      "comment": "VoiceOver label for the tile control that includes a screenshot in the delete batch",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select for deletion"
           }
         }
       }
