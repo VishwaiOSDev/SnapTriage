@@ -168,17 +168,6 @@ struct ReviewView: View {
     }
 }
 
-
-private struct EmptyReviewView: View {
-    var body: some View {
-        ContentUnavailableView {
-            Label(Strings.Review.emptyTitle, systemImage: "checkmark.circle")
-        } description: {
-            Text(Strings.Review.emptyMessage)
-        }
-    }
-}
-
 #if DEBUG
 @MainActor
 private struct ReviewView_Previews: PreviewProvider {
