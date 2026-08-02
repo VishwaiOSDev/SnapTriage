@@ -1,14 +1,14 @@
 //
-//  ScreenshotCategorizer.swift
+//  TextFeatures.swift
 //  SnapTriage
 //
 //  Created by Vishweshwaran on 20/06/26.
 //
 
 import Foundation
-import CoreGraphics
 import NaturalLanguage
 
+/// A structural signal mined from OCR text, scored by the rule table.
 enum TextSignal {
     case money, amount, date, phone, link, address, handle, hashtag, code, otpCode
     case chatLines, proseLines, documentField, identityNumber, governmentIssuer
