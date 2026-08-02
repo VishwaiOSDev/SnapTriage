@@ -23,6 +23,9 @@ final class ReviewViewModel {
         var errorMessage: String?
         /// True while a delete is in flight, so the view can disable the action.
         var isDeleting = false
+        /// True while a reload runs *over* content that is already on screen.
+        /// Distinct from `.loading`, which means there is nothing to show yet.
+        var isRefreshing = false
 
         var selectedCount: Int { selectedIDs.count }
 
@@ -82,6 +85,7 @@ final class ReviewViewModel {
 
     private enum TaskKind { case load, delete }
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
+    @ObservationIgnored private var loadGeneration = 0
 
     init(
         scope: ReviewScope = .triage,
@@ -130,9 +134,20 @@ final class ReviewViewModel {
     }
 
     private func loadFlow() {
+        loadGeneration &+= 1
+        let generation = loadGeneration
         run(.load) { [weak self] in
             guard let self else { return }
-            self.state.phase = .loading
+            // A revisit re-runs this load. Blanking the grid to a spinner every
+            // time cost the user their scroll position and their place in the
+            // selection, so a reload over existing content refreshes in place.
+            if self.state.items.isEmpty {
+                self.state.phase = .loading
+            } else {
+                self.state.isRefreshing = true
+            }
+            // A superseded load must not clear the flag a newer one just set.
+            defer { if self.loadGeneration == generation { self.state.isRefreshing = false } }
             self.state.errorMessage = nil
 
             let authorization = await self.requestAccess.execute()
