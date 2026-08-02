@@ -18,38 +18,23 @@ final class CategoriesViewModel {
         var phase: Phase = .idle
         var breakdown: CategoryBreakdown = .empty
         var errorMessage: String?
-        /// The last bulk verdict, kept only until the next one replaces it.
-        /// Hundreds of screenshots change hands in one tap here; a single step
-        /// back is the difference between a shortcut and a trap.
-        var lastReceipt: BulkTriageReceipt?
 
         var groups: [CategoryGroup] { breakdown.groups }
-        var canUndo: Bool { lastReceipt != nil }
     }
 
     enum Input {
         case onAppear
         case retry
-        case apply(TriageDecision, CategoryGroup)
-        case undoLast
     }
 
     private(set) var state = State()
 
     private let loadBreakdown: LoadCategoryBreakdownUseCase
-    private let applyBulk: ApplyBulkTriageUseCase
-    private let revertBulk: RevertBulkTriageUseCase
 
     @ObservationIgnored private var loadTask: Task<Void, Never>?
 
-    init(
-        loadBreakdown: LoadCategoryBreakdownUseCase,
-        applyBulk: ApplyBulkTriageUseCase,
-        revertBulk: RevertBulkTriageUseCase
-    ) {
+    init(loadBreakdown: LoadCategoryBreakdownUseCase) {
         self.loadBreakdown = loadBreakdown
-        self.applyBulk = applyBulk
-        self.revertBulk = revertBulk
     }
 
     func send(_ input: Input) {
@@ -60,24 +45,7 @@ final class CategoriesViewModel {
             loadFlow()
         case .retry:
             loadFlow()
-        case .apply(let decision, let group):
-            apply(decision, to: group)
-        case .undoLast:
-            undoLast()
         }
-    }
-
-    private func apply(_ decision: TriageDecision, to group: CategoryGroup) {
-        guard !group.ids.isEmpty else { return }
-        state.lastReceipt = applyBulk.execute(decision, for: group.category, ids: group.ids)
-        loadFlow()
-    }
-
-    private func undoLast() {
-        guard let receipt = state.lastReceipt else { return }
-        revertBulk.execute(receipt)
-        state.lastReceipt = nil
-        loadFlow()
     }
 
     private func loadFlow() {
