@@ -36,9 +36,10 @@ final class ReviewViewModel {
         /// Screenshots the user swiped left. These arrive selected.
         var markedItems: [ReviewItem] { items.filter { $0.source == .userMarked } }
 
-        /// Screenshots only the classifier judged disposable. These arrive
-        /// unselected: the user has never seen them, so deleting them cannot be
-        /// the default.
+        /// Screenshots the user has not ruled on. In the triage inbox these are
+        /// the classifier's disposable guesses; in a category scope they are the
+        /// rest of the bucket. Either way they arrive unselected: the user has
+        /// never seen them, so deleting them cannot be the default.
         var suggestedItems: [ReviewItem] { items.filter { $0.source == .suggested } }
 
         var suggestedBytes: Int { suggestedItems.reduce(0) { $0 + $1.byteSize } }
