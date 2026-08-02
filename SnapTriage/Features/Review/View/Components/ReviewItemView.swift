@@ -7,8 +7,13 @@
 
 import SwiftUI
 
-/// One screenshot tile in the Review grid. Tapping toggles whether it's included
-/// in the delete batch; excluded tiles dim so the selection reads at a glance.
+/// One screenshot tile in the Review grid.
+///
+/// The tile has two targets, not one mode. Tapping the image opens the
+/// screenshot full screen; tapping the circle includes or excludes it from the
+/// delete batch. Deciding and looking are different intents, and a screen whose
+/// only verb is "delete" has to make looking as cheap as choosing — otherwise
+/// the safe move (check first) costs more than the destructive one.
 struct ReviewItemView: View {
     let item: ReviewItem
     let isSelected: Bool
