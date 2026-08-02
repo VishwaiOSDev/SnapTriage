@@ -44,6 +44,10 @@ struct OverviewView: View {
                     .equatable()
             }
         }
+        .toolbar(
+            viewModel.state.phase == .primingAccess ? .hidden : .visible,
+            for: .navigationBar
+        )
         .task { viewModel.send(.onAppear) }
     }
 
