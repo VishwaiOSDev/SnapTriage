@@ -902,13 +902,25 @@
       }
     },
     "Review.deleteButton": {
-      "comment": "Delete button title; first %@ is a count, second %@ is a formatted size",
+      "comment": "Delete button title; %@ is a count of screenshots",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete %@ · Free %@"
+            "value": "Delete %@ screenshots"
+          }
+        }
+      }
+    },
+    "Review.deleteSubtitle": {
+      "comment": "Second line of the delete button; %@ is a formatted size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free up %@"
           }
         }
       }
