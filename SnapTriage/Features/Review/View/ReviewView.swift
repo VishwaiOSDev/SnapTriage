@@ -45,6 +45,13 @@ struct ReviewView: View {
                 onToggle: { viewModel.send(.toggle($0)) }
             )
         }
+        // A category the user just emptied by deleting is a dead end, so it
+        // hands them back to the list they came from. A bulk keep is different:
+        // it leaves an undo on screen, and popping would take it away.
+        .onChange(of: viewModel.state.items.isEmpty) { _, isEmpty in
+            guard isEmpty, viewModel.scope.isCategory, viewModel.state.lastReceipt == nil else { return }
+            dismiss()
+        }
         .task { viewModel.send(.onAppear) }
     }
 
