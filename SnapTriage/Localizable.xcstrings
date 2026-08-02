@@ -913,6 +913,18 @@
         }
       }
     },
+    "Review.deleteFooter": {
+      "comment": "Footnote under the delete button",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This action cannot be undone after 30 days."
+          }
+        }
+      }
+    },
     "Review.deleteSubtitle": {
       "comment": "Second line of the delete button; %@ is a formatted size",
       "extractionState": "manual",

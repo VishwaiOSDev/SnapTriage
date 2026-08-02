@@ -88,6 +88,7 @@ enum Strings {
         static let summaryEmptyTitle = String(localized: .reviewSummaryEmptyTitle)
         static let summaryEmptyDetail = String(localized: .reviewSummaryEmptyDetail)
         static let recoveryNote = String(localized: .reviewRecoveryNote)
+        static let deleteFooter = String(localized: .reviewDeleteFooter)
         static func deleteSubtitle(_ size: String) -> String { String(localized: .reviewDeleteSubtitle(size)) }
     }
 
