@@ -90,6 +90,7 @@ enum Strings {
         static let recoveryNote = String(localized: .reviewRecoveryNote)
         static let deleteFooter = String(localized: .reviewDeleteFooter)
         static func deleteSubtitle(_ size: String) -> String { String(localized: .reviewDeleteSubtitle(size)) }
+        static func itemCount(_ count: String) -> String { String(localized: .reviewItemCount(count)) }
     }
 
     enum Categories {

@@ -997,6 +997,18 @@
         }
       }
     },
+    "Review.itemCount": {
+      "comment": "Item count shown beside a section header; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ items"
+          }
+        }
+      }
+    },
     "Review.markedSectionSubtitle": {
       "comment": "Subtitle under the marked section; %@ is a count",
       "extractionState": "manual",
