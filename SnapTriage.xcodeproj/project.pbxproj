@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01E417AC3DEF2B2880C7C99A /* FoundationModelScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4378FDBD5A9A81AABC0D6E4 /* FoundationModelScreenshotCategorizer.swift */; };
+		06BB234A726C7F0D7CEAAF62 /* LibraryClassificationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578C06609A626CDECED294C0 /* LibraryClassificationEngine.swift */; };
 		0D13C99531A04197F5BBE1FC /* OCRLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4EF35EC11D079FDE70A8B77 /* OCRLine.swift */; };
 		0DCAED9359AD488A5F712C08 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43B6867EFF6F4B3D1161353 /* ReviewTestDoubles.swift */; };
 		0ED33408917B0F1CF34CCFC2 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1E65353EF6F88FC859E0D7 /* TestTags.swift */; };
@@ -128,6 +129,7 @@
 		484A0E7258BAFB2C7FF25EE9 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		4CF1CBF61E0168CD873C9B27 /* MetricFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricFormatter.swift; sourceTree = "<group>"; };
 		52E39FF5BFB289E60A382602 /* HeuristicCategoryRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicCategoryRules.swift; sourceTree = "<group>"; };
+		578C06609A626CDECED294C0 /* LibraryClassificationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryClassificationEngine.swift; sourceTree = "<group>"; };
 		606B45D51BB7D47077EAD38C /* TextFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFeatures.swift; sourceTree = "<group>"; };
 		61A8E75279720F0E0B36139D /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
 		63C12DFFCC365439E7F0F01C /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
@@ -328,6 +330,7 @@
 				52E39FF5BFB289E60A382602 /* HeuristicCategoryRules.swift */,
 				7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */,
 				B506758E1E05349E9AD13F2A /* ImageContentClassifier.swift */,
+				578C06609A626CDECED294C0 /* LibraryClassificationEngine.swift */,
 				FA61B02CB7E0A671BC89B8A6 /* ScreenshotModelClassifier.swift */,
 				606B45D51BB7D47077EAD38C /* TextFeatures.swift */,
 				A1981206E7343DAFAA48A51D /* TextRecognitionService.swift */,
@@ -789,6 +792,7 @@
 				99BD21E73ED1FB3E22810934 /* HeuristicCategoryRules.swift in Sources */,
 				8D3C71A7DCB88E959DADBB87 /* HeuristicScreenshotCategorizer.swift in Sources */,
 				C78858364F0C0FD16DE0D89C /* ImageContentClassifier.swift in Sources */,
+				06BB234A726C7F0D7CEAAF62 /* LibraryClassificationEngine.swift in Sources */,
 				11820A39D10DD7F46DEE36DA /* ScreenshotModelClassifier.swift in Sources */,
 				45E616B97D8767EE867E0EDB /* TextFeatures.swift in Sources */,
 				EEF24A043F3CAC27FAFDD11C /* TextRecognitionService.swift in Sources */,
