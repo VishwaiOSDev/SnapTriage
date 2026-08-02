@@ -28,31 +28,6 @@ struct CategoriesView: View {
         .navigationTitle(Strings.Categories.title)
         .navigationBarTitleDisplayMode(.inline)
         .task { viewModel.send(.onAppear) }
-        .confirmationDialog(
-            pendingGroup.map { Strings.Categories.actionTitle($0.category.title) } ?? "",
-            isPresented: Binding(
-                get: { pendingGroup != nil },
-                set: { if !$0 { pendingGroup = nil } }
-            ),
-            titleVisibility: .visible
-        ) {
-            if let group = pendingGroup {
-                Button(
-                    Strings.Categories.markAll(countText(group.count)),
-                    role: .destructive
-                ) {
-                    viewModel.send(.apply(.markForDeletion, group))
-                }
-                Button(Strings.Categories.keepAll(countText(group.count))) {
-                    viewModel.send(.apply(.keep, group))
-                }
-                Button(Strings.Triage.cancel, role: .cancel) {}
-            }
-        } message: {
-            if let group = pendingGroup {
-                Text(Strings.Categories.actionMessage(sizeText(group.byteSize)))
-            }
-        }
     }
 
     @ViewBuilder
