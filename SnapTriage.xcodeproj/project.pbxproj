@@ -70,6 +70,7 @@
 		DA7161D21C7AB414D37267A7 /* TriageRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF2F8D48A2EA4D76302BBD6 /* TriageRouter.swift */; };
 		DB43238FAB8BD648E37124F3 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361C6D2FDE448AC2371A9D21 /* CategorizeScreenshotUseCase.swift */; };
 		DD95FB2EEF16B3F6A7E072EC /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8C9B972844D5F1C7CFE05 /* CategorizeScreenshotUseCaseTests.swift */; };
+		E79D413C53D8AEE9D89A003A /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2C5E510CDEB1C44C24888B /* AppNavigation.swift */; };
 		EABF8A9228F0D46FD68F9A2E /* LoadTriageProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD0EDD7D4F0994CBE38961B /* LoadTriageProgressUseCase.swift */; };
 		EC7E8BBC11AFECD0FA74C897 /* ScreenshotDisposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDD24F0F552B8E79A14BC38 /* ScreenshotDisposition.swift */; };
 		F201C24755B084E6C4F35ACF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 240B022BE64B8954FE0435F6 /* Localizable.xcstrings */; };
@@ -163,6 +164,7 @@
 		DBC3867CA58A176131910DA2 /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
 		E3ADB887A54D35398A90D951 /* TriageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageViewModelTests.swift; sourceTree = "<group>"; };
 		E982F4DFB284B5D9867B60B2 /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
+		EA2C5E510CDEB1C44C24888B /* AppNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNavigation.swift; sourceTree = "<group>"; };
 		EAF2F8D48A2EA4D76302BBD6 /* TriageRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageRouter.swift; sourceTree = "<group>"; };
 		F50DA958E0D78F6A9F8C89F4 /* RequestPhotoAccessUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestPhotoAccessUseCase.swift; sourceTree = "<group>"; };
 		FD77B384C150F95CB5BB9640 /* OverviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewComposition.swift; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 			isa = PBXGroup;
 			children = (
 				0A773D22AF59C4D017172A44 /* AppComposition.swift */,
+				EA2C5E510CDEB1C44C24888B /* AppNavigation.swift */,
 				69DE7EE572E181AFC46A22A4 /* SnapTriageApp.swift */,
 			);
 			path = App;
@@ -650,6 +653,7 @@
 				3D7342F2E46894A74473E914 /* BackgroundClassificationCoordinator.swift in Sources */,
 				278F7C6D4ED2D4061CC68D2A /* ContentView.swift in Sources */,
 				49898DDCB78FAB6772125DAE /* AppComposition.swift in Sources */,
+				E79D413C53D8AEE9D89A003A /* AppNavigation.swift in Sources */,
 				BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */,
 				1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */,
 				29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */,
