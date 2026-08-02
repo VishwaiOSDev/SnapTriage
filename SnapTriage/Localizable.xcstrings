@@ -1057,6 +1057,42 @@
         }
       }
     },
+    "Review.summaryCount": {
+      "comment": "Headline of the deletion summary card; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ screenshots"
+          }
+        }
+      }
+    },
+    "Review.summaryFreeUp": {
+      "comment": "Detail line of the deletion summary card; %@ is a formatted size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will free up %@ of space."
+          }
+        }
+      }
+    },
+    "Review.summaryLead": {
+      "comment": "Lead line of the Review deletion summary card",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're about to delete"
+          }
+        }
+      }
+    },
     "Review.title": {
       "comment": "Review screen navigation title",
       "extractionState": "manual",
