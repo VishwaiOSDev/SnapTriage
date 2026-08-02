@@ -7,13 +7,6 @@
 
 import SwiftUI
 
-private enum CardImageMode: String {
-    case fit
-    case fill
-
-    var toggled: Self { self == .fit ? .fill : .fit }
-}
-
 struct TriageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: TriageViewModel
