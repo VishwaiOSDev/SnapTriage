@@ -116,7 +116,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No uploads, no accounts, no analytics on your screenshots."
+            "value": "Analysis happens on this device. Your screenshots are never uploaded."
           }
         }
       }
@@ -128,7 +128,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Everything stays on this device"
+            "value": "Processed on your iPhone"
           }
         }
       }
