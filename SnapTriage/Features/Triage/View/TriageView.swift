@@ -20,6 +20,9 @@ struct TriageView: View {
     /// card pinned to the finger instead of teleporting by the activation
     /// distance the moment the gesture is claimed.
     @State private var dragAnchor: CGSize?
+    /// Furthest the finger has travelled this gesture, so a swipe that returns
+    /// to centre is never mistaken for a tap.
+    @State private var dragTravel: CGFloat = 0
     @State private var isDismissing = false
     @State private var isUndoing = false
     @State private var fullScreenShot: Screenshot?
@@ -201,7 +204,7 @@ struct TriageView: View {
             .opacity(isTop ? 1 : 0.6 + 0.4 * Double(dragProgress))
             .offset(isTop ? drag : .zero)
             .rotationEffect(.degrees(rotation), anchor: .bottom)
-            .gesture(isTop ? dragGesture : nil)
+            .gesture(isTop ? dragGesture(for: screenshot) : nil)
     }
 
     // Back-to-front render order: up-next behind, current on top.
@@ -247,8 +250,13 @@ struct TriageView: View {
 
     // MARK: - Gesture
 
-    private var dragGesture: some Gesture {
-        DragGesture(coordinateSpace: .named(Self.deckSpace))
+    /// One recognizer owns the whole card: `minimumDistance: 0` so the card
+    /// leaves centre on the first touch, and a tap is read on release from how
+    /// little the finger moved. A separate `onTapGesture` on the card would sit
+    /// below this one in the hierarchy, take priority, and hold the drag back
+    /// until it failed — which is what made the swipe feel late.
+    private func dragGesture(for screenshot: Screenshot) -> some Gesture {
+        DragGesture(minimumDistance: 0, coordinateSpace: .named(Self.deckSpace))
             .onChanged { value in
                 guard !isDismissing else { return }
                 let anchor = dragAnchor ?? value.translation
@@ -257,10 +265,13 @@ struct TriageView: View {
                     width: value.translation.width - anchor.width,
                     height: value.translation.height - anchor.height
                 )
+                dragTravel = max(dragTravel, hypot(drag.width, drag.height))
             }
             .onEnded { _ in
+                let travel = dragTravel
                 let width = drag.width
                 dragAnchor = nil
+                dragTravel = 0
 
                 guard !isDismissing else { return }
                 if width > TriageMetrics.decisionThreshold {
@@ -268,6 +279,9 @@ struct TriageView: View {
                 } else if width < -TriageMetrics.decisionThreshold {
                     fly(.markForDeletion)
                 } else {
+                    if travel < TriageMetrics.tapSlop {
+                        fullScreenShot = screenshot
+                    }
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                         drag = .zero
                     }
@@ -294,6 +308,7 @@ struct TriageView: View {
             transaction.disablesAnimations = true
             withTransaction(transaction) { drag = .zero }
             dragAnchor = nil
+            dragTravel = 0
             isDismissing = false
         }
     }

@@ -39,10 +39,14 @@ struct TriageCardView: View {
             .background(Color.black)
             .clipShape(shape)
             .overlay(shape.strokeBorder(Palette.cardStroke, lineWidth: 1))
-            // Tap-to-zoom is confined to the card itself; the surrounding deck
+            // Hit-testing is confined to the card itself; the surrounding deck
             // padding must stay inert so it can't swallow header/close taps.
             .contentShape(shape)
-            .onTapGesture(perform: onTap)
+            // Touch tap-to-zoom is handled by the deck's drag recognizer — a tap
+            // gesture here would outrank it and delay every swipe. VoiceOver has
+            // no drag to read, so it gets the action declared directly.
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction(.default, onTap)
             // Flatten before the shadow so the blur sees one layer, not the
             // whole subtree, per frame while the card drags and rotates.
             .compositingGroup()
