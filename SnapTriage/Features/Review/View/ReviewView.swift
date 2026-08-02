@@ -85,7 +85,8 @@ struct ReviewView: View {
             VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(
                     title: Strings.Review.markedSectionTitle,
-                    subtitle: Strings.Review.markedSectionSubtitle(MetricFormatter.count(items.count))
+                    subtitle: Strings.Review.markedSectionSubtitle(MetricFormatter.count(items.count)),
+                    trailing: Strings.Review.itemCount(MetricFormatter.count(items.count))
                 )
                 grid(items)
             }
@@ -322,6 +323,17 @@ private struct SectionHeader<Accessory: View>: View {
             }
             Spacer(minLength: 0)
             accessory
+        }
+    }
+}
+
+private extension SectionHeader where Accessory == Text {
+    /// Header whose accessory is a plain item count, e.g. "1,059 ITEMS".
+    init(title: String, subtitle: String, trailing: String) {
+        self.init(title: title, subtitle: subtitle) {
+            Text(trailing.localizedUppercase)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
         }
     }
 }
