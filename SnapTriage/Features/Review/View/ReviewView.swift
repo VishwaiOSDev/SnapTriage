@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ReviewView: View {
-    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ReviewViewModel
 
     init(viewModel: ReviewViewModel) {
@@ -21,9 +20,11 @@ struct ReviewView: View {
 
     var body: some View {
         ZStack {
-            Metrics.background.ignoresSafeArea()
+            Palette.background.ignoresSafeArea()
             content
         }
+        .navigationTitle(Strings.Review.title)
+        .navigationBarTitleDisplayMode(.inline)
         .task { viewModel.send(.onAppear) }
     }
 
@@ -31,70 +32,45 @@ struct ReviewView: View {
     private var content: some View {
         switch viewModel.state.phase {
         case .idle, .loading:
-            chrome { ProgressView(Strings.Triage.loading) }
+            status { ProgressView(Strings.Triage.loading) }
 
         case .failed:
-            chrome { failure }
+            status { failure }
 
         case .loaded:
             if viewModel.state.items.isEmpty {
-                chrome { EmptyReviewView() }
+                status { EmptyReviewView() }
             } else {
                 loaded
             }
         }
     }
 
-    // Keeps the header pinned while a centered status view fills the rest.
-    private func chrome<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
-        VStack(spacing: Metrics.sectionSpacing) {
-            header
-            inner()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .padding(.horizontal, Metrics.screenPadding)
-        .padding(.top, Metrics.screenPadding)
+    // Centers a non-content state in the space below the navigation bar.
+    private func status<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
+        inner()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, Spacing.screenPadding)
     }
 
     private var loaded: some View {
-        VStack(spacing: Metrics.sectionSpacing) {
-            header
-            ScrollView {
-                VStack(spacing: Metrics.sectionSpacing) {
-                    hero
-                    grid
-                }
-                .padding(.bottom, Metrics.sectionSpacing)
+        ScrollView {
+            VStack(spacing: Spacing.sectionSpacing) {
+                hero
+                grid
             }
-            .scrollIndicators(.hidden)
+            .padding(.horizontal, Spacing.screenPadding)
+            .padding(.top, Spacing.sectionSpacing)
+            .padding(.bottom, Spacing.sectionSpacing)
         }
-        .padding(.horizontal, Metrics.screenPadding)
-        .padding(.top, Metrics.screenPadding)
+        .scrollIndicators(.hidden)
         .safeAreaInset(edge: .bottom) { deleteBar }
         .animation(.default, value: viewModel.state.items)
     }
 
-    private var header: some View {
-        HStack(spacing: 12) {
-            Button(action: { dismiss() }) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.9))
-                    .frame(width: 38, height: 38)
-                    .background(.ultraThinMaterial, in: Circle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Strings.Access.back)
-            Text(Strings.Review.title)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.white)
-            Spacer()
-        }
-    }
-
     private var hero: some View {
         VStack(spacing: 4) {
-            HeroMetricText(sizeText(viewModel.state.reclaimableBytes), size: 64)
+            HeroMetricText(MetricFormatter.size(viewModel.state.reclaimableBytes), size: 64)
             Text(Strings.Review.reclaimableHeadline)
                 .font(.system(size: 34, weight: .bold))
                 .foregroundStyle(.white)
@@ -144,12 +120,12 @@ struct ReviewView: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(Metrics.destructive, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(Palette.delete, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .opacity(viewModel.state.hasSelection ? 1 : 0.4)
         }
         .buttonStyle(.plain)
         .disabled(!viewModel.state.hasSelection || viewModel.state.isDeleting)
-        .padding(.horizontal, Metrics.screenPadding)
+        .padding(.horizontal, Spacing.screenPadding)
         .padding(.top, 12)
         .padding(.bottom, 6)
         .background(.ultraThinMaterial)
@@ -179,44 +155,19 @@ struct ReviewView: View {
 
     private var deleteTitle: String {
         Strings.Review.deleteButton(
-            countText(viewModel.state.selectedCount),
-            sizeText(viewModel.state.reclaimableBytes)
+            MetricFormatter.count(viewModel.state.selectedCount),
+            MetricFormatter.size(viewModel.state.reclaimableBytes)
         )
     }
 
     private var selectionCaption: String {
         Strings.Review.selectionCaption(
-            countText(viewModel.state.selectedCount),
-            countText(viewModel.state.items.count)
+            MetricFormatter.count(viewModel.state.selectedCount),
+            MetricFormatter.count(viewModel.state.items.count)
         )
     }
-
-    private func sizeText(_ bytes: Int) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-    }
-
-    private func countText(_ value: Int) -> String {
-        Self.counter.string(from: NSNumber(value: value)) ?? "\(value)"
-    }
-
-    private static let counter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
 }
 
-// MARK: - Design tokens
-
-private enum Metrics {
-    static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
-    static let accent = Color.blue
-    static let destructive = Color.red
-    static let screenPadding: CGFloat = 20
-    static let sectionSpacing: CGFloat = 20
-}
-
-// MARK: - Empty state
 
 private struct EmptyReviewView: View {
     var body: some View {
@@ -243,7 +194,10 @@ private struct ReviewView_Previews: PreviewProvider {
             ReviewItem(id: "3", category: .conversation, byteSize: 3_100_000),
             ReviewItem(id: "4", category: .photo, byteSize: 5_600_000)
         ])
-        return ReviewView(viewModel: viewModel)
+        return NavigationStack {
+            ReviewView(viewModel: viewModel)
+        }
+        .preferredColorScheme(.dark)
     }
 }
 #endif
