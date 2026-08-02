@@ -100,6 +100,10 @@ enum Strings {
         static func scopedNavSubtitle(_ selected: String, _ total: String) -> String {
             String(localized: .reviewScopedNavSubtitle(selected, total))
         }
+        static let scopedEmptyTitle = String(localized: .reviewScopedEmptyTitle)
+        static func scopedEmptyMessage(_ category: String) -> String {
+            String(localized: .reviewScopedEmptyMessage(category))
+        }
     }
 
     enum Categories {
