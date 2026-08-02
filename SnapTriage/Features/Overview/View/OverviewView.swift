@@ -182,6 +182,7 @@ struct OverviewView: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
+                    .animation(.default, value: stats)
 
                     PrimaryActionButton(
                         title: Strings.Overview.startTriage,
