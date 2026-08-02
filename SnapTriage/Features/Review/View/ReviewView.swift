@@ -56,7 +56,10 @@ struct ReviewView: View {
     private var loaded: some View {
         ScrollView {
             VStack(spacing: Spacing.sectionSpacing) {
-                hero
+                DeletionSummaryCard(
+                    selectedCount: viewModel.state.selectedCount,
+                    reclaimableBytes: viewModel.state.reclaimableBytes
+                )
                 markedSection
                 suggestedSection
             }
@@ -69,23 +72,7 @@ struct ReviewView: View {
         .animation(.default, value: viewModel.state.items)
     }
 
-    private var hero: some View {
-        VStack(spacing: 4) {
-            HeroMetricText(MetricFormatter.size(viewModel.state.reclaimableBytes), size: 64)
-            Text(Strings.Review.reclaimableHeadline)
-                .font(.system(size: 34, weight: .bold))
-                .foregroundStyle(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            Text(selectionCaption)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .contentTransition(.numericText())
         }
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .animation(.default, value: viewModel.state.selectedIDs)
     }
 
     // The two sections carry different weight, and the layout has to say so.
@@ -202,17 +189,79 @@ struct ReviewView: View {
     // MARK: - Display
 
     private var deleteTitle: String {
+    }
+}
+
+
+// MARK: - Deletion summary
+
+/// The one card that states the consequence in full before the user commits:
+/// how many, how much space, and that the deletion is recoverable for 30 days.
+private struct DeletionSummaryCard: View {
+    let selectedCount: Int
+    let reclaimableBytes: Int
+
+    var body: some View {
+        GlassCard(cornerRadius: 24) {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(Palette.delete)
+                        .frame(width: 52, height: 52)
+                        .background(Palette.delete.opacity(0.15), in: Circle())
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(Strings.Review.summaryLead)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text(headline)
+                            .font(.title2.weight(.bold))
+                            .foregroundStyle(hasSelection ? Palette.delete : .white)
+                            .contentTransition(.numericText())
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                        Text(detail)
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.75))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                }
+
+                Divider().overlay(Palette.cardStroke)
+
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "lock.fill")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Text(Strings.Review.recoveryNote)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(Spacing.cardPadding)
+        }
+        .animation(.default, value: selectedCount)
         Strings.Review.deleteButton(
             MetricFormatter.count(viewModel.state.selectedCount),
             MetricFormatter.size(viewModel.state.reclaimableBytes)
         )
     }
 
-    private var selectionCaption: String {
-        Strings.Review.selectionCaption(
-            MetricFormatter.count(viewModel.state.selectedCount),
-            MetricFormatter.count(viewModel.state.items.count)
-        )
+    private var hasSelection: Bool { selectedCount > 0 }
+
+    private var headline: String {
+        hasSelection
+            ? Strings.Review.summaryCount(MetricFormatter.count(selectedCount))
+            : Strings.Review.summaryEmptyTitle
+    }
+
+    private var detail: String {
+        hasSelection
+            ? Strings.Review.summaryFreeUp(MetricFormatter.size(reclaimableBytes))
+            : Strings.Review.summaryEmptyDetail
     }
 }
 
