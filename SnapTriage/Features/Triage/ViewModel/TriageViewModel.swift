@@ -102,7 +102,7 @@ final class TriageViewModel {
         case decide(TriageDecision)
         case undo
         case startOver
-        case openSettings
+        case openSystemSettings
         case clearError
         #if DEBUG
         case recategorizeAll
@@ -158,7 +158,6 @@ final class TriageViewModel {
         case .onAppear:
             if state.phase == .idle {
                 loadFlow()
-                observeChanges()
             }
         case .retry:
             loadFlow()
@@ -168,8 +167,8 @@ final class TriageViewModel {
             undo()
         case .startOver:
             startOver()
-        case .openSettings:
-            router.openSettings()
+        case .openSystemSettings:
+            router.openSystemSettings()
         case .clearError:
             state.errorMessage = nil
         #if DEBUG
@@ -234,6 +233,11 @@ final class TriageViewModel {
                 return
             }
 
+            // Subscribe only now, with access in hand: this registers a
+            // PhotoKit change observer, which has nothing to observe (and no
+            // business reaching into the library) before the user has agreed.
+            self.observeChanges()
+
             do {
                 let screenshots = try await self.loadScreenshots.execute()
                 // Resume a pass in flight: persisted verdicts position the deck
@@ -286,6 +290,7 @@ final class TriageViewModel {
     }
 
     private func observeChanges() {
+        guard tasks[.observe] == nil else { return }
         tasks[.observe] = Task { [weak self] in
             guard let stream = self?.observeLibrary.execute() else { return }
             for await _ in stream {

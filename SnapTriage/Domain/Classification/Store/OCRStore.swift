@@ -13,6 +13,8 @@ protocol OCRStore: Sendable {
     /// Drops the results for screenshots that no longer exist, e.g. after
     /// Review deletes them.
     func remove(_ ids: [Screenshot.ID]) async
+    /// Wipes every stored transcript.
+    func removeAll() async
     /// Forces any write-behind persistence to disk. In-memory stores use the
     /// default no-op implementation.
     func flushPendingWrites() async
@@ -36,6 +38,10 @@ actor InMemoryOCRStore: OCRStore {
 
     func remove(_ ids: [Screenshot.ID]) {
         ids.forEach { cache[$0] = nil }
+    }
+
+    func removeAll() {
+        cache.removeAll()
     }
 }
 
@@ -64,6 +70,10 @@ final class FileBackedOCRStore: OCRStore {
 
     func remove(_ ids: [Screenshot.ID]) {
         storage.remove(ids)
+    }
+
+    func removeAll() {
+        storage.removeAll()
     }
 
     func flush() {

@@ -99,14 +99,12 @@ actor LibraryClassificationEngine {
         }
     }
 
-    #if DEBUG
     func clearCache() async {
         let running = inFlight.values.map(\.task)
         inFlight.removeAll()
         running.forEach { $0.cancel() }
         await store.removeAll()
     }
-    #endif
 
     private static func perform(
         _ screenshot: Screenshot,

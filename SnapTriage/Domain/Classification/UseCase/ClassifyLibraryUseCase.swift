@@ -61,11 +61,10 @@ struct ClassifyLibraryUseCase: Sendable {
         await engine.flush()
     }
 
-    #if DEBUG
+    /// Drops every cached verdict so the next pass re-classifies from scratch.
     func clearCache() async {
         await engine.clearCache()
     }
-    #endif
 
     func execute(_ screenshots: [Screenshot]) -> AsyncStream<Progress> {
         AsyncStream { continuation in

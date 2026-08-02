@@ -21,6 +21,10 @@ enum Strings {
         static let startTriage = String(localized: .overviewStartTriage)
         static let startTriageHelper = String(localized: .overviewStartTriageHelper)
         static func analyzing(_ current: String, _ total: String) -> String { String(localized: .overviewAnalyzing(current, total)) }
+        static func analyzingWithEstimate(_ current: String, _ total: String, _ remaining: String) -> String {
+            String(localized: .overviewAnalyzingWithEstimate(current, total, remaining))
+        }
+        static let analyzingContinuesInBackground = String(localized: .overviewAnalyzingContinuesInBackground)
         static let onDeviceTitle = String(localized: .overviewOnDeviceTitle)
         static let onDeviceSubtitle = String(localized: .overviewOnDeviceSubtitle)
         static let intelligentTitle = String(localized: .overviewIntelligentTitle)
@@ -80,10 +84,72 @@ enum Strings {
         static let deselectAll = String(localized: .reviewDeselectAll)
     }
 
+    enum Categories {
+        static let title = String(localized: .categoriesTitle)
+        static func headline(_ count: String) -> String { String(localized: .categoriesHeadline(count)) }
+        static let subheadline = String(localized: .categoriesSubheadline)
+        static func rowDetail(_ count: String, _ size: String) -> String { String(localized: .categoriesRowDetail(count, size)) }
+        static func actionTitle(_ category: String) -> String { String(localized: .categoriesActionTitle(category)) }
+        static func actionMessage(_ size: String) -> String { String(localized: .categoriesActionMessage(size)) }
+        static func markAll(_ count: String) -> String { String(localized: .categoriesMarkAll(count)) }
+        static func keepAll(_ count: String) -> String { String(localized: .categoriesKeepAll(count)) }
+        static func appliedMarked(_ count: String, _ category: String) -> String { String(localized: .categoriesAppliedMarked(count, category)) }
+        static func appliedKept(_ count: String, _ category: String) -> String { String(localized: .categoriesAppliedKept(count, category)) }
+        static func stillAnalyzing(_ count: String) -> String { String(localized: .categoriesStillAnalyzing(count)) }
+        static let safetyNote = String(localized: .categoriesSafetyNote)
+        static let emptyTitle = String(localized: .categoriesEmptyTitle)
+        static let emptyMessage = String(localized: .categoriesEmptyMessage)
+    }
+
+    enum Settings {
+        static let title = String(localized: .settingsTitle)
+        static let cardsSection = String(localized: .settingsCardsSection)
+        static let imageModeTitle = String(localized: .settingsImageModeTitle)
+        static let imageModeFit = String(localized: .settingsImageModeFit)
+        static let imageModeFill = String(localized: .settingsImageModeFill)
+        static let imageModeFootnote = String(localized: .settingsImageModeFootnote)
+        static let photosSection = String(localized: .settingsPhotosSection)
+        static let photoAccessTitle = String(localized: .settingsPhotoAccessTitle)
+        static let accessFull = String(localized: .settingsAccessFull)
+        static let accessLimited = String(localized: .settingsAccessLimited)
+        static let accessDenied = String(localized: .settingsAccessDenied)
+        static let accessRestricted = String(localized: .settingsAccessRestricted)
+        static let accessNotDetermined = String(localized: .settingsAccessNotDetermined)
+        static let notificationsSection = String(localized: .settingsNotificationsSection)
+        static let notificationsTitle = String(localized: .settingsNotificationsTitle)
+        static let notificationsFootnote = String(localized: .settingsNotificationsFootnote)
+        static let statusOn = String(localized: .settingsStatusOn)
+        static let statusOff = String(localized: .settingsStatusOff)
+        static let storageSection = String(localized: .settingsStorageSection)
+        static let cachedAnalysisTitle = String(localized: .settingsCachedAnalysisTitle)
+        static func cachedAnalysisValue(_ count: String) -> String { String(localized: .settingsCachedAnalysisValue(count)) }
+        static let clearCache = String(localized: .settingsClearCache)
+        static let clearCacheFootnote = String(localized: .settingsClearCacheFootnote)
+        static let clearCacheConfirmTitle = String(localized: .settingsClearCacheConfirmTitle)
+        static let clearCacheConfirmMessage = String(localized: .settingsClearCacheConfirmMessage)
+        static let clearCacheConfirm = String(localized: .settingsClearCacheConfirm)
+        static let privacySection = String(localized: .settingsPrivacySection)
+        static let privacyStatement = String(localized: .settingsPrivacyStatement)
+        static func version(_ version: String) -> String { String(localized: .settingsVersion(version)) }
+    }
+
     enum Access {
         static let title = String(localized: .accessTitle)
         static let openSettings = String(localized: .accessOpenSettings)
         static let retry = String(localized: .accessRetry)
+        static let primerTitle = String(localized: .accessPrimerTitle)
+        static let primerMessage = String(localized: .accessPrimerMessage)
+        static let primerContinue = String(localized: .accessPrimerContinue)
+        static let primerFootnote = String(localized: .accessPrimerFootnote)
+        static let primerOnDeviceTitle = String(localized: .accessPrimerOnDeviceTitle)
+        static let primerOnDeviceDetail = String(localized: .accessPrimerOnDeviceDetail)
+        static let primerNoDeleteTitle = String(localized: .accessPrimerNoDeleteTitle)
+        static let primerNoDeleteDetail = String(localized: .accessPrimerNoDeleteDetail)
+        static let primerScreenshotsOnlyTitle = String(localized: .accessPrimerScreenshotsOnlyTitle)
+        static let primerScreenshotsOnlyDetail = String(localized: .accessPrimerScreenshotsOnlyDetail)
+        static let limitedTitle = String(localized: .accessLimitedTitle)
+        static let limitedMessage = String(localized: .accessLimitedMessage)
+        static let limitedAction = String(localized: .accessLimitedAction)
     }
 
     enum Transcript {

@@ -245,6 +245,7 @@ private actor TrackingOCRStore: OCRStore {
     func result(for id: Screenshot.ID) -> OCRResult? { results[id] }
     func save(_ result: OCRResult) { results[result.screenshotID] = result }
     func remove(_ ids: [Screenshot.ID]) { ids.forEach { results[$0] = nil } }
+    func removeAll() { results.removeAll() }
     func flushPendingWrites() { wasFlushed = true }
 }
 
@@ -258,10 +259,8 @@ private actor TrackingCategoryStore: CategoryStore {
     }
     func allClassifications() -> [Screenshot.ID: ScreenshotClassification] { classifications }
     func remove(_ ids: [Screenshot.ID]) { ids.forEach { classifications[$0] = nil } }
-    func flushPendingWrites() { wasFlushed = true }
-    #if DEBUG
     func removeAll() { classifications.removeAll() }
-    #endif
+    func flushPendingWrites() { wasFlushed = true }
 }
 
 @MainActor
@@ -296,5 +295,7 @@ private final class InMemoryClassificationCompletionStore: ClassificationComplet
 
 @MainActor
 private final class StubOverviewRouter: OverviewRouter {
-    func openSettings() {}
+    private(set) var limitedPickerCount = 0
+    func openSystemSettings() {}
+    func presentLimitedLibraryPicker() { limitedPickerCount += 1 }
 }

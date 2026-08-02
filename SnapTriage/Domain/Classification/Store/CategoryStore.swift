@@ -25,11 +25,10 @@ protocol CategoryStore: Sendable {
     /// default no-op implementation.
     func flushPendingWrites() async
 
-    #if DEBUG
-    /// Wipes the whole cache so the next pass re-classifies from scratch. Debug
-    /// affordance for exercising the classification pipeline end to end.
+    /// Wipes the whole cache so the next pass re-classifies from scratch. Backs
+    /// the Settings "clear cached analysis" control, and the debug affordance
+    /// for exercising the classification pipeline end to end.
     func removeAll() async
-    #endif
 }
 
 extension CategoryStore {
@@ -56,11 +55,9 @@ actor InMemoryCategoryStore: CategoryStore {
         ids.forEach { cache[$0] = nil }
     }
 
-    #if DEBUG
     func removeAll() {
         cache.removeAll()
     }
-    #endif
 }
 
 /// Disk-backed store so classifications survive relaunch. Recomputable, so the
@@ -102,11 +99,9 @@ final class FileBackedCategoryStore: CategoryStore {
         storage.remove(ids)
     }
 
-    #if DEBUG
     func removeAll() {
         storage.removeAll()
     }
-    #endif
 
     func flush() {
         storage.flush()

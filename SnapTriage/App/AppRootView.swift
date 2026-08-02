@@ -15,6 +15,8 @@ struct AppRootView: View {
     @State private var overviewModel: OverviewViewModel
     @State private var triageModel: TriageViewModel
     @State private var reviewModel: ReviewViewModel
+    @State private var categoriesModel: CategoriesViewModel
+    @State private var settingsModel: SettingsViewModel
     @State private var navigation: AppNavigation
     private let backgroundCoordinator: BackgroundClassificationCoordinator
 
@@ -27,6 +29,8 @@ struct AppRootView: View {
         _overviewModel = State(initialValue: composition.makeOverview())
         _triageModel = State(initialValue: composition.makeTriage())
         _reviewModel = State(initialValue: composition.makeReview())
+        _categoriesModel = State(initialValue: composition.makeCategories())
+        _settingsModel = State(initialValue: composition.makeSettings())
         _navigation = State(initialValue: navigation)
         self.backgroundCoordinator = backgroundCoordinator
     }
@@ -37,19 +41,26 @@ struct AppRootView: View {
             OverviewView(
                 viewModel: overviewModel,
                 onStartTriage: { navigation.presentTriage() },
-                onOpenReview: { navigation.showReview() }
+                onOpenReview: { navigation.show(.review) },
+                onOpenCategories: { navigation.show(.categories) },
+                onOpenSettings: { navigation.show(.settings) }
             )
             .navigationDestination(for: AppNavigation.Route.self) { route in
                 switch route {
                 case .review:
                     ReviewView(viewModel: reviewModel)
+                case .categories:
+                    CategoriesView(viewModel: categoriesModel)
+                case .settings:
+                    SettingsView(viewModel: settingsModel)
                 }
             }
         }
         .fullScreenCover(isPresented: $navigation.isTriagePresented) {
             TriageView(
                 viewModel: triageModel,
-                onReview: { navigation.finishToReview() }
+                onReview: { navigation.finishToReview() },
+                onBulkTriage: { navigation.finishToCategories() }
             )
         }
         .tint(Palette.accent)

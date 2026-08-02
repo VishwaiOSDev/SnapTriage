@@ -11,6 +11,7 @@ struct TriageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: TriageViewModel
     private let onReview: () -> Void
+    private let onBulkTriage: () -> Void
 
     /// Drag state is pure UI: it lives in the view and never reaches the
     /// ViewModel. Only the final decision crosses the boundary via `send`.
@@ -19,7 +20,7 @@ struct TriageView: View {
     @State private var isUndoing = false
     @State private var fullScreenShot: Screenshot?
 
-    @AppStorage("triage.imageDisplayMode") private var imageMode: CardImageMode = .fit
+    @AppStorage(CardImageMode.storageKey) private var imageMode: CardImageMode = .fit
     @State private var showStartOverConfirmation = false
 
     /// Shared and prepared ahead of the first swipe: creating a generator and
@@ -29,10 +30,12 @@ struct TriageView: View {
 
     init(
         viewModel: TriageViewModel,
-        onReview: @escaping () -> Void = {}
+        onReview: @escaping () -> Void = {},
+        onBulkTriage: @escaping () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
         self.onReview = onReview
+        self.onBulkTriage = onBulkTriage
     }
 
     var body: some View {
@@ -147,6 +150,17 @@ struct TriageView: View {
 
     private var overflowMenu: some View {
         Menu {
+            // 1,200 screenshots is 1,200 swipes only if the classifier's work is
+            // thrown away. Hand the user the escape hatch from inside the deck,
+            // where the tedium is actually felt.
+            Button {
+                onBulkTriage()
+            } label: {
+                Label(Strings.Categories.title, systemImage: "square.stack.3d.up")
+            }
+
+            Divider()
+
             Button {
                 withAnimation(.easeInOut(duration: TriageMetrics.imageModeTransitionDuration)) {
                     imageMode = imageMode.toggled
@@ -447,7 +461,7 @@ struct TriageView: View {
             Text(viewModel.state.errorMessage ?? Strings.Error.generic)
         } actions: {
             if showsOpenSettings {
-                Button(Strings.Access.openSettings) { viewModel.send(.openSettings) }
+                Button(Strings.Access.openSettings) { viewModel.send(.openSystemSettings) }
                     .buttonStyle(.borderedProminent)
             }
             Button(Strings.Access.retry) { viewModel.send(.retry) }
@@ -467,8 +481,8 @@ struct TriageView: View {
     private var progressText: String {
         let total = viewModel.state.screenshots.count
         return Strings.Triage.progress(
-            countText(min(viewModel.state.decidedIDs.count + 1, total)),
-            countText(total)
+            MetricFormatter.count(min(viewModel.state.decidedIDs.count + 1, total)),
+            MetricFormatter.count(total)
         )
     }
 

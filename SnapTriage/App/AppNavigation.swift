@@ -10,9 +10,9 @@ import Observation
 @MainActor
 @Observable
 final class AppNavigation {
-    /// The one pushed destination. Triage isn't here — it's a full-screen
+    /// The pushed destinations. Triage isn't here — it's a full-screen
     /// session, not a peer place, so it presents rather than pushes.
-    enum Route: Hashable { case review }
+    enum Route: Hashable { case review, categories, settings }
 
     /// Push stack rooted at Overview.
     var path: [Route] = []
@@ -33,9 +33,15 @@ final class AppNavigation {
         isTriagePresented = true
     }
 
-    /// Show Review as a pushed destination on the Overview stack.
-    func showReview() {
-        path = [.review]
+    /// Show a destination as a push on the Overview stack.
+    func show(_ route: Route) {
+        path = [route]
+    }
+
+    /// Leave the triage session for bulk category actions.
+    func finishToCategories() {
+        isTriagePresented = false
+        path = [.categories]
     }
 
     /// Leave the triage session and land the user on Review to confirm deletions.
