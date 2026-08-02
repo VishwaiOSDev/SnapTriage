@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		01E417AC3DEF2B2880C7C99A /* FoundationModelScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4378FDBD5A9A81AABC0D6E4 /* FoundationModelScreenshotCategorizer.swift */; };
 		06BB234A726C7F0D7CEAAF62 /* LibraryClassificationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578C06609A626CDECED294C0 /* LibraryClassificationEngine.swift */; };
+		0AAE0843FBC0FDBEB7E43374 /* TriageMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAE3BB6860383788EE07322D /* TriageMetrics.swift */; };
 		0D13C99531A04197F5BBE1FC /* OCRLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4EF35EC11D079FDE70A8B77 /* OCRLine.swift */; };
 		0DCAED9359AD488A5F712C08 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43B6867EFF6F4B3D1161353 /* ReviewTestDoubles.swift */; };
 		0ED33408917B0F1CF34CCFC2 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1E65353EF6F88FC859E0D7 /* TestTags.swift */; };
@@ -169,6 +170,7 @@
 		BEAC4D33849613118BBC3BA5 /* OverviewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewRouter.swift; sourceTree = "<group>"; };
 		C3FFC765CAA4BD052B0AC7E1 /* PhotoLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryService.swift; sourceTree = "<group>"; };
 		C9DD76D6BBF414C302854B57 /* RequestPhotoAccessUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestPhotoAccessUseCase.swift; sourceTree = "<group>"; };
+		CAE3BB6860383788EE07322D /* TriageMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageMetrics.swift; sourceTree = "<group>"; };
 		CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClassificationCoordinator.swift; sourceTree = "<group>"; };
 		CB3351021926A946310C54BC /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
 		D05D6CA1102658E0FC552100 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
@@ -607,6 +609,7 @@
 		004A363566C5D6356D04F98B /* View */ = {
 			isa = PBXGroup;
 			children = (
+				CAE3BB6860383788EE07322D /* TriageMetrics.swift */,
 				0244570B34CFD4B7380757C0 /* TriageView.swift */,
 			);
 			path = View;
@@ -829,6 +832,7 @@
 				7E7B0C76B5B9B5B58F6C6530 /* ClearTriageDecisionsUseCase.swift in Sources */,
 				EABF8A9228F0D46FD68F9A2E /* LoadTriageProgressUseCase.swift in Sources */,
 				3BF4EE2424CDED6BE72972FE /* RecordTriageDecisionUseCase.swift in Sources */,
+				0AAE0843FBC0FDBEB7E43374 /* TriageMetrics.swift in Sources */,
 				1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */,
 				40864CDCCFFE7166B0FC175F /* TriageViewModel.swift in Sources */,
 			);
