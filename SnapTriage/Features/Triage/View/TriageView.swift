@@ -296,13 +296,15 @@ struct TriageView: View {
         haptic.prepare()
 
         let direction: CGFloat = decision == .keep ? 1 : -1
-        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
             drag = CGSize(width: direction * 640, height: drag.height + 40)
         }
         // Let the fly-off play, then advance the deck and reset without animating
-        // back, so the next card appears centered instead of sliding in.
+        // back, so the next card appears centered instead of sliding in. The card
+        // is off-screen well before the spring settles, and the deck swallows
+        // gestures until this returns, so the wait is cut to the visible part.
         Task {
-            try? await Task.sleep(for: .milliseconds(280))
+            try? await Task.sleep(for: TriageMetrics.flyOffDuration)
             viewModel.send(.decide(decision))
             var transaction = Transaction()
             transaction.disablesAnimations = true
