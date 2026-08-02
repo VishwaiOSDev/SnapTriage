@@ -36,6 +36,7 @@
 		6089CF6764642E412F82B396 /* OverviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC6CFF4863506B2227BC5 /* OverviewViewModelTests.swift */; };
 		6284BB7BF85153D902A607FA /* ReviewItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BD6D27663370D28DDADA1E /* ReviewItemView.swift */; };
 		6547E5456AC0BFDAE69271C7 /* TriageDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE1F35E12425E6977C8A897 /* TriageDecision.swift */; };
+		68970EA1B9CF8C5CFCE4E679 /* ForegroundNotificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98138EE952E9EF94F5297A /* ForegroundNotificationPresenter.swift */; };
 		68AFD31D44B515D38638DB6B /* OCRStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCF2EE05280B4D90FE591FB /* OCRStore.swift */; };
 		7333AE4C53DC3CBD84B68836 /* CategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF57C5A4FBD94D447CDE9D5 /* CategoryStore.swift */; };
 		7E7B0C76B5B9B5B58F6C6530 /* ClearTriageDecisionsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */; };
@@ -102,6 +103,7 @@
 		0A0A0E000000000000000001 /* SnapTriageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapTriageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A773D22AF59C4D017172A44 /* AppComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppComposition.swift; sourceTree = "<group>"; };
 		0BF57C5A4FBD94D447CDE9D5 /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
+		0C98138EE952E9EF94F5297A /* ForegroundNotificationPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForegroundNotificationPresenter.swift; sourceTree = "<group>"; };
 		0CC82B337921E4E6CFEAFDC1 /* OverviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewViewModel.swift; sourceTree = "<group>"; };
 		0CE1F35E12425E6977C8A897 /* TriageDecision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecision.swift; sourceTree = "<group>"; };
 		0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassificationCompletionStore.swift; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 				CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */,
 				0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */,
 				B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */,
+				0C98138EE952E9EF94F5297A /* ForegroundNotificationPresenter.swift */,
 			);
 			path = Background;
 			sourceTree = "<group>";
@@ -671,6 +674,7 @@
 				E054C22594D8CDED4512D252 /* BackgroundClassificationCoordinator.swift in Sources */,
 				91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */,
 				F3C5B5C866B4D92B2FAF5731 /* ClassificationNotifier.swift in Sources */,
+				68970EA1B9CF8C5CFCE4E679 /* ForegroundNotificationPresenter.swift in Sources */,
 				1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */,
 				29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */,
 				43F5EEBE45DADFD12F8533F7 /* LiquidGlass.swift in Sources */,
