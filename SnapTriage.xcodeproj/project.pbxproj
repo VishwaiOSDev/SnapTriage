@@ -44,6 +44,7 @@
 		80CC41A5E77B95CD2E32B60D /* ScreenshotThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7763160A48CDF1789B81AA93 /* ScreenshotThumbnailView.swift */; };
 		8646A08B7AA5B102F46AEC33 /* OverviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD77B384C150F95CB5BB9640 /* OverviewComposition.swift */; };
 		8A3585A1EB291E5C5B46A985 /* TextRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A46128844A7AA182054B6E9 /* TextRecognitionService.swift */; };
+		91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */; };
 		95FBA02DFA5B2C208FBD4C57 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351A2941BED148CD1B825572 /* LoadReviewItemsUseCaseTests.swift */; };
 		9A3CB684340E3366868F90C7 /* RequestPhotoAccessUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50DA958E0D78F6A9F8C89F4 /* RequestPhotoAccessUseCase.swift */; };
 		9CB762A655E9E75020A06081 /* ScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4E49DE27EF9236FEBDBE90 /* ScreenshotCategorizer.swift */; };
@@ -103,6 +104,7 @@
 		0BF57C5A4FBD94D447CDE9D5 /* CategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStore.swift; sourceTree = "<group>"; };
 		0CC82B337921E4E6CFEAFDC1 /* OverviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewViewModel.swift; sourceTree = "<group>"; };
 		0CE1F35E12425E6977C8A897 /* TriageDecision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecision.swift; sourceTree = "<group>"; };
+		0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassificationCompletionStore.swift; sourceTree = "<group>"; };
 		1ACE2D732C581FF9719CAC9A /* FallbackScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
 		1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTriageDecisionsUseCase.swift; sourceTree = "<group>"; };
 		1E4E49DE27EF9236FEBDBE90 /* ScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategorizer.swift; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 			isa = PBXGroup;
 			children = (
 				CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */,
+				0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */,
 				B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */,
 			);
 			path = Background;
@@ -666,6 +669,7 @@
 				CB9BDDB1DD37CCA5A35F45A9 /* AppRootView.swift in Sources */,
 				BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */,
 				E054C22594D8CDED4512D252 /* BackgroundClassificationCoordinator.swift in Sources */,
+				91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */,
 				F3C5B5C866B4D92B2FAF5731 /* ClassificationNotifier.swift in Sources */,
 				1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */,
 				29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */,
