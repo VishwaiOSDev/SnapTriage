@@ -65,6 +65,7 @@
 		B1AD401334158560CAA981F5 /* PruneScreenshotRecordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816A3C527A3AF8C31CB35354 /* PruneScreenshotRecordsUseCase.swift */; };
 		BA3C507A2EEF46ABEAEA5F1F /* TriageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E104BED08267CA83E4D42A /* TriageError.swift */; };
 		BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69DE7EE572E181AFC46A22A4 /* SnapTriageApp.swift */; };
+		C163A8D4098471E79C8A8ED6 /* DecisionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAC4DCCAB16E8E4E0AF4A3B /* DecisionButton.swift */; };
 		C78858364F0C0FD16DE0D89C /* ImageContentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B506758E1E05349E9AD13F2A /* ImageContentClassifier.swift */; };
 		C8CDD9B69CA6E418E3DBD26F /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6669EDDC2D35CF2FFB7C7A1 /* CategorizeScreenshotUseCase.swift */; };
 		CA1A9650D43282816DBD948F /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E982F4DFB284B5D9867B60B2 /* Spacing.swift */; };
@@ -116,6 +117,7 @@
 		0CE1F35E12425E6977C8A897 /* TriageDecision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecision.swift; sourceTree = "<group>"; };
 		0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassificationCompletionStore.swift; sourceTree = "<group>"; };
 		1ACE2D732C581FF9719CAC9A /* FallbackScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
+		1BAC4DCCAB16E8E4E0AF4A3B /* DecisionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionButton.swift; sourceTree = "<group>"; };
 		1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTriageDecisionsUseCase.swift; sourceTree = "<group>"; };
 		1EE77130537C36EAB490A9E5 /* RecordTriageDecisionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTriageDecisionUseCase.swift; sourceTree = "<group>"; };
 		240B022BE64B8954FE0435F6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
@@ -625,6 +627,7 @@
 		54F76E523E34F4728060D535 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				1BAC4DCCAB16E8E4E0AF4A3B /* DecisionButton.swift */,
 				B95E40655DC8B595F96E1198 /* DecisionStamp.swift */,
 				FF6DC9682F7745488DF6FD41 /* ScreenshotViewerView.swift */,
 				DF48FB0EB67FB6E0DD5B5AAC /* TriageCardView.swift */,
@@ -851,6 +854,7 @@
 				3BF4EE2424CDED6BE72972FE /* RecordTriageDecisionUseCase.swift in Sources */,
 				0AAE0843FBC0FDBEB7E43374 /* TriageMetrics.swift in Sources */,
 				1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */,
+				C163A8D4098471E79C8A8ED6 /* DecisionButton.swift in Sources */,
 				59CCC257D2DD48C105CC11CF /* DecisionStamp.swift in Sources */,
 				5C4CEEEBC7D3D181EC02F929 /* ScreenshotViewerView.swift in Sources */,
 				37B46D3C99C0A61FECDCC33F /* TriageCardView.swift in Sources */,
