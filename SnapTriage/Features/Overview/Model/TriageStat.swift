@@ -73,6 +73,19 @@ struct OverviewSummary: Equatable {
         totalCount == 0 ? 0 : Double(safeCount) / Double(totalCount)
     }
 
+    /// Folds one batch of classification results into the running totals.
+    /// `totalCount` describes the library snapshot rather than the pass, so a
+    /// batch never carries it.
+    mutating func merge(_ delta: OverviewSummary) {
+        usefulCount += delta.usefulCount
+        usefulBytes += delta.usefulBytes
+        safeCount += delta.safeCount
+        safeBytes += delta.safeBytes
+        reviewCount += delta.reviewCount
+        reviewBytes += delta.reviewBytes
+        unknownCount += delta.unknownCount
+    }
+
     mutating func add(bytes: Int, disposition: ScreenshotDisposition) {
         switch disposition {
         case .useful:
