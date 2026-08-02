@@ -142,7 +142,7 @@ struct TriageView: View {
                     .contentTransition(.numericText())
             }
         }
-        .animation(.default, value: viewModel.state.currentIndex)
+        .animation(.default, value: viewModel.state.decidedIDs.count)
     }
 
     private var overflowMenu: some View {
@@ -462,10 +462,13 @@ struct TriageView: View {
 
     // MARK: - Display
 
+    // Counts verdicts given, not the cursor's position: the deck surfaces
+    // classified cards first, so the index no longer advances monotonically.
     private var progressText: String {
-        Strings.Triage.progress(
-            MetricFormatter.count(min(viewModel.state.currentIndex + 1, viewModel.state.screenshots.count)),
-            MetricFormatter.count(viewModel.state.screenshots.count)
+        let total = viewModel.state.screenshots.count
+        return Strings.Triage.progress(
+            countText(min(viewModel.state.decidedIDs.count + 1, total)),
+            countText(total)
         )
     }
 

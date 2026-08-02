@@ -43,8 +43,9 @@ final class TriageViewModel {
         }
 
         var upNext: Screenshot? {
-            guard screenshots.indices.contains(currentIndex) else { return nil }
-            return screenshots[(currentIndex + 1)...].first { !decidedIDs.contains($0.id) }
+            guard let current else { return nil }
+            let index = preferredIndex(excluding: current.id)
+            return screenshots.indices.contains(index) ? screenshots[index] : nil
         }
 
         var isFinished: Bool {
@@ -58,14 +59,33 @@ final class TriageViewModel {
 
         var lastDecision: TriageDecision? { decisionHistory.last?.decision }
 
-        /// Moves to the next card without a verdict; lands on `count` (finished)
+        /// Moves to the next card worth deciding on; lands on `count` (finished)
         /// when none remain.
         mutating func advance() {
-            var next = currentIndex + 1
-            while next < screenshots.count, decidedIDs.contains(screenshots[next].id) {
-                next += 1
+            currentIndex = preferredIndex()
+        }
+
+        /// The undecided card the deck should surface next.
+        ///
+        /// Classified cards come first. A card still showing "Analyzing…" gives
+        /// the user nothing to decide with, so it waits behind every card the
+        /// pipeline has already resolved — the classifier runs far ahead of a
+        /// human swiping, so in practice the wait is invisible. The earliest
+        /// undecided card is the fallback, which keeps a cold library (nothing
+        /// classified yet) swiping immediately instead of stalling on an empty
+        /// deck. Library order breaks ties either way, so the deck still reads
+        /// newest first.
+        ///
+        /// Returns `screenshots.count` when nothing is left, which is what
+        /// surfaces the finished screen.
+        func preferredIndex(excluding excluded: Screenshot.ID? = nil) -> Int {
+            var firstUnclassified: Int?
+            for (index, screenshot) in screenshots.enumerated() {
+                guard !decidedIDs.contains(screenshot.id), screenshot.id != excluded else { continue }
+                if classifications[screenshot.id] != nil { return index }
+                if firstUnclassified == nil { firstUnclassified = index }
             }
-            currentIndex = next
+            return firstUnclassified ?? screenshots.count
         }
 
         /// The verdict for a card, or `nil` while classification is still pending.
@@ -237,7 +257,10 @@ final class TriageViewModel {
         let progress = loadProgress.execute(for: screenshots)
         state.screenshots = screenshots
         state.decidedIDs = progress.decidedIDs
-        state.currentIndex = progress.firstUndecidedIndex
+        // Classifications carry over from the previous snapshot, so a re-sync
+        // resumes on a resolved card rather than whichever one happens to sit
+        // earliest in the library.
+        state.currentIndex = state.preferredIndex()
         state.keptCount = progress.keptCount
         state.markedCount = progress.markedCount
         // Loading or externally reordering the library establishes a new deck
@@ -340,21 +363,47 @@ final class TriageViewModel {
             // bounds this run. The next swipe starts a fresh task that retries them.
             var attempted: Set<Screenshot.ID> = []
             while !Task.isCancelled {
-                let window = self.state.screenshots
-                    .dropFirst(self.state.currentIndex)
-                    .prefix(self.classifyLookahead)
-                    .filter { self.state.classifications[$0.id] == nil && !attempted.contains($0.id) }
+                // Deck selection scans the whole undecided set, so the window
+                // does too: classifying in library order from the cursor would
+                // leave the very cards being skipped for lack of a verdict at
+                // the back of the queue.
+                // Eager on purpose: the filter reads `attempted`, which the very
+                // next line mutates, so a lazy sequence would evaluate the
+                // predicate during that write.
+                var window: [Screenshot] = []
+                for screenshot in self.state.screenshots
+                where !self.state.decidedIDs.contains(screenshot.id)
+                    && self.state.classifications[screenshot.id] == nil
+                    && !attempted.contains(screenshot.id) {
+                    window.append(screenshot)
+                    if window.count == self.classifyLookahead { break }
+                }
                 guard !window.isEmpty else { return }
                 attempted.formUnion(window.map(\.id))
 
-                for await progress in self.classifyLibrary.execute(Array(window)) {
+                for await progress in self.classifyLibrary.execute(window) {
                     if Task.isCancelled { return }
                     if let id = progress.id, let classification = progress.classification {
                         self.state.classifications[id] = classification
+                        self.resurfaceIfCurrentIsUnresolved()
                     }
                 }
             }
         }
+    }
+
+    /// Swaps in a resolved card when the one on screen is still analyzing.
+    ///
+    /// Selection happens on load and on advance, which on a cold library both
+    /// run before a single verdict exists — so without this the very first card
+    /// stays an "Analyzing…" placeholder even once the pipeline has caught up.
+    /// A card with no verdict shows the user nothing to act on, so replacing it
+    /// costs nothing; a resolved card is never taken away.
+    private func resurfaceIfCurrentIsUnresolved() {
+        guard let current = state.current,
+              state.classifications[current.id] == nil
+        else { return }
+        state.currentIndex = state.preferredIndex()
     }
 
     // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
