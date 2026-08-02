@@ -125,26 +125,44 @@ struct TriageViewModelTests {
     func libraryChangeMergesNewScreenshot() async {
         let (vm, _, service) = makeSUT()
         vm.send(.onAppear)
-        await waitUntil { vm.state.phase == .loaded }
+        await waitUntil { vm.state.classifications.count == 4 }
 
         vm.send(.decide(.keep))              // "1"
         vm.send(.decide(.markForDeletion))   // "2"
         #expect(vm.state.current?.id == "3")
 
         // A screenshot taken mid-pass sorts newest-first, above swiped cards.
+        // Its classification is not in yet, so the deck keeps offering resolved
+        // cards and holds it back rather than asking for a blind verdict.
         service.screenshots.insert(Fixture.screenshot(id: "0"), at: 0)
         service.simulateLibraryChange()
         await waitUntil { vm.state.screenshots.count == 5 }
 
-        // New card surfaces, counters survive, and advancing skips the
-        // already-decided cards sitting behind it.
-        #expect(vm.state.current?.id == "0")
+        #expect(vm.state.current?.id == "3")
         #expect(vm.state.keptCount == 1)
         #expect(vm.state.markedCount == 1)
-        #expect(vm.state.upNext?.id == "3")
+        #expect(vm.state.upNext?.id == "4")
 
+        // Once the resolved cards are spent, the newcomer is all that's left.
         vm.send(.decide(.keep))
-        #expect(vm.state.current?.id == "3")
+        vm.send(.decide(.keep))
+        #expect(vm.state.current?.id == "0")
+    }
+
+    @Test("The deck offers a classified card ahead of one still being analyzed")
+    func classifiedCardsSurfaceFirst() async {
+        // "0" is not in the seeded store and the test pipeline is inert, so it
+        // never resolves — standing in for a card the classifier hasn't reached.
+        let (vm, _, service) = makeSUT()
+        service.screenshots.insert(Fixture.screenshot(id: "0"), at: 0)
+
+        vm.send(.onAppear)
+        await waitUntil { vm.state.classifications.count == 4 }
+
+        // "0" leads the library but has no verdict, so the deck steps over it
+        // rather than asking the user to decide on a placeholder.
+        #expect(vm.state.current?.id == "1")
+        #expect(vm.state.upNext?.id == "2")
     }
 
     @Test("A swipe lands in the store before the deck advances")
@@ -246,5 +264,5 @@ struct TriageViewModelTests {
 
 @MainActor
 private final class StubTriageRouter: TriageRouter {
-    func openSettings() {}
+    func openSystemSettings() {}
 }
