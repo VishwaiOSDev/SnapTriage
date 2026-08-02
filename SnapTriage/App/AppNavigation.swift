@@ -44,6 +44,12 @@ final class AppNavigation {
         path = [route]
     }
 
+    /// Drill from the category list into that category's screenshots. Pushed on
+    /// top of the list rather than replacing it, so Back returns to the buckets.
+    func showCategory(_ category: ScreenshotCategory) {
+        path = [.categories, .review(.category(category))]
+    }
+
     /// Leave the triage session for bulk category actions.
     func finishToCategories() {
         isTriagePresented = false
