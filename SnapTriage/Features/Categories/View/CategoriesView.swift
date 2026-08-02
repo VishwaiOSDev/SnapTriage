@@ -14,10 +14,11 @@ import SwiftUI
 /// is still there afterwards, waiting in the deck.
 struct CategoriesView: View {
     @State private var viewModel: CategoriesViewModel
-    @State private var pendingGroup: CategoryGroup?
+    private let onOpenCategory: (ScreenshotCategory) -> Void
 
-    init(viewModel: CategoriesViewModel) {
+    init(viewModel: CategoriesViewModel, onOpenCategory: @escaping (ScreenshotCategory) -> Void) {
         _viewModel = State(initialValue: viewModel)
+        self.onOpenCategory = onOpenCategory
     }
 
     var body: some View {
@@ -62,7 +63,7 @@ struct CategoriesView: View {
                     VStack(spacing: 0) {
                         let groups = viewModel.state.groups
                         ForEach(Array(groups.enumerated()), id: \.element.id) { index, group in
-                            CategoryRow(group: group) { pendingGroup = group }
+                            CategoryRow(group: group) { onOpenCategory(group.category) }
                             if index < groups.count - 1 {
                                 Divider()
                                     .overlay(Color.white.opacity(0.06))
@@ -252,7 +253,7 @@ private struct CategoriesView_Previews: PreviewProvider {
                 decidedCount: 88
             )
         )
-        return CategoriesView(viewModel: viewModel)
+        return CategoriesView(viewModel: viewModel, onOpenCategory: { _ in })
             .preferredColorScheme(.dark)
     }
 }
