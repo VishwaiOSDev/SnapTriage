@@ -1069,6 +1069,30 @@
         }
       }
     },
+    "Review.scopedEmptyMessage": {
+      "comment": "Message when a category has been fully triaged; %@ is a category name",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every %@ screenshot now has a verdict."
+          }
+        }
+      }
+    },
+    "Review.scopedEmptyTitle": {
+      "comment": "Title when a category has been fully triaged",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category cleared"
+          }
+        }
+      }
+    },
     "Review.scopedNavSubtitle": {
       "comment": "Navigation subtitle in a category; first %@ is selected, second %@ the total",
       "extractionState": "manual",
