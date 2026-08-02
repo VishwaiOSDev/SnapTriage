@@ -314,13 +314,13 @@
       }
     },
     "Categories.safetyNote": {
-      "comment": "Reassurance at the bottom of the category screen",
+      "comment": "Footnote on the category list",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bulk actions only record a verdict. Deletion still happens in Review, after you confirm."
+            "value": "Nothing is deleted from this screen. Open a category to look, choose, and confirm."
           }
         }
       }
