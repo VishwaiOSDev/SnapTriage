@@ -37,6 +37,7 @@
 		49898DDCB78FAB6772125DAE /* AppComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A773D22AF59C4D017172A44 /* AppComposition.swift */; };
 		502A7245217F5EC25D2B383D /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C12DFFCC365439E7F0F01C /* OverviewView.swift */; };
 		57B068DE1D889C7C1320429E /* BackgroundTaskAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66ECC20CF9224E685AEAA0F2 /* BackgroundTaskAssertion.swift */; };
+		59CCC257D2DD48C105CC11CF /* DecisionStamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95E40655DC8B595F96E1198 /* DecisionStamp.swift */; };
 		5C4CEEEBC7D3D181EC02F929 /* ScreenshotViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6DC9682F7745488DF6FD41 /* ScreenshotViewerView.swift */; };
 		5F967497B43A77B59E4AD5AB /* Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8CC5A0C8AB224F76FC172B /* Palette.swift */; };
 		6089CF6764642E412F82B396 /* OverviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC6CFF4863506B2227BC5 /* OverviewViewModelTests.swift */; };
@@ -167,6 +168,7 @@
 		B3CA2A64A80D5D7DB292312C /* CardImageMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardImageMode.swift; sourceTree = "<group>"; };
 		B4378FDBD5A9A81AABC0D6E4 /* FoundationModelScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		B506758E1E05349E9AD13F2A /* ImageContentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentClassifier.swift; sourceTree = "<group>"; };
+		B95E40655DC8B595F96E1198 /* DecisionStamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecisionStamp.swift; sourceTree = "<group>"; };
 		BA1E65353EF6F88FC859E0D7 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
 		BE49DB378D23F6F4068E3669 /* SnapTriageIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = SnapTriageIcon.icon; sourceTree = "<group>"; };
 		BEAC4D33849613118BBC3BA5 /* OverviewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewRouter.swift; sourceTree = "<group>"; };
@@ -623,6 +625,7 @@
 		54F76E523E34F4728060D535 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B95E40655DC8B595F96E1198 /* DecisionStamp.swift */,
 				FF6DC9682F7745488DF6FD41 /* ScreenshotViewerView.swift */,
 				DF48FB0EB67FB6E0DD5B5AAC /* TriageCardView.swift */,
 			);
@@ -848,6 +851,7 @@
 				3BF4EE2424CDED6BE72972FE /* RecordTriageDecisionUseCase.swift in Sources */,
 				0AAE0843FBC0FDBEB7E43374 /* TriageMetrics.swift in Sources */,
 				1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */,
+				59CCC257D2DD48C105CC11CF /* DecisionStamp.swift in Sources */,
 				5C4CEEEBC7D3D181EC02F929 /* ScreenshotViewerView.swift in Sources */,
 				37B46D3C99C0A61FECDCC33F /* TriageCardView.swift in Sources */,
 				40864CDCCFFE7166B0FC175F /* TriageViewModel.swift in Sources */,
