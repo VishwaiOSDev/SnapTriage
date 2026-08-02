@@ -405,13 +405,21 @@ final class TriageViewModel {
                 guard !window.isEmpty else { return }
                 attempted.formUnion(window.map(\.id))
 
+                // Applied as one batch per window rather than per result. Each
+                // individual write invalidated the deck, and rebuilding the deck
+                // rescans the library for the current, up-next, and prefetch
+                // slots — work the main thread was repeating five times over for
+                // a window it was about to finish anyway.
+                var resolved: [Screenshot.ID: ScreenshotClassification] = [:]
                 for await progress in self.classifyLibrary.execute(window) {
                     if Task.isCancelled { return }
                     if let id = progress.id, let classification = progress.classification {
-                        self.state.classifications[id] = classification
-                        self.resurfaceIfCurrentIsUnresolved()
+                        resolved[id] = classification
                     }
                 }
+                guard !resolved.isEmpty else { continue }
+                self.classifications.merge(resolved) { _, new in new }
+                self.resurfaceIfCurrentIsUnresolved()
             }
         }
     }
