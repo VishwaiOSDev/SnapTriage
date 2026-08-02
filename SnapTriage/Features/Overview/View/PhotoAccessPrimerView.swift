@@ -29,7 +29,8 @@ struct PhotoAccessPrimerView: View {
                 privacyPromises
                     .padding(.top, 32)
             }
-            .padding(.horizontal, Spacing.screenPadding)
+            .frame(maxWidth: 520)
+            .padding(.horizontal, 24)
             .padding(.top, 10)
             .padding(.bottom, 24)
             .frame(maxWidth: .infinity)
@@ -38,11 +39,6 @@ struct PhotoAccessPrimerView: View {
         .scrollBounceBehavior(.basedOnSize)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             actionArea
-                .padding(.horizontal, Spacing.screenPadding)
-                .padding(.top, 16)
-                .padding(.bottom, 8)
-                .frame(maxWidth: .infinity)
-                .background(Palette.background)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -175,6 +171,12 @@ struct PhotoAccessPrimerView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: 300)
         }
+        .frame(maxWidth: 560)
+        .padding(.horizontal, 24)
+        .padding(.top, 16)
+        .padding(.bottom, 8)
+        .frame(maxWidth: .infinity)
+        .background(Palette.background)
     }
 
     private struct Promise {
