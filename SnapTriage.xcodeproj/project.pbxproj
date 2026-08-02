@@ -40,6 +40,7 @@
 		6547E5456AC0BFDAE69271C7 /* TriageDecision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE1F35E12425E6977C8A897 /* TriageDecision.swift */; };
 		68970EA1B9CF8C5CFCE4E679 /* ForegroundNotificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98138EE952E9EF94F5297A /* ForegroundNotificationPresenter.swift */; };
 		68AFD31D44B515D38638DB6B /* OCRStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCF2EE05280B4D90FE591FB /* OCRStore.swift */; };
+		6F1938468F03A0883785E572 /* PhotoLibraryAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D877FB727176AC4C601194 /* PhotoLibraryAuthorization.swift */; };
 		7333AE4C53DC3CBD84B68836 /* CategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF57C5A4FBD94D447CDE9D5 /* CategoryStore.swift */; };
 		7E7B0C76B5B9B5B58F6C6530 /* ClearTriageDecisionsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */; };
 		7F4E179BDAACE9ADA2D39003 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722C73933C870FC12D3102C9 /* DeleteScreenshotsUseCaseTests.swift */; };
@@ -58,7 +59,6 @@
 		ACB4104A2A81165AD153851D /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C320DAF4EEE0CD4643313B /* ReviewView.swift */; };
 		AF7B452AF33605401CFF93D9 /* TriageViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3ADB887A54D35398A90D951 /* TriageViewModelTests.swift */; };
 		B1AD401334158560CAA981F5 /* PruneScreenshotRecordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816A3C527A3AF8C31CB35354 /* PruneScreenshotRecordsUseCase.swift */; };
-		B37F4066EE4963CC64FD0A8F /* PhotoLibraryAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA37028B8EBC0A63AFFA8729 /* PhotoLibraryAuthorization.swift */; };
 		BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69DE7EE572E181AFC46A22A4 /* SnapTriageApp.swift */; };
 		C0CEC4D10BF3AD3E00249F91 /* ClassifyLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084939A28E45D163DB7D5C73 /* ClassifyLibraryUseCase.swift */; };
 		C11932B0B3900A5528A238D2 /* OCRLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8411E5F8C425D1D6BF2DD7EE /* OCRLine.swift */; };
@@ -98,6 +98,7 @@
 
 /* Begin PBXFileReference section */
 		0244570B34CFD4B7380757C0 /* TriageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageView.swift; sourceTree = "<group>"; };
+		02D877FB727176AC4C601194 /* PhotoLibraryAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryAuthorization.swift; sourceTree = "<group>"; };
 		0590E57D39E9938D9B36C738 /* TriageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageError.swift; sourceTree = "<group>"; };
 		084939A28E45D163DB7D5C73 /* ClassifyLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassifyLibraryUseCase.swift; sourceTree = "<group>"; };
 		0A0A00130000000000000001 /* SnapTriage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapTriage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -158,7 +159,6 @@
 		A8CD2E3C6FCF8C3E74FF9FD5 /* TriageDecisionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageDecisionStore.swift; sourceTree = "<group>"; };
 		A944DD8BF13BA2683503229E /* ReviewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewRouter.swift; sourceTree = "<group>"; };
 		A97F7D383C7250B116EA174B /* ObservePhotoLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservePhotoLibraryUseCase.swift; sourceTree = "<group>"; };
-		AA37028B8EBC0A63AFFA8729 /* PhotoLibraryAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryAuthorization.swift; sourceTree = "<group>"; };
 		AEE4A1EDB54A174D7E5295BD /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
 		B09DC6CFF4863506B2227BC5 /* OverviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewViewModelTests.swift; sourceTree = "<group>"; };
 		B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassificationNotifier.swift; sourceTree = "<group>"; };
@@ -301,6 +301,7 @@
 		F2CBA90ABEC491B65EE690A6 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				02D877FB727176AC4C601194 /* PhotoLibraryAuthorization.swift */,
 				25B057086ACB7F19B5C83E3A /* Screenshot.swift */,
 			);
 			path = Model;
@@ -478,7 +479,6 @@
 			children = (
 				8411E5F8C425D1D6BF2DD7EE /* OCRLine.swift */,
 				4D56E506AA6A793CA1AF74AD /* OCRResult.swift */,
-				AA37028B8EBC0A63AFFA8729 /* PhotoLibraryAuthorization.swift */,
 				5FF1C3BEDFDFB19537B109E8 /* ScreenshotCategory.swift */,
 				3CDD24F0F552B8E79A14BC38 /* ScreenshotDisposition.swift */,
 				0CE1F35E12425E6977C8A897 /* TriageDecision.swift */,
@@ -711,6 +711,7 @@
 				2146665DA89A3D461F58A7F7 /* Strings.swift in Sources */,
 				A814B38772B95C92AEBA141F /* MetricFormatter.swift in Sources */,
 				497D8C688D7BBA8486CB996B /* PersistedDictionary.swift in Sources */,
+				6F1938468F03A0883785E572 /* PhotoLibraryAuthorization.swift in Sources */,
 				29C5AE1A9C12F9AD15172F72 /* Screenshot.swift in Sources */,
 				8646A08B7AA5B102F46AEC33 /* OverviewComposition.swift in Sources */,
 				F68674A44FBE9FC892187C2F /* TriageStat.swift in Sources */,
@@ -731,7 +732,6 @@
 				FC5321430583666C35AC8793 /* TriageComposition.swift in Sources */,
 				C11932B0B3900A5528A238D2 /* OCRLine.swift in Sources */,
 				7F7632E46AC5591CA8982595 /* OCRResult.swift in Sources */,
-				B37F4066EE4963CC64FD0A8F /* PhotoLibraryAuthorization.swift in Sources */,
 				FEAA66E777FAB99D051561BB /* ScreenshotCategory.swift in Sources */,
 				EC7E8BBC11AFECD0FA74C897 /* ScreenshotDisposition.swift in Sources */,
 				6547E5456AC0BFDAE69271C7 /* TriageDecision.swift in Sources */,
