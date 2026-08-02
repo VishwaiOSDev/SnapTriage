@@ -49,6 +49,11 @@ struct AppRootView: View {
                 switch route {
                 case .review(.triage):
                     ReviewView(viewModel: reviewModel)
+                case .review(.category(let category)):
+                    // A scoped Review gets its own model. Reusing the inbox's
+                    // would hand a category visit the inbox's selection — and
+                    // give it back changed.
+                    ReviewView(viewModel: composition.makeReview(scope: .category(category)))
                 case .categories:
                     CategoriesView(viewModel: categoriesModel)
                 case .settings:
