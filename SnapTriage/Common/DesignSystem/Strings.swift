@@ -115,6 +115,8 @@ enum Strings {
         static func viewerPosition(_ index: String, _ total: String) -> String {
             String(localized: .reviewViewerPosition(index, total))
         }
+        static let viewerSelectThis = String(localized: .reviewViewerSelectThis)
+        static let viewerKeepThis = String(localized: .reviewViewerKeepThis)
     }
 
     enum Categories {

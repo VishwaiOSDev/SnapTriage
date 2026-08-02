@@ -1321,6 +1321,18 @@
         }
       }
     },
+    "Review.viewerKeepThis": {
+      "comment": "Viewer button that removes the screenshot from the delete batch",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep this one"
+          }
+        }
+      }
+    },
     "Review.viewerPosition": {
       "comment": "Position in the full-screen viewer; first %@ is the index, second %@ the total",
       "extractionState": "manual",
@@ -1329,6 +1341,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ of %@"
+          }
+        }
+      }
+    },
+    "Review.viewerSelectThis": {
+      "comment": "Viewer button that adds the screenshot to the delete batch",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select for deletion"
           }
         }
       }
