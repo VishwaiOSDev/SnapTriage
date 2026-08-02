@@ -28,10 +28,19 @@ struct LoadReviewItemsUseCase {
     let store: CategoryStore
     let decisions: TriageDecisionStore
 
-    func execute() async throws -> [ReviewItem] {
+    func execute(scope: ReviewScope = .triage) async throws -> [ReviewItem] {
         let screenshots = try await loadScreenshots.execute()
         guard !screenshots.isEmpty else { return [] }
 
+        return switch scope {
+        case .triage:
+            try await triageItems(screenshots)
+        case .category(let category):
+            await categoryItems(screenshots, in: category)
+        }
+    }
+
+    private func triageItems(_ screenshots: [Screenshot]) async throws -> [ReviewItem] {
         // Ensure a category exists for each screenshot; cached results pass straight through.
         for await _ in classifyLibrary.execute(screenshots) {
             try Task.checkCancellation()
