@@ -105,6 +105,9 @@ enum Strings {
             String(localized: .reviewScopedEmptyMessage(category))
         }
         static func keepAll(_ count: String) -> String { String(localized: .reviewKeepAll(count)) }
+        static func keptAll(_ count: String, _ category: String) -> String {
+            String(localized: .reviewKeptAll(count, category))
+        }
     }
 
     enum Categories {
