@@ -192,14 +192,14 @@ struct PhotoAccessPrimerView: View {
             detail: Strings.Access.primerOnDeviceDetail
         ),
         Promise(
-            systemImage: "hand.raised",
-            title: Strings.Access.primerNoDeleteTitle,
-            detail: Strings.Access.primerNoDeleteDetail
-        ),
-        Promise(
             systemImage: "square.grid.2x2",
             title: Strings.Access.primerScreenshotsOnlyTitle,
             detail: Strings.Access.primerScreenshotsOnlyDetail
+        ),
+        Promise(
+            systemImage: "hand.raised",
+            title: Strings.Access.primerNoDeleteTitle,
+            detail: Strings.Access.primerNoDeleteDetail
         )
     ]
 }
