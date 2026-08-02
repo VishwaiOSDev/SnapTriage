@@ -31,4 +31,11 @@ enum Spacing {
     static let thumbnailMinWidth: CGFloat = 100
     static let thumbnailCornerRadius: CGFloat = 10
     static let thumbnailAspectRatio: CGFloat = 0.66
+
+    // MARK: Review grid
+
+    /// Review tiles are shorter than a phone screenshot: the grid is scanned,
+    /// not read, so more rows per screen beats a faithful aspect ratio.
+    static let reviewTileAspectRatio: CGFloat = 0.82
+    static let reviewTileCornerRadius: CGFloat = 14
 }
