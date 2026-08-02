@@ -7,17 +7,23 @@
 
 import Foundation
 
-/// Produces the candidate set for the Review screen. It drives the (cache-first)
-/// classification pipeline to completion so every screenshot has a classification
-/// in the shared store, then folds in the user's triage swipes: a swipe always
-/// overrides the classifier, and screenshots without a verdict are included only
-/// when the classifier's retention judgement is `safeToDelete`. Needs-review and
-/// useful screenshots never surface at all.
+/// Produces the candidate set for the Review screen, for one ``ReviewScope``.
 ///
-/// Each item carries how it got here. A classifier verdict the user has never
-/// seen is a *suggestion*, not a decision, so it is tagged `.suggested` and the
-/// Review screen keeps it out of the default deletion selection. Only swipes the
-/// user actually made come back as `.userMarked`.
+/// Both scopes share one rule: a swipe always overrides the classifier, and each
+/// item carries how it got here. A classifier verdict the user has never seen is
+/// a *suggestion*, not a decision, so it is tagged `.suggested` and the Review
+/// screen keeps it out of the default deletion selection. Only swipes the user
+/// actually made come back as `.userMarked`.
+///
+/// - `.triage` drives the (cache-first) classification pipeline to completion so
+///   every screenshot has a classification, then includes undecided screenshots
+///   only when the classifier's retention judgement is `safeToDelete`.
+///   Needs-review and useful screenshots never surface.
+/// - `.category` includes every screenshot in that one bucket regardless of
+///   retention, because the user asked to see the bucket. It reads the cache and
+///   never drives the pipeline — the category list is built from cached verdicts
+///   too, so driving here would make a screen that promises "already analysed"
+///   block on a cold library.
 ///
 /// When Overview has already classified, this is effectively free — every
 /// screenshot is a cache hit.
