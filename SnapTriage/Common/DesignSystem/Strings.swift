@@ -122,8 +122,6 @@ enum Strings {
         static func headline(_ count: String) -> String { String(localized: .categoriesHeadline(count)) }
         static let subheadline = String(localized: .categoriesSubheadline)
         static func rowDetail(_ count: String, _ size: String) -> String { String(localized: .categoriesRowDetail(count, size)) }
-        static func appliedMarked(_ count: String, _ category: String) -> String { String(localized: .categoriesAppliedMarked(count, category)) }
-        static func appliedKept(_ count: String, _ category: String) -> String { String(localized: .categoriesAppliedKept(count, category)) }
         static func stillAnalyzing(_ count: String) -> String { String(localized: .categoriesStillAnalyzing(count)) }
         static let safetyNote = String(localized: .categoriesSafetyNote)
         static let emptyTitle = String(localized: .categoriesEmptyTitle)
