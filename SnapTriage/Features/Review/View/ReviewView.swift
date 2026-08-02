@@ -23,8 +23,9 @@ struct ReviewView: View {
             Palette.background.ignoresSafeArea()
             content
         }
-        .navigationTitle(Strings.Review.title)
+        .navigationTitle(viewModel.scope.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar { toolbar }
         .task { viewModel.send(.onAppear) }
     }
 
@@ -72,8 +73,42 @@ struct ReviewView: View {
         .animation(.default, value: viewModel.state.items)
     }
 
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            VStack(spacing: 1) {
+                Text(viewModel.scope.title)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                HStack(spacing: 6) {
+                    if viewModel.state.isRefreshing {
+                        ProgressView().controlSize(.mini)
+                    }
+                    Text(navSubtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .contentTransition(.numericText())
+                }
+            }
         }
     }
+
+    private var hasContent: Bool {
+        viewModel.state.phase == .loaded && !viewModel.state.items.isEmpty
+    }
+
+    private var navSubtitle: String {
+        let selected = MetricFormatter.count(viewModel.state.selectedCount)
+        guard viewModel.scope.isCategory else { return Strings.Review.navSubtitle(selected) }
+        return Strings.Review.scopedNavSubtitle(
+            selected,
+            MetricFormatter.count(viewModel.state.items.count)
+        )
+    }
+
+    // MARK: - Sections
 
     // The two sections carry different weight, and the layout has to say so.
     // What the user swiped left is theirs and arrives armed; what the classifier
