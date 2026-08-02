@@ -112,6 +112,10 @@ struct OverviewView: View {
                         .minimumScaleFactor(0.6)
                 }
                 .multilineTextAlignment(.center)
+                // Scoped to the figure that actually changes during a pass. A
+                // blanket animation on the whole card re-ran the glass container
+                // and its blurred glow on every classification result.
+                .animation(.default, value: summary.reclaimableBytes)
 
                 HStack(spacing: 4) {
                     Text(Strings.Overview.heroCaption(MetricFormatter.count(summary.totalCount)))
