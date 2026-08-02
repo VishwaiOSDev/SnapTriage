@@ -1093,18 +1093,6 @@
         }
       }
     },
-    "Review.reclaimableHeadline": {
-      "comment": "Caption under the hero reclaimable-space number on the review screen",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "to free up"
-          }
-        }
-      }
-    },
     "Review.recoveryNote": {
       "comment": "Reassurance that deletions are recoverable",
       "extractionState": "manual",
@@ -1197,18 +1185,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Select all"
-          }
-        }
-      }
-    },
-    "Review.selectionCaption": {
-      "comment": "Selection counter; both %@ are numbers, e.g. 3 of 10 selected",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ of %@ selected"
           }
         }
       }

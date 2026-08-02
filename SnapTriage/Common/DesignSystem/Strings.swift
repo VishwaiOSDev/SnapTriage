@@ -68,8 +68,6 @@ enum Strings {
     enum Review {
         static let title = String(localized: .reviewTitle)
         static func deleteButton(_ count: String) -> String { String(localized: .reviewDeleteButton(count)) }
-        static let reclaimableHeadline = String(localized: .reviewReclaimableHeadline)
-        static func selectionCaption(_ selected: String, _ total: String) -> String { String(localized: .reviewSelectionCaption(selected, total)) }
         static let deleting = String(localized: .reviewDeleting)
         static let emptyTitle = String(localized: .reviewEmptyTitle)
         static let emptyMessage = String(localized: .reviewEmptyMessage)
