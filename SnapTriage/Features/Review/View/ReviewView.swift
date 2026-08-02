@@ -33,6 +33,7 @@ struct ReviewView: View {
         .navigationTitle(viewModel.scope.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbar }
+        .safeAreaInset(edge: .bottom) { undoBar }
         .fullScreenCover(item: $viewing) { _ in
             ReviewGalleryView(
                 items: viewModel.state.items,
@@ -299,6 +300,32 @@ struct ReviewView: View {
         .padding(.top, 12)
         .padding(.bottom, 6)
         .background(.ultraThinMaterial)
+    }
+
+    @ViewBuilder
+    private var undoBar: some View {
+        if let receipt = viewModel.state.lastReceipt {
+            HStack(spacing: 12) {
+                Text(
+                    Strings.Review.keptAll(
+                        MetricFormatter.count(receipt.count),
+                        receipt.category.title
+                    )
+                )
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                Spacer(minLength: 0)
+                Button(Strings.Triage.undo) { viewModel.send(.undoBulk) }
+                    .font(.footnote.weight(.semibold))
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Palette.accent)
+            }
+            .padding(.horizontal, Spacing.screenPadding)
+            .padding(.vertical, 14)
+            .background(.ultraThinMaterial)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
 
     private var failure: some View {
