@@ -137,29 +137,59 @@ struct ReviewView: View {
         }
     }
 
+    // MARK: - Delete bar
+
     private var deleteBar: some View {
-        Button {
-            viewModel.send(.deleteSelected)
-        } label: {
-            HStack(spacing: 8) {
-                if viewModel.state.isDeleting {
-                    ProgressView()
-                        .tint(.white)
-                    Text(Strings.Review.deleting)
-                } else {
-                    Image(systemName: "trash.fill")
-                    Text(deleteTitle)
+        VStack(spacing: 10) {
+            Button {
+                viewModel.send(.deleteSelected)
+            } label: {
+                HStack(spacing: 14) {
+                    if viewModel.state.isDeleting {
+                        ProgressView()
+                            .tint(.white)
+                        Text(Strings.Review.deleting)
+                            .font(.headline)
+                    } else {
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(deleteTitle)
+                                .font(.headline)
+                            Text(Strings.Review.deleteSubtitle(
+                                MetricFormatter.size(viewModel.state.reclaimableBytes)
+                            ))
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.85))
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
                 }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: viewModel.state.isDeleting ? .center : .leading)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .frame(minHeight: 56)
+                .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
             }
-            .font(.headline)
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Palette.delete, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .buttonStyle(
+                GlossyActionButtonStyle(
+                    tone: .destructive,
+                    shape: RoundedRectangle(cornerRadius: 20, style: .continuous)
+                )
+            )
             .opacity(viewModel.state.hasSelection ? 1 : 0.4)
+            .disabled(!viewModel.state.hasSelection || viewModel.state.isDeleting)
+            .animation(.default, value: viewModel.state.selectedIDs)
+
+            Label(Strings.Review.deleteFooter, systemImage: "lock.fill")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .labelStyle(.titleAndIcon)
         }
-        .buttonStyle(.plain)
-        .disabled(!viewModel.state.hasSelection || viewModel.state.isDeleting)
         .padding(.horizontal, Spacing.screenPadding)
         .padding(.top, 12)
         .padding(.bottom, 6)
@@ -189,6 +219,7 @@ struct ReviewView: View {
     // MARK: - Display
 
     private var deleteTitle: String {
+        Strings.Review.deleteButton(MetricFormatter.count(viewModel.state.selectedCount))
     }
 }
 
@@ -244,10 +275,6 @@ private struct DeletionSummaryCard: View {
             .padding(Spacing.cardPadding)
         }
         .animation(.default, value: selectedCount)
-        Strings.Review.deleteButton(
-            MetricFormatter.count(viewModel.state.selectedCount),
-            MetricFormatter.size(viewModel.state.reclaimableBytes)
-        )
     }
 
     private var hasSelection: Bool { selectedCount > 0 }
