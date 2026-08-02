@@ -45,6 +45,7 @@
 		7E7B0C76B5B9B5B58F6C6530 /* ClearTriageDecisionsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */; };
 		7F4E179BDAACE9ADA2D39003 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722C73933C870FC12D3102C9 /* DeleteScreenshotsUseCaseTests.swift */; };
 		8646A08B7AA5B102F46AEC33 /* OverviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD77B384C150F95CB5BB9640 /* OverviewComposition.swift */; };
+		88F911C1510E27D949859131 /* CardImageMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3CA2A64A80D5D7DB292312C /* CardImageMode.swift */; };
 		8D3C71A7DCB88E959DADBB87 /* HeuristicScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */; };
 		91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */; };
 		95FBA02DFA5B2C208FBD4C57 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351A2941BED148CD1B825572 /* LoadReviewItemsUseCaseTests.swift */; };
@@ -160,6 +161,7 @@
 		AEE4A1EDB54A174D7E5295BD /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
 		B09DC6CFF4863506B2227BC5 /* OverviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewViewModelTests.swift; sourceTree = "<group>"; };
 		B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassificationNotifier.swift; sourceTree = "<group>"; };
+		B3CA2A64A80D5D7DB292312C /* CardImageMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardImageMode.swift; sourceTree = "<group>"; };
 		B4378FDBD5A9A81AABC0D6E4 /* FoundationModelScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		B506758E1E05349E9AD13F2A /* ImageContentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentClassifier.swift; sourceTree = "<group>"; };
 		BA1E65353EF6F88FC859E0D7 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
@@ -562,6 +564,7 @@
 		D4262204B44D4C0F12A0DF33 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B3CA2A64A80D5D7DB292312C /* CardImageMode.swift */,
 				0CE1F35E12425E6977C8A897 /* TriageDecision.swift */,
 			);
 			path = Model;
@@ -819,6 +822,7 @@
 				ACB4104A2A81165AD153851D /* ReviewView.swift in Sources */,
 				F3F2804DF7E9FC802E2B1D12 /* ReviewViewModel.swift in Sources */,
 				FC5321430583666C35AC8793 /* TriageComposition.swift in Sources */,
+				88F911C1510E27D949859131 /* CardImageMode.swift in Sources */,
 				6547E5456AC0BFDAE69271C7 /* TriageDecision.swift in Sources */,
 				DA7161D21C7AB414D37267A7 /* TriageRouter.swift in Sources */,
 				A23A6407F1D934A7D0D80EC6 /* TriageDecisionStore.swift in Sources */,
