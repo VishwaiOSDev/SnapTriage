@@ -109,6 +109,8 @@ enum Strings {
             String(localized: .reviewKeptAll(count, category))
         }
         static let openHint = String(localized: .reviewOpenHint)
+        static let select = String(localized: .reviewSelect)
+        static let deselect = String(localized: .reviewDeselect)
     }
 
     enum Categories {
