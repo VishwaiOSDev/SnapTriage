@@ -26,6 +26,10 @@ final class ReviewViewModel {
         /// True while a reload runs *over* content that is already on screen.
         /// Distinct from `.loading`, which means there is nothing to show yet.
         var isRefreshing = false
+        /// The last bulk verdict applied from this screen, kept only until the
+        /// next one replaces it. A single tap can retire hundreds of screenshots
+        /// here; one step back is what separates a shortcut from a trap.
+        var lastReceipt: BulkTriageReceipt?
 
         var selectedCount: Int { selectedIDs.count }
 
@@ -66,6 +70,8 @@ final class ReviewViewModel {
         case toggleAllSuggestions
         case toggleSelectAll
         case deleteSelected
+        case keepAll
+        case undoBulk
         case openSystemSettings
         case clearError
     }
@@ -80,6 +86,8 @@ final class ReviewViewModel {
     private let loadItems: LoadReviewItemsUseCase
     private let deleteScreenshots: DeleteScreenshotsUseCase
     private let pruneRecords: PruneScreenshotRecordsUseCase
+    private let applyBulk: ApplyBulkTriageUseCase
+    private let revertBulk: RevertBulkTriageUseCase
     private let imageLoader: PhotoLibraryService
     private let router: ReviewRouter
 
@@ -93,6 +101,8 @@ final class ReviewViewModel {
         loadItems: LoadReviewItemsUseCase,
         deleteScreenshots: DeleteScreenshotsUseCase,
         pruneRecords: PruneScreenshotRecordsUseCase,
+        applyBulk: ApplyBulkTriageUseCase,
+        revertBulk: RevertBulkTriageUseCase,
         imageLoader: PhotoLibraryService,
         router: ReviewRouter
     ) {
@@ -101,6 +111,8 @@ final class ReviewViewModel {
         self.loadItems = loadItems
         self.deleteScreenshots = deleteScreenshots
         self.pruneRecords = pruneRecords
+        self.applyBulk = applyBulk
+        self.revertBulk = revertBulk
         self.imageLoader = imageLoader
         self.router = router
     }
@@ -121,6 +133,10 @@ final class ReviewViewModel {
             toggleSelectAll()
         case .deleteSelected:
             deleteFlow()
+        case .keepAll:
+            keepAll()
+        case .undoBulk:
+            undoBulk()
         case .openSystemSettings:
             router.openSystemSettings()
         case .clearError:
@@ -231,6 +247,27 @@ final class ReviewViewModel {
             state.selectedIDs = Set(state.items.map(\.id))
         }
     }
+
+    /// Retires the whole category in one tap without deleting anything: every
+    /// screenshot on screen gets a `keep` verdict, so the deck and the category
+    /// list stop offering them. Offered only in a category scope, and only ever
+    /// next to the photos it applies to — the destructive counterpart stays
+    /// behind the selection and the system's own confirmation.
+    private func keepAll() {
+        guard let category = scope.category else { return }
+        let ids = state.items.map(\.id)
+        guard !ids.isEmpty else { return }
+        state.lastReceipt = applyBulk.execute(.keep, for: category, ids: ids)
+        loadFlow()
+    }
+
+    private func undoBulk() {
+        guard let receipt = state.lastReceipt else { return }
+        revertBulk.execute(receipt)
+        state.lastReceipt = nil
+        loadFlow()
+    }
+
     private func deleteFlow() {
         let ids = Array(state.selectedIDs)
         guard !ids.isEmpty, !state.isDeleting else { return }
