@@ -9,7 +9,7 @@ import Testing
 @testable import SnapTriage
 
 @MainActor
-@Suite("Review view model", .tags(.review))
+@Suite("Review view model", .tags(.review), .serialized)
 struct ReviewViewModelTests {
 
     // Three safe-to-delete screenshots plus one useful, so the loaded set is "1","2","3".
@@ -45,12 +45,16 @@ struct ReviewViewModelTests {
         return (vm, service, store)
     }
 
-    private func waitUntil(_ condition: @escaping () -> Bool, ticks: Int = 5000) async {
-        var count = 0
-        while !condition() && count < ticks {
-            await Task.yield()
-            count += 1
+    private func waitUntil(
+        _ condition: @escaping () -> Bool,
+        timeout: Duration = .seconds(2)
+    ) async {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while !condition() && clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(10))
         }
+        #expect(condition(), "Timed out waiting for asynchronous state")
     }
 
     @Test("A classifier suggestion the user has never seen is never pre-selected")
