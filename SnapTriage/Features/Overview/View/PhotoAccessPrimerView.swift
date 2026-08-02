@@ -109,15 +109,21 @@ struct PhotoAccessPrimerView: View {
     }
 
     private var introduction: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             Text(Strings.Access.primerTitle)
-                .font(.title2.weight(.bold))
-                .foregroundStyle(.white)
+                .font(.title.weight(.bold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+
             Text(Strings.Access.primerMessage)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 420)
         }
-        .multilineTextAlignment(.center)
     }
 
     private var privacyPromises: some View {
