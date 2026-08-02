@@ -84,7 +84,11 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
         
         let options = PHImageRequestOptions()
         options.deliveryMode = .highQualityFormat    // one final callback, no interim images
-        options.resizeMode = .fast
+        // `.fast` lets PhotoKit hand back whatever rendition is closest, which
+        // can be several times `targetSize` and differs per asset — so decode
+        // cost varied unpredictably from card to card. `.exact` costs a little
+        // more in PhotoKit and makes the caller's size budget mean something.
+        options.resizeMode = .exact
         // A screenshot may have been evicted to iCloud. Returning nil here made
         // the classifier permanently retry the asset without ever finishing.
         options.isNetworkAccessAllowed = true
