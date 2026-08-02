@@ -74,6 +74,7 @@
 		EABF8A9228F0D46FD68F9A2E /* LoadTriageProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD0EDD7D4F0994CBE38961B /* LoadTriageProgressUseCase.swift */; };
 		EC7E8BBC11AFECD0FA74C897 /* ScreenshotDisposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDD24F0F552B8E79A14BC38 /* ScreenshotDisposition.swift */; };
 		F201C24755B084E6C4F35ACF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 240B022BE64B8954FE0435F6 /* Localizable.xcstrings */; };
+		F3C5B5C866B4D92B2FAF5731 /* ClassificationNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */; };
 		F3F2804DF7E9FC802E2B1D12 /* ReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301C2D7FF30FDFF6B5635AB4 /* ReviewViewModel.swift */; };
 		F614B17A2DD99DB4991995A8 /* CategorizerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A8E75279720F0E0B36139D /* CategorizerTestDoubles.swift */; };
 		F68674A44FBE9FC892187C2F /* TriageStat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A2648E2DA86DB49D085F0F /* TriageStat.swift */; };
@@ -154,6 +155,7 @@
 		AA37028B8EBC0A63AFFA8729 /* PhotoLibraryAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryAuthorization.swift; sourceTree = "<group>"; };
 		AEE4A1EDB54A174D7E5295BD /* HeuristicScreenshotCategorizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizerTests.swift; sourceTree = "<group>"; };
 		B09DC6CFF4863506B2227BC5 /* OverviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewViewModelTests.swift; sourceTree = "<group>"; };
+		B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassificationNotifier.swift; sourceTree = "<group>"; };
 		B8FD43BB9954D5151295E66D /* ImageContentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageContentClassifier.swift; sourceTree = "<group>"; };
 		BA1E65353EF6F88FC859E0D7 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
 		BE49DB378D23F6F4068E3669 /* SnapTriageIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = SnapTriageIcon.icon; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 			isa = PBXGroup;
 			children = (
 				CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */,
+				B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */,
 			);
 			path = Background;
 			sourceTree = "<group>";
@@ -663,6 +666,7 @@
 				CB9BDDB1DD37CCA5A35F45A9 /* AppRootView.swift in Sources */,
 				BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */,
 				E054C22594D8CDED4512D252 /* BackgroundClassificationCoordinator.swift in Sources */,
+				F3C5B5C866B4D92B2FAF5731 /* ClassificationNotifier.swift in Sources */,
 				1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */,
 				29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */,
 				43F5EEBE45DADFD12F8533F7 /* LiquidGlass.swift in Sources */,
