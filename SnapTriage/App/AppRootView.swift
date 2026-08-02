@@ -41,13 +41,13 @@ struct AppRootView: View {
             OverviewView(
                 viewModel: overviewModel,
                 onStartTriage: { navigation.presentTriage() },
-                onOpenReview: { navigation.show(.review) },
+                onOpenReview: { navigation.show(.review(.triage)) },
                 onOpenCategories: { navigation.show(.categories) },
                 onOpenSettings: { navigation.show(.settings) }
             )
             .navigationDestination(for: AppNavigation.Route.self) { route in
                 switch route {
-                case .review:
+                case .review(.triage):
                     ReviewView(viewModel: reviewModel)
                 case .categories:
                     CategoriesView(viewModel: categoriesModel)
