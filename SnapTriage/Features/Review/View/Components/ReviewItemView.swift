@@ -32,7 +32,10 @@ struct ReviewItemView: View {
                             .strokeBorder(Palette.accent, lineWidth: 2.5)
                     }
                 }
-                .opacity(isSelected ? 1 : 0.5)
+                // Unselected is now the resting state for a whole section, not
+                // the exception, so the dim has to read as "not chosen" rather
+                // than "disabled" — the checkmark and border carry selection.
+                .opacity(isSelected ? 1 : 0.72)
                 .contentShape(Rectangle())
                 .onTapGesture(perform: onToggle)
                 .animation(.easeInOut(duration: 0.15), value: isSelected)

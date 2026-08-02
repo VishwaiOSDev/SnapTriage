@@ -7,12 +7,18 @@
 
 import Foundation
 
-/// Produces the deletion set for the Review screen. It drives the (cache-first)
+/// Produces the candidate set for the Review screen. It drives the (cache-first)
 /// classification pipeline to completion so every screenshot has a classification
 /// in the shared store, then folds in the user's triage swipes: a swipe always
 /// overrides the classifier, and screenshots without a verdict are included only
 /// when the classifier's retention judgement is `safeToDelete`. Needs-review and
-/// useful screenshots are never pre-selected for deletion — the user decides.
+/// useful screenshots never surface at all.
+///
+/// Each item carries how it got here. A classifier verdict the user has never
+/// seen is a *suggestion*, not a decision, so it is tagged `.suggested` and the
+/// Review screen keeps it out of the default deletion selection. Only swipes the
+/// user actually made come back as `.userMarked`.
+///
 /// When Overview has already classified, this is effectively free — every
 /// screenshot is a cache hit.
 struct LoadReviewItemsUseCase {
@@ -39,11 +45,21 @@ struct LoadReviewItemsUseCase {
                 return nil
             case .markForDeletion:
                 let category = classifications[shot.id]?.category ?? .other
-                return ReviewItem(id: shot.id, category: category, byteSize: shot.byteSize)
+                return ReviewItem(
+                    id: shot.id,
+                    category: category,
+                    byteSize: shot.byteSize,
+                    source: .userMarked
+                )
             case nil:
                 guard let classification = classifications[shot.id],
                       classification.disposition == .safeToDelete else { return nil }
-                return ReviewItem(id: shot.id, category: classification.category, byteSize: shot.byteSize)
+                return ReviewItem(
+                    id: shot.id,
+                    category: classification.category,
+                    byteSize: shot.byteSize,
+                    source: .suggested
+                )
             }
         }
     }
