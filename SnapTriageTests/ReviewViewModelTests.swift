@@ -327,6 +327,19 @@ struct ReviewViewModelTests {
         #expect(vm.state.lastReceipt == nil)
     }
 
+    @Test("Keep-all is refused in the triage inbox, which has no category to retire")
+    func keepAllIsCategoryOnly() async {
+        let decisions = SeededTriageDecisionStore()
+        let (vm, _, _) = makeSUT(decisions: decisions)
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.keepAll)
+
+        #expect(vm.state.lastReceipt == nil)
+        #expect(decisions.allDecisions().isEmpty)
+    }
+
     @Test("Denied access fails with a presentable message")
     func deniedAccessFails() async {
         let (vm, _, _) = makeSUT(authorization: .denied)
