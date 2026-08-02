@@ -55,7 +55,10 @@ struct AppRootView: View {
                     // give it back changed.
                     ReviewView(viewModel: composition.makeReview(scope: .category(category)))
                 case .categories:
-                    CategoriesView(viewModel: categoriesModel)
+                    CategoriesView(
+                        viewModel: categoriesModel,
+                        onOpenCategory: { navigation.showCategory($0) }
+                    )
                 case .settings:
                     SettingsView(viewModel: settingsModel)
                 }
