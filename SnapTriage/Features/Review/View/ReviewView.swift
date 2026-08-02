@@ -99,11 +99,8 @@ struct ReviewView: View {
         if !items.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(
-                    title: Strings.Review.suggestedSectionTitle,
-                    subtitle: Strings.Review.suggestedSectionSubtitle(
-                        MetricFormatter.count(items.count),
-                        MetricFormatter.size(viewModel.state.suggestedBytes)
-                    )
+                    title: suggestedTitle,
+                    subtitle: suggestedSubtitle(count: items.count)
                 ) {
                     Button {
                         viewModel.send(.toggleAllSuggestions)
@@ -121,6 +118,23 @@ struct ReviewView: View {
                 grid(items)
             }
         }
+    }
+
+    // In the triage inbox this section is the classifier's proposal. In a
+    // category scope it is simply the rest of the bucket, and calling that a
+    // suggestion would put words in the classifier's mouth.
+    private var suggestedTitle: String {
+        viewModel.scope.isCategory
+            ? Strings.Review.scopedSectionTitle
+            : Strings.Review.suggestedSectionTitle
+    }
+
+    private func suggestedSubtitle(count: Int) -> String {
+        let count = MetricFormatter.count(count)
+        let size = MetricFormatter.size(viewModel.state.suggestedBytes)
+        return viewModel.scope.isCategory
+            ? Strings.Review.scopedSectionSubtitle(count, size)
+            : Strings.Review.suggestedSectionSubtitle(count, size)
     }
 
     private func grid(_ items: [ReviewItem]) -> some View {
