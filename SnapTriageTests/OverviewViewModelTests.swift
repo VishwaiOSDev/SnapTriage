@@ -10,7 +10,7 @@ import Testing
 @testable import SnapTriage
 
 @MainActor
-@Suite("Overview view model", .tags(.overview))
+@Suite("Overview view model", .tags(.overview), .serialized)
 struct OverviewViewModelTests {
 
     private func makeSUT(
@@ -33,12 +33,16 @@ struct OverviewViewModelTests {
         return (vm, service)
     }
 
-    private func waitUntil(_ condition: @escaping () -> Bool, ticks: Int = 5000) async {
-        var count = 0
-        while !condition() && count < ticks {
-            await Task.yield()
-            count += 1
+    private func waitUntil(
+        _ condition: @escaping () -> Bool,
+        timeout: Duration = .seconds(2)
+    ) async {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while !condition() && clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(10))
         }
+        #expect(condition(), "Timed out waiting for asynchronous state")
     }
 
     @Test("A fully cached library renders the summary complete at first load")
