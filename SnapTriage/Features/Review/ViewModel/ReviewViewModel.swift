@@ -55,7 +55,7 @@ final class ReviewViewModel {
         case toggle(Screenshot.ID)
         case toggleAllSuggestions
         case deleteSelected
-        case openSettings
+        case openSystemSettings
         case clearError
     }
 
@@ -101,8 +101,8 @@ final class ReviewViewModel {
             toggleAllSuggestions()
         case .deleteSelected:
             deleteFlow()
-        case .openSettings:
-            router.openSettings()
+        case .openSystemSettings:
+            router.openSystemSettings()
         case .clearError:
             state.errorMessage = nil
         }
