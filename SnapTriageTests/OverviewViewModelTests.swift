@@ -55,11 +55,11 @@ struct OverviewViewModelTests {
 
         // The regression this guards: persisted categories used to stream
         // through classifyFlow, animating the hero metric up from zero.
-        #expect(vm.state.summary.safeBytes == 700)
-        #expect(vm.state.summary.usefulBytes == 300)
-        #expect(vm.state.summary.totalCount == 4)
-        #expect(vm.state.classifiedCount == 4)
-        #expect(vm.state.isClassifying == false)
+        #expect(vm.progress.summary.safeBytes == 700)
+        #expect(vm.progress.summary.usefulBytes == 300)
+        #expect(vm.progress.summary.totalCount == 4)
+        #expect(vm.progress.classifiedCount == 4)
+        #expect(vm.isClassifying == false)
     }
 
     @Test("A partially cached library folds the hits and streams the rest")
@@ -70,14 +70,14 @@ struct OverviewViewModelTests {
         await waitUntil { vm.state.phase == .loaded }
 
         // Cached portion lands with the load itself.
-        #expect(vm.state.summary.safeBytes == 100)
-        #expect(vm.state.summary.usefulBytes == 200)
-        #expect(vm.state.classifiedCount >= 2)
+        #expect(vm.progress.summary.safeBytes == 100)
+        #expect(vm.progress.summary.usefulBytes == 200)
+        #expect(vm.progress.classifiedCount >= 2)
 
         // Uncached "3"/"4" run the inert pipeline and finish as unknown.
-        await waitUntil { vm.state.classifiedCount == 4 }
-        #expect(vm.state.summary.unknownCount == 2)
-        #expect(vm.state.isClassifying == false)
+        await waitUntil { vm.progress.classifiedCount == 4 }
+        #expect(vm.progress.summary.unknownCount == 2)
+        #expect(vm.isClassifying == false)
     }
 
     @Test("A library change refreshes the summary without a loading flash")
@@ -87,20 +87,20 @@ struct OverviewViewModelTests {
         ])
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
-        #expect(vm.state.summary.totalCount == 4)
+        #expect(vm.progress.summary.totalCount == 4)
 
         // Screenshot taken while backgrounded; observer fires on return.
         service.screenshots.insert(Fixture.screenshot(id: "5", byteSize: 500), at: 0)
         service.simulateLibraryChange()
-        await waitUntil { vm.state.summary.totalCount == 5 }
+        await waitUntil { vm.progress.summary.totalCount == 5 }
 
         #expect(vm.state.phase == .loaded)
         // Known categories folded straight back in; the new shot runs the
         // (inert) pipeline and lands as unknown.
-        #expect(vm.state.summary.safeBytes == 600)
-        #expect(vm.state.summary.usefulBytes == 400)
-        await waitUntil { vm.state.classifiedCount == 5 }
-        #expect(vm.state.summary.unknownCount == 1)
+        #expect(vm.progress.summary.safeBytes == 600)
+        #expect(vm.progress.summary.usefulBytes == 400)
+        await waitUntil { vm.progress.classifiedCount == 5 }
+        #expect(vm.progress.summary.unknownCount == 1)
     }
 }
 

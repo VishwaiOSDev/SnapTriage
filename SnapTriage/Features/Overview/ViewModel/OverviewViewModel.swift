@@ -23,33 +23,39 @@ final class OverviewViewModel {
         case failed
     }
 
+    /// Screen state that changes on user-visible events only. The running totals
+    /// live in ``Progress`` instead: `@Observable` tracks stored properties, not
+    /// struct fields, so keeping a figure that moves several times a second here
+    /// would rebuild everything that reads `state` — the toolbar included.
     struct State: Equatable {
         var phase: Phase = .idle
-        var summary: OverviewSummary = .empty
-        var classifiedCount = 0
         var errorMessage: String?
         var authorization: PhotoLibraryAuthorization = .notDetermined
         var features: [FeatureHighlight] = FeatureHighlight.defaults
-        /// When the current classification run started, and how much of the
-        /// library it had already covered. Together these give an observed
-        /// throughput to project the remainder against.
-        var classificationStartedAt: Date?
-        var classificationStartedFrom = 0
-
-        var isClassifying: Bool {
-            phase == .loaded && summary.totalCount > 0 && classifiedCount < summary.totalCount
-        }
 
         /// The user granted access to a hand-picked subset, so every figure on
         /// this screen describes that subset and nothing else.
         var isLimitedAccess: Bool { authorization == .limited }
+    }
+
+    /// Everything a running classification pass moves.
+    struct Progress: Equatable {
+        var summary: OverviewSummary = .empty
+        var classifiedCount = 0
+        /// When the current classification run started, and how much of the
+        /// library it had already covered. Together these give an observed
+        /// throughput to project the remainder against.
+        var startedAt: Date?
+        var startedFrom = 0
+
+        var isComplete: Bool { classifiedCount >= summary.totalCount }
 
         /// Seconds left in the current pass, or `nil` until enough screenshots
         /// have completed to project honestly. A wrong ETA is worse than none,
         /// so the first few results only build the sample.
         var estimatedSecondsRemaining: Int? {
-            guard isClassifying, let start = classificationStartedAt else { return nil }
-            let completed = classifiedCount - classificationStartedFrom
+            guard let start = startedAt else { return nil }
+            let completed = classifiedCount - startedFrom
             guard completed >= Self.minimumEtaSample else { return nil }
             let elapsed = Date.now.timeIntervalSince(start)
             guard elapsed > 0 else { return nil }
@@ -71,6 +77,18 @@ final class OverviewViewModel {
     }
 
     private(set) var state = State()
+
+    private(set) var progress = Progress()
+
+    /// A pass is under way: the library is loaded, non-empty, and not yet fully
+    /// classified. Spans both properties, so it lives on the view model.
+    var isClassifying: Bool {
+        state.phase == .loaded && progress.summary.totalCount > 0 && !progress.isComplete
+    }
+
+    var estimatedSecondsRemaining: Int? {
+        isClassifying ? progress.estimatedSecondsRemaining : nil
+    }
 
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadScreenshots: LoadScreenshotsUseCase
@@ -126,9 +144,7 @@ final class OverviewViewModel {
             self.tasks[.classify]?.cancel()
             self.state.phase = .loading
             self.state.errorMessage = nil
-            self.state.summary = .empty
-            self.state.classifiedCount = 0
-            self.state.classificationStartedAt = nil
+            self.progress = Progress()
 
             let authorization = await self.requestAccess.execute()
             if Task.isCancelled { return }
@@ -182,9 +198,9 @@ final class OverviewViewModel {
                 pending.append(screenshot)
             }
         }
-        state.summary = summary
-        state.classifiedCount = screenshots.count - pending.count
-        classifyFlow(pending, startingFrom: state.classifiedCount)
+        progress.summary = summary
+        progress.classifiedCount = screenshots.count - pending.count
+        classifyFlow(pending, startingFrom: progress.classifiedCount)
     }
 
     // Silent re-sync after the library changed underneath us — a screenshot
@@ -216,27 +232,27 @@ final class OverviewViewModel {
     // progress counts are relative to the pending slice handed to it.
     private func classifyFlow(_ screenshots: [Screenshot], startingFrom base: Int) {
         guard !screenshots.isEmpty else {
-            state.classificationStartedAt = nil
+            progress.startedAt = nil
             return
         }
-        state.classificationStartedAt = .now
-        state.classificationStartedFrom = base
+        progress.startedAt = .now
+        progress.startedFrom = base
         run(.classify) { [weak self] in
             guard let self else { return }
             for await progress in self.classifyLibrary.execute(screenshots) {
                 if Task.isCancelled { break }
-                self.state.classifiedCount = base + progress.completed
+                self.progress.classifiedCount = base + progress.completed
                 guard let id = progress.id else { continue }
                 if let classification = progress.classification {
-                    self.state.summary.add(
+                    self.progress.summary.add(
                         bytes: self.sizes[id] ?? 0,
                         disposition: classification.disposition
                     )
                 } else {
-                    self.state.summary.unknownCount += 1
+                    self.progress.summary.unknownCount += 1
                 }
             }
-            self.state.classificationStartedAt = nil
+            self.progress.startedAt = nil
         }
     }
 
@@ -269,8 +285,8 @@ final class OverviewViewModel {
     #if DEBUG
     func seedForPreview(_ summary: OverviewSummary) {
         state.phase = .loaded
-        state.summary = summary
-        state.classifiedCount = summary.totalCount
+        progress.summary = summary
+        progress.classifiedCount = summary.totalCount
     }
     #endif
 }
