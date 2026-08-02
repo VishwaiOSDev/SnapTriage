@@ -1033,6 +1033,18 @@
         }
       }
     },
+    "Review.navSubtitle": {
+      "comment": "Navigation subtitle on Review; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ marked for deletion"
+          }
+        }
+      }
+    },
     "Review.reclaimableHeadline": {
       "comment": "Caption under the hero reclaimable-space number on the review screen",
       "extractionState": "manual",

@@ -82,6 +82,7 @@ enum Strings {
         }
         static let selectAll = String(localized: .reviewSelectAll)
         static let deselectAll = String(localized: .reviewDeselectAll)
+        static func navSubtitle(_ count: String) -> String { String(localized: .reviewNavSubtitle(count)) }
         static let summaryLead = String(localized: .reviewSummaryLead)
         static func summaryCount(_ count: String) -> String { String(localized: .reviewSummaryCount(count)) }
         static func summaryFreeUp(_ size: String) -> String { String(localized: .reviewSummaryFreeUp(size)) }
