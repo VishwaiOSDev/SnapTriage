@@ -33,9 +33,11 @@ struct ReviewItemView: View {
                 // "disabled" — the checkmark carries selection.
                 .opacity(isSelected ? 1 : 0.55)
                 .contentShape(shape)
+                // Layered above the image so the circle wins the tap, and outside
+                // the dimming so the control never reads as disabled.
+                .overlay(alignment: .topTrailing) { selectionToggle }
                 .overlay(alignment: .bottom) { footer }
                 .overlay(alignment: .topLeading) { categoryBadge }
-                .overlay(alignment: .topTrailing) { selectionMark }
                 .onTapGesture(perform: onToggle)
                 .animation(.easeInOut(duration: 0.15), value: isSelected)
                 .task(id: item.id) {
@@ -67,13 +69,17 @@ struct ReviewItemView: View {
         }
     }
 
-    private var selectionMark: some View {
-        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-            .symbolRenderingMode(.palette)
-            .foregroundStyle(.white, isSelected ? Palette.accent : Color.black.opacity(0.35))
-            .font(.system(size: 20, weight: .semibold))
-            .padding(6)
-            .shadow(radius: 2)
+    /// The mark is 22pt for the layout, but the target is a full 44pt: this is
+    /// the control that arms a deletion, so it must not be the fiddly one.
+    private var selectionToggle: some View {
+        Button(action: onToggle) {
+            selectionMark
+                .frame(width: Spacing.minimumTapTarget, height: Spacing.minimumTapTarget)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isSelected ? Strings.Review.deselect : Strings.Review.select)
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 
     private var categoryBadge: some View {
