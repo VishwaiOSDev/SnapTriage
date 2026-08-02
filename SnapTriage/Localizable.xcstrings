@@ -193,30 +193,6 @@
         }
       }
     },
-    "Categories.actionMessage": {
-      "comment": "Message of the bulk action sheet; %@ is a size",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ in total. Marked screenshots wait in Review — nothing is deleted until you confirm there."
-          }
-        }
-      }
-    },
-    "Categories.actionTitle": {
-      "comment": "Title of the bulk action sheet; %@ is a category name",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All %@ screenshots"
-          }
-        }
-      }
-    },
     "Categories.appliedKept": {
       "comment": "Undo bar text after a bulk keep; %@ count, %@ category",
       "extractionState": "manual",
@@ -273,30 +249,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ screenshots still undecided"
-          }
-        }
-      }
-    },
-    "Categories.keepAll": {
-      "comment": "Bulk action that keeps a whole category; %@ is a count",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep all %@"
-          }
-        }
-      }
-    },
-    "Categories.markAll": {
-      "comment": "Bulk action that marks a whole category for deletion; %@ is a count",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mark %@ for deletion"
           }
         }
       }
