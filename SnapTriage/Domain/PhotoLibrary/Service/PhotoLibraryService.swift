@@ -174,6 +174,9 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
             try await PHPhotoLibrary.shared().performChanges {
                 PHAssetChangeRequest.deleteAssets(assets as NSArray)
             }
+            // Review reloads the moment this returns, which is well inside the
+            // change relay's debounce, so the snapshot is retired here too.
+            catalog.invalidate()
         } catch let error as PHPhotosError where error.code == .userCancelled {
             throw TriageError.deletionCancelled
         } catch {
