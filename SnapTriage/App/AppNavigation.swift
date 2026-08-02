@@ -12,7 +12,13 @@ import Observation
 final class AppNavigation {
     /// The pushed destinations. Triage isn't here — it's a full-screen
     /// session, not a peer place, so it presents rather than pushes.
-    enum Route: Hashable { case review, categories, settings }
+    enum Route: Hashable {
+        /// Review is scoped: the triage inbox from Overview, one category when
+        /// the user drills into a bucket from the category list.
+        case review(ReviewScope)
+        case categories
+        case settings
+    }
 
     /// Push stack rooted at Overview.
     var path: [Route] = []
@@ -48,7 +54,7 @@ final class AppNavigation {
     /// Dismisses the cover and pushes Review underneath in one step.
     func finishToReview() {
         isTriagePresented = false
-        path = [.review]
+        path = [.review(.triage)]
     }
 
     func sceneDidBecomeActive() {
