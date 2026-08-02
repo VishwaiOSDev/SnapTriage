@@ -1069,6 +1069,18 @@
         }
       }
     },
+    "Review.scopedNavSubtitle": {
+      "comment": "Navigation subtitle in a category; first %@ is selected, second %@ the total",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ of %@ selected"
+          }
+        }
+      }
+    },
     "Review.selectAll": {
       "comment": "Button that selects every suggested screenshot",
       "extractionState": "manual",
