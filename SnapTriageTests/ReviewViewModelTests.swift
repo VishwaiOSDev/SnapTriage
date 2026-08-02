@@ -151,6 +151,30 @@ struct ReviewViewModelTests {
         #expect(!vm.state.areAllSelected)
     }
 
+    @Test("A reload over existing items refreshes in place instead of blanking the grid")
+    func reloadKeepsContentOnScreen() async {
+        let (vm, _, _) = makeSUT()
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.onAppear)
+
+        // The grid stays mounted for the whole reload: phase never drops back
+        // to .loading once there is something to show.
+        var sawRefreshing = false
+        var ticks = 0
+        while ticks < 5000 {
+            #expect(vm.state.phase == .loaded)
+            if vm.state.isRefreshing { sawRefreshing = true }
+            if sawRefreshing && !vm.state.isRefreshing { break }
+            await Task.yield()
+            ticks += 1
+        }
+
+        #expect(sawRefreshing)
+        #expect(vm.state.items.count == 3)
+    }
+
     @Test("Delete removes the selected items and forwards them to the library")
     func deleteRemovesSelected() async {
         let (vm, service, _) = makeSUT()
