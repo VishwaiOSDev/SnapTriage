@@ -29,7 +29,7 @@ struct ReviewItemView: View {
                 .overlay {
                     if isSelected {
                         RoundedRectangle(cornerRadius: Spacing.thumbnailCornerRadius)
-                            .strokeBorder(Color.accentColor, lineWidth: 2.5)
+                            .strokeBorder(Palette.accent, lineWidth: 2.5)
                     }
                 }
                 .opacity(isSelected ? 1 : 0.5)
@@ -68,7 +68,7 @@ struct ReviewItemView: View {
     private var selectionMark: some View {
         Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
             .symbolRenderingMode(.palette)
-            .foregroundStyle(.white, isSelected ? Color.accentColor : Color.black.opacity(0.35))
+            .foregroundStyle(.white, isSelected ? Palette.accent : Color.black.opacity(0.35))
             .font(.system(size: 20, weight: .semibold))
             .padding(6)
             .shadow(radius: 2)
@@ -103,6 +103,6 @@ struct ReviewItemView: View {
     }
 
     private var sizeText: String {
-        ByteCountFormatter.string(fromByteCount: Int64(item.byteSize), countStyle: .file)
+        MetricFormatter.size(item.byteSize)
     }
 }
