@@ -16,6 +16,10 @@ enum Spacing {
     static let screenPadding: CGFloat = 20
     static let sectionSpacing: CGFloat = 20
 
+    /// The HIG floor for anything tappable. Named because the Review tile's
+    /// selection circle is drawn much smaller than its target.
+    static let minimumTapTarget: CGFloat = 44
+
     // MARK: Cards
 
     static let cardCornerRadius: CGFloat = 28
