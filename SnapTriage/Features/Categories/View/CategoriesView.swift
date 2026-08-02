@@ -129,21 +129,9 @@ struct CategoriesView: View {
 
     // MARK: - Display
 
-    }
-
-    private func sizeText(_ bytes: Int) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-    }
-
     private func countText(_ value: Int) -> String {
-        Self.counter.string(from: NSNumber(value: value)) ?? "\(value)"
+        MetricFormatter.count(value)
     }
-
-    private static let counter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
 }
 
 // MARK: - Row
@@ -186,9 +174,10 @@ private struct CategoryRow: View {
     }
 
     private var detail: String {
-        let count = Self.counter.string(from: NSNumber(value: group.count)) ?? "\(group.count)"
-        let size = ByteCountFormatter.string(fromByteCount: Int64(group.byteSize), countStyle: .file)
-        return Strings.Categories.rowDetail(count, size)
+        Strings.Categories.rowDetail(
+            MetricFormatter.count(group.count),
+            MetricFormatter.size(group.byteSize)
+        )
     }
 
     private var tint: Color {
@@ -198,12 +187,6 @@ private struct CategoryRow: View {
         case .needsReview:  .orange
         }
     }
-
-    private static let counter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
 }
 
 // MARK: - Empty state
