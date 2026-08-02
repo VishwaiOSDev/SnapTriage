@@ -104,8 +104,12 @@ final class AppComposition {
         )
     }
 
-    func makeReview(router: (any ReviewRouter)? = nil) -> ReviewViewModel {
+    func makeReview(
+        scope: ReviewScope = .triage,
+        router: (any ReviewRouter)? = nil
+    ) -> ReviewViewModel {
         ReviewComposition.make(
+            scope: scope,
             service: service,
             classifyLibrary: classifyLibrary,
             categoryStore: categoryStore,
