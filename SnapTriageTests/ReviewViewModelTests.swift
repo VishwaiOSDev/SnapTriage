@@ -266,6 +266,21 @@ struct ReviewViewModelTests {
         #expect(await categories.classification(for: "1")?.category == .social)
     }
 
+    // MARK: - Category scope
+
+    @Test("A category scope shows the whole bucket, including what triage hides")
+    func categoryScopeShowsUsefulBucket() async {
+        // "4" is a receipt: `useful`, so the triage inbox never offers it. The
+        // user asked for the bucket, so the bucket is what they get.
+        let (vm, _, _) = makeSUT(scope: .category(.receipt))
+
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        #expect(vm.state.items.map(\.id) == ["4"])
+        #expect(vm.state.suggestedItems.map(\.id) == ["4"])
+    }
+
     @Test("Denied access fails with a presentable message")
     func deniedAccessFails() async {
         let (vm, _, _) = makeSUT(authorization: .denied)
