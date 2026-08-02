@@ -19,8 +19,6 @@ struct TriageView: View {
     @State private var isUndoing = false
     @State private var fullScreenShot: Screenshot?
 
-    /// A presentation preference, not domain state. Fit is the safer default:
-    /// the user sees the whole screenshot unless they explicitly choose crop.
     @AppStorage("triage.imageDisplayMode") private var imageMode: CardImageMode = .fit
     @State private var showStartOverConfirmation = false
 
@@ -38,9 +36,31 @@ struct TriageView: View {
     }
 
     var body: some View {
-        ZStack {
-            Metrics.background.ignoresSafeArea()
-            content
+        // The triage session is presented as a cover, so it brings its own
+        // navigation context: the bar carries the title, progress, close, and
+        // overflow that the deck used to draw by hand.
+        NavigationStack {
+            ZStack {
+                Palette.background.ignoresSafeArea()
+                content
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    titleView
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(Strings.Triage.close)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    overflowMenu
+                }
+            }
         }
         .task {
             viewModel.send(.onAppear)
@@ -70,75 +90,65 @@ struct TriageView: View {
     private var content: some View {
         switch viewModel.state.phase {
         case .idle, .loading:
-            chrome { ProgressView(Strings.Triage.loading) }
+            status { ProgressView(Strings.Triage.loading) }
 
         case .failed:
-            chrome { failure }
+            status { failure }
 
         case .loaded:
             if viewModel.state.screenshots.isEmpty {
-                chrome { EmptyScreenshotsView() }
+                status { EmptyScreenshotsView() }
             } else if viewModel.state.isFinished {
-                chrome { finished }
+                status { finished }
             } else {
                 deck
             }
         }
     }
 
-    // Keeps the header pinned while a centered status view fills the rest.
-    private func chrome<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
-        VStack(spacing: Metrics.sectionSpacing) {
-            header
-            inner()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .padding(.horizontal, Metrics.screenPadding)
-        .padding(.top, Metrics.screenPadding)
+    // Centers a non-deck state in the space below the navigation bar.
+    private func status<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
+        inner()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, Spacing.screenPadding)
     }
 
     private var deck: some View {
-        VStack(spacing: Metrics.sectionSpacing) {
-            header
+        VStack(spacing: TriageMetrics.sectionSpacing) {
             categoryPill
             cardStack
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            swipeHints
+            SwipeHintsView()
             actionButtons
         }
-        .padding(.horizontal, Metrics.screenPadding)
-        .padding(.top, Metrics.screenPadding)
-        .padding(.bottom, Metrics.sectionSpacing)
+        .padding(.horizontal, Spacing.screenPadding)
+        .padding(.top, TriageMetrics.sectionSpacing)
+        .padding(.bottom, TriageMetrics.sectionSpacing)
     }
 
-    // MARK: - Header
+    // MARK: - Navigation bar
 
-    private var header: some View {
-        ZStack {
-            VStack(spacing: 2) {
-                Text(Strings.Triage.title)
-                    .font(.headline)
-                    .foregroundStyle(.white)
+    // Progress belongs with the title, so a two-line principal item stands in
+    // for `navigationSubtitle`, which needs iOS 26.
+    private var titleView: some View {
+        VStack(spacing: 2) {
+            Text(Strings.Triage.title)
+                .font(.headline)
+                .foregroundStyle(.white)
+            if case .loaded = viewModel.state.phase, !viewModel.state.screenshots.isEmpty {
                 Text(progressText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .contentTransition(.numericText())
             }
-            HStack {
-                CircularIconButton(systemImage: "xmark", accessibilityLabel: Strings.Triage.close) { dismiss() }
-                Spacer()
-                overflowMenu
-            }
         }
         .animation(.default, value: viewModel.state.currentIndex)
     }
 
-    // MARK: - Overflow menu
-
     private var overflowMenu: some View {
         Menu {
             Button {
-                withAnimation(.easeInOut(duration: Metrics.imageModeTransitionDuration)) {
+                withAnimation(.easeInOut(duration: TriageMetrics.imageModeTransitionDuration)) {
                     imageMode = imageMode.toggled
                 }
             } label: {
@@ -177,17 +187,11 @@ struct TriageView: View {
             #endif
         } label: {
             Image(systemName: "ellipsis")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .frame(width: 38, height: 38)
-                .liquidGlass(in: Circle())
-                .padding(3)
-                .contentShape(Circle())
         }
         .accessibilityLabel(Strings.Triage.more)
     }
 
-    // MARK: - Category pill
+    // MARK: - Card stack
 
     @ViewBuilder
     private var categoryPill: some View {
@@ -198,7 +202,7 @@ struct TriageView: View {
             HStack(spacing: 6) {
                 Image(systemName: classification?.category.systemImage ?? "hourglass")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(Metrics.keep)
+                    .foregroundStyle(Palette.keep)
                 Text(classification?.category.title ?? Strings.Triage.analyzing)
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.white)
@@ -209,8 +213,6 @@ struct TriageView: View {
             .animation(.default, value: classification)
         }
     }
-
-    // MARK: - Card stack
 
     // A ForEach keyed by screenshot id keeps view identity stable while a card
     // moves from the back slot to the front, so its already-loaded thumbnail
@@ -254,16 +256,15 @@ struct TriageView: View {
         )
     }
 
-    // Tinder-style corner stamps that fade in as the card travels.
     private var decisionStamps: some View {
         ZStack(alignment: .top) {
-            RoundedRectangle(cornerRadius: Metrics.cardCornerRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: TriageMetrics.cardCornerRadius, style: .continuous)
                 .fill(stampColor.opacity(0.25 * Double(dragProgress)))
             HStack {
-                DecisionStamp(text: Strings.Triage.keepBadge, color: Metrics.keep, angle: -12)
+                DecisionStamp(text: Strings.Triage.keepBadge, color: Palette.keep, angle: -12)
                     .opacity(drag.width > 0 ? Double(dragProgress) : 0)
                 Spacer()
-                DecisionStamp(text: Strings.Triage.deleteBadge, color: Metrics.delete, angle: 12)
+                DecisionStamp(text: Strings.Triage.deleteBadge, color: Palette.delete, angle: 12)
                     .opacity(drag.width < 0 ? Double(dragProgress) : 0)
             }
             .padding(24)
@@ -272,11 +273,11 @@ struct TriageView: View {
     }
 
     private var stampColor: Color {
-        drag.width >= 0 ? Metrics.keep : Metrics.delete
+        drag.width >= 0 ? Palette.keep : Palette.delete
     }
 
     private var dragProgress: CGFloat {
-        min(max((abs(drag.width) - 16) / (Metrics.decisionThreshold - 16), 0), 1)
+        min(max((abs(drag.width) - 16) / (TriageMetrics.decisionThreshold - 16), 0), 1)
     }
 
     // MARK: - Gesture
@@ -289,9 +290,9 @@ struct TriageView: View {
             }
             .onEnded { value in
                 guard !isDismissing else { return }
-                if value.translation.width > Metrics.decisionThreshold {
+                if value.translation.width > TriageMetrics.decisionThreshold {
                     fly(.keep)
-                } else if value.translation.width < -Metrics.decisionThreshold {
+                } else if value.translation.width < -TriageMetrics.decisionThreshold {
                     fly(.markForDeletion)
                 } else {
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
@@ -352,78 +353,13 @@ struct TriageView: View {
         }
     }
 
-    // MARK: - Hints & actions
-
-    private var swipeHints: some View {
-        HStack(spacing: 0) {
-            hintLabel(
-                text: Strings.Triage.swipeRightHint,
-                arrow: "arrow.right",
-                color: Metrics.controlKeep,
-                arrowLeading: true
-            )
-            Spacer(minLength: Metrics.hintGroupSpacing)
-            hintDivider
-            Spacer(minLength: Metrics.hintGroupSpacing)
-            hintLabel(
-                text: Strings.Triage.swipeLeftHint,
-                arrow: "arrow.left",
-                color: Metrics.controlDelete,
-                arrowLeading: false
-            )
-        }
-    }
-
-    private func hintLabel(text: String, arrow: String, color: Color, arrowLeading: Bool) -> some View {
-        HStack(spacing: Metrics.hintArrowSpacing) {
-            if arrowLeading { glossyArrow(arrow, color: color) }
-            Text(text)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [color.opacity(0.72), color],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .frame(width: Metrics.hintTextWidth, alignment: .leading)
-                .multilineTextAlignment(.leading)
-                .lineSpacing(2)
-                .fixedSize(horizontal: false, vertical: true)
-            if !arrowLeading { glossyArrow(arrow, color: color) }
-        }
-    }
-
-    private func glossyArrow(_ name: String, color: Color) -> some View {
-        Image(systemName: name)
-            .font(.system(size: Metrics.hintArrowSize, weight: .light))
-            .foregroundStyle(
-                LinearGradient(
-                    colors: [color.opacity(0.72), color, color.opacity(0.58)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .shadow(color: color.opacity(0.45), radius: 5)
-    }
-
-    private var hintDivider: some View {
-        Capsule()
-            .fill(
-                LinearGradient(
-                    colors: [.clear, .white.opacity(0.28), .clear],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .frame(width: 1, height: Metrics.hintDividerHeight)
-    }
+    // MARK: - Actions
 
     private var actionButtons: some View {
         HStack {
             DecisionButton(
                 systemImage: "checkmark",
-                color: Metrics.controlKeep,
+                color: Palette.controlKeep,
                 accessibilityLabel: Strings.Triage.keep
             ) {
                 fly(.keep)
@@ -431,7 +367,7 @@ struct TriageView: View {
             Spacer()
             DecisionButton(
                 systemImage: "trash",
-                color: Metrics.controlDelete,
+                color: Palette.controlDelete,
                 accessibilityLabel: Strings.Triage.delete
             ) {
                 fly(.markForDeletion)
@@ -450,7 +386,7 @@ struct TriageView: View {
             .spring(response: 0.32, dampingFraction: 0.78),
             value: viewModel.state.canUndo
         )
-        .padding(.horizontal, Metrics.screenPadding)
+        .padding(.horizontal, Spacing.screenPadding)
         .padding(.top, 4)
     }
 
@@ -460,13 +396,13 @@ struct TriageView: View {
         VStack(spacing: 12) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 52))
-                .foregroundStyle(Metrics.keep)
+                .foregroundStyle(Palette.keep)
             Text(Strings.Triage.doneTitle)
                 .font(.title2.weight(.bold))
                 .foregroundStyle(.white)
             Text(Strings.Triage.doneMessage(
-                countText(viewModel.state.keptCount),
-                countText(viewModel.state.markedCount)
+                MetricFormatter.count(viewModel.state.keptCount),
+                MetricFormatter.count(viewModel.state.markedCount)
             ))
             .font(.subheadline)
             .foregroundStyle(.secondary)
@@ -484,7 +420,7 @@ struct TriageView: View {
                         .padding(.vertical, 4)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Metrics.controlDelete)
+                .tint(Palette.controlDelete)
                 .padding(.top, 12)
             }
             if viewModel.state.canUndo {
@@ -501,7 +437,7 @@ struct TriageView: View {
             .tint(.white.opacity(0.78))
             .padding(.top, 8)
         }
-        .padding(.horizontal, Metrics.screenPadding)
+        .padding(.horizontal, Spacing.screenPadding)
     }
 
     private var failure: some View {
@@ -528,74 +464,16 @@ struct TriageView: View {
 
     private var progressText: String {
         Strings.Triage.progress(
-            countText(min(viewModel.state.currentIndex + 1, viewModel.state.screenshots.count)),
-            countText(viewModel.state.screenshots.count)
+            MetricFormatter.count(min(viewModel.state.currentIndex + 1, viewModel.state.screenshots.count)),
+            MetricFormatter.count(viewModel.state.screenshots.count)
         )
-    }
-
-    private func countText(_ value: Int) -> String {
-        Self.counter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
     private func requestStartOver() {
         showStartOverConfirmation = true
     }
-
-    private static let counter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
 }
 
-// MARK: - Design tokens
-
-private enum Metrics {
-    static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
-    static let keep = Color.blue
-    static let delete = Color.red
-    static let review = Color.orange
-    static let neutral = Color.secondary
-    static let controlKeep = Color(red: 0.08, green: 0.43, blue: 0.90)
-    static let controlDelete = Color(red: 0.88, green: 0.20, blue: 0.29)
-    static let controlUndo = Color(red: 0.48, green: 0.38, blue: 0.95)
-    static let cardCornerRadius: CGFloat = 32
-    static let cardStroke = Color.white.opacity(0.08)
-    static let surfaceFill = Color.white.opacity(0.05)
-    static let screenPadding: CGFloat = 20
-    static let sectionSpacing: CGFloat = 16
-    static let decisionThreshold: CGFloat = 120
-    static let actionButtonSize: CGFloat = 64
-    static let actionButtonHaloPadding: CGFloat = 12
-    static let undoButtonHeight: CGFloat = 40
-    static let undoButtonHorizontalPadding: CGFloat = 12
-    static let hintArrowSize: CGFloat = 24
-    static let hintArrowSpacing: CGFloat = 10
-    static let hintTextWidth: CGFloat = 72
-    static let hintGroupSpacing: CGFloat = 12
-    static let hintDividerHeight: CGFloat = 32
-    static let imageModeTransitionDuration = 0.18
-}
-
-private struct CircularIconButton: View {
-    let systemImage: String
-    let accessibilityLabel: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .frame(width: 38, height: 38)
-                .liquidGlass(in: Circle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(accessibilityLabel)
-    }
-}
-
-// MARK: - Card
 
 private struct TriageCardView: View {
     let screenshot: Screenshot
@@ -609,7 +487,7 @@ private struct TriageCardView: View {
     @State private var image: UIImage?
 
     private var shape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: Metrics.cardCornerRadius, style: .continuous)
+        RoundedRectangle(cornerRadius: TriageMetrics.cardCornerRadius, style: .continuous)
     }
 
     var body: some View {
@@ -626,7 +504,7 @@ private struct TriageCardView: View {
             // Backs the letterbox bars in Fit mode.
             .background(Color.black)
             .clipShape(shape)
-            .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
+            .overlay(shape.strokeBorder(Palette.cardStroke, lineWidth: 1))
             // Tap-to-zoom is confined to the card itself; the surrounding deck
             // padding must stay inert so it can't swallow header/close taps.
             .contentShape(shape)
@@ -673,7 +551,7 @@ private struct TriageCardView: View {
                 .clipped()
             }
             .animation(
-                .easeInOut(duration: Metrics.imageModeTransitionDuration),
+                .easeInOut(duration: TriageMetrics.imageModeTransitionDuration),
                 value: imageMode
             )
         } else {
@@ -740,10 +618,10 @@ private struct TriageCardView: View {
     // needs-review card never reads as "safe to delete".
     private var dispositionBadge: some View {
         let (text, color): (String, Color) = switch classification?.disposition {
-        case .safeToDelete?: (Strings.Triage.safeToDelete, Metrics.delete)
-        case .useful?:       (Strings.Triage.worthKeeping, Metrics.keep)
-        case .needsReview?:  (Strings.Triage.needsReview, Metrics.review)
-        case nil:            (Strings.Triage.analyzing, Metrics.neutral)
+        case .safeToDelete?: (Strings.Triage.safeToDelete, Palette.delete)
+        case .useful?:       (Strings.Triage.worthKeeping, Palette.keep)
+        case .needsReview?:  (Strings.Triage.needsReview, Palette.review)
+        case nil:            (Strings.Triage.analyzing, Palette.neutral)
         }
         return Text(text)
             .font(.caption2.weight(.semibold))
@@ -755,7 +633,9 @@ private struct TriageCardView: View {
 
     // "Today, 9:41 AM • 1.8 MB"
     private var metadataText: String {
-        [dateText, sizeText].compactMap(\.self).joined(separator: " • ")
+        [dateText, MetricFormatter.size(screenshot.byteSize)]
+            .compactMap(\.self)
+            .joined(separator: " • ")
     }
 
     private var dateText: String? {
@@ -769,17 +649,8 @@ private struct TriageCardView: View {
         }
         return date.formatted(date: .abbreviated, time: .omitted)
     }
-
-    private var sizeText: String {
-        ByteCountFormatter.string(fromByteCount: Int64(screenshot.byteSize), countStyle: .file)
-    }
 }
 
-// MARK: - Full-screen viewer
-
-/// Borderless look at one screenshot, for cards whose detail is too small to
-/// judge from the deck. Requests a fresh thumbnail at full screen pixels, so
-/// text-heavy shots stay legible; the card-sized image stands in while it loads.
 private struct ScreenshotViewerView: View {
     let screenshot: Screenshot
     let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
@@ -789,48 +660,48 @@ private struct ScreenshotViewerView: View {
     @State private var image: UIImage?
 
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                Color.black.ignoresSafeArea()
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                } else {
-                    ProgressView()
-                        .tint(.white)
+        NavigationStack {
+            GeometryReader { proxy in
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    if let image {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        ProgressView()
+                            .tint(.white)
+                    }
+                }
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .contentShape(Rectangle())
+                .onTapGesture { dismiss() }
+                .task {
+                    let target = CGSize(
+                        width: proxy.size.width * displayScale,
+                        height: proxy.size.height * displayScale
+                    )
+                    image = await loadThumbnail(screenshot.id, target)
                 }
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
-            .contentShape(Rectangle())
-            .onTapGesture { dismiss() }
-            .overlay(alignment: .topTrailing) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .frame(width: 38, height: 38)
-                        .background(.ultraThinMaterial, in: Circle())
+            .background(Color.black.ignoresSafeArea())
+            .navigationBarTitleDisplayMode(.inline)
+            // The screenshot is the content; the bar stays clear so nothing
+            // competes with it, and only the close affordance floats above.
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(Strings.Triage.close)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Strings.Triage.close)
-                .padding(Metrics.screenPadding)
-            }
-            .task {
-                let target = CGSize(
-                    width: proxy.size.width * displayScale,
-                    height: proxy.size.height * displayScale
-                )
-                image = await loadThumbnail(screenshot.id, target)
             }
         }
-        .background(Color.black.ignoresSafeArea())
     }
 }
-
-// MARK: - Decision affordances
 
 private struct DecisionStamp: View {
     let text: String
@@ -860,7 +731,7 @@ private struct DecisionButton: View {
             Image(systemName: systemImage)
                 .font(.system(size: 26, weight: .medium))
                 .foregroundStyle(.white)
-                .frame(width: Metrics.actionButtonSize, height: Metrics.actionButtonSize)
+                .frame(width: TriageMetrics.actionButtonSize, height: TriageMetrics.actionButtonSize)
                 .background(
                     LinearGradient(
                         colors: [color.opacity(0.72), color, color.opacity(0.82)],
@@ -881,7 +752,7 @@ private struct DecisionButton: View {
                         )
                 }
                 .shadow(color: color.opacity(0.42), radius: 14, y: 5)
-                .padding(Metrics.actionButtonHaloPadding)
+                .padding(TriageMetrics.actionButtonHaloPadding)
                 .background(.ultraThinMaterial, in: Circle())
                 .background(Color.white.opacity(0.025), in: Circle())
                 .overlay {
@@ -902,8 +773,6 @@ private struct DecisionButton: View {
     }
 }
 
-/// Compact on-demand utility: violet identifies a reversible action without
-/// borrowing the blue Keep or red Delete semantics of the primary controls.
 private struct UndoButton: View {
     let action: () -> Void
 
@@ -916,16 +785,16 @@ private struct UndoButton: View {
                     .font(.caption.weight(.semibold))
             }
             .foregroundStyle(.white.opacity(0.94))
-            .padding(.horizontal, Metrics.undoButtonHorizontalPadding)
-            .frame(height: Metrics.undoButtonHeight)
-            .liquidGlass(in: Capsule(), tint: Metrics.controlUndo.opacity(0.5))
+            .padding(.horizontal, TriageMetrics.undoButtonHorizontalPadding)
+            .frame(height: TriageMetrics.undoButtonHeight)
+            .liquidGlass(in: Capsule(), tint: Palette.controlUndo.opacity(0.5))
             .overlay {
                 Capsule()
                     .strokeBorder(
                         LinearGradient(
                             colors: [
                                 .white.opacity(0.38),
-                                Metrics.controlUndo.opacity(0.5)
+                                Palette.controlUndo.opacity(0.5)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -934,7 +803,7 @@ private struct UndoButton: View {
                     )
             }
             .shadow(
-                color: Metrics.controlUndo.opacity(0.32),
+                color: Palette.controlUndo.opacity(0.32),
                 radius: 10,
                 y: 4
             )
@@ -948,7 +817,72 @@ private struct UndoButton: View {
     }
 }
 
-// MARK: - Empty state
+private struct SwipeHintsView: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            hintLabel(
+                text: Strings.Triage.swipeRightHint,
+                arrow: "arrow.right",
+                color: Palette.controlKeep,
+                arrowLeading: true
+            )
+            Spacer(minLength: TriageMetrics.hintGroupSpacing)
+            divider
+            Spacer(minLength: TriageMetrics.hintGroupSpacing)
+            hintLabel(
+                text: Strings.Triage.swipeLeftHint,
+                arrow: "arrow.left",
+                color: Palette.controlDelete,
+                arrowLeading: false
+            )
+        }
+    }
+
+    private func hintLabel(text: String, arrow: String, color: Color, arrowLeading: Bool) -> some View {
+        HStack(spacing: TriageMetrics.hintArrowSpacing) {
+            if arrowLeading { glossyArrow(arrow, color: color) }
+            Text(text)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [color.opacity(0.72), color],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: TriageMetrics.hintTextWidth, alignment: .leading)
+                .multilineTextAlignment(.leading)
+                .lineSpacing(2)
+                .fixedSize(horizontal: false, vertical: true)
+            if !arrowLeading { glossyArrow(arrow, color: color) }
+        }
+    }
+
+    private func glossyArrow(_ name: String, color: Color) -> some View {
+        Image(systemName: name)
+            .font(.system(size: TriageMetrics.hintArrowSize, weight: .light))
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [color.opacity(0.72), color, color.opacity(0.58)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .shadow(color: color.opacity(0.45), radius: 5)
+    }
+
+    private var divider: some View {
+        Capsule()
+            .fill(
+                LinearGradient(
+                    colors: [.clear, .white.opacity(0.28), .clear],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .frame(width: 1, height: TriageMetrics.hintDividerHeight)
+    }
+}
 
 private struct EmptyScreenshotsView: View {
     var body: some View {
