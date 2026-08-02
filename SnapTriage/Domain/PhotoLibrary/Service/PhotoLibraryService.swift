@@ -6,6 +6,7 @@
 //
 
 import Photos
+import Synchronization
 import UIKit
 
 enum PhotoThumbnailMode: Sendable, Equatable {
@@ -38,7 +39,18 @@ protocol PhotoLibraryService: Sendable {
 final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
 
     private let imageManager = PHCachingImageManager()
-    private let changeRelay = LibraryChangeRelay()
+    private let catalog: ScreenshotCatalog
+    private let changeRelay: LibraryChangeRelay
+
+    init() {
+        let catalog = ScreenshotCatalog()
+        self.catalog = catalog
+        // The snapshot is only good until the library moves underneath it, and
+        // the relay is the one thing that knows when that happened. Invalidating
+        // from inside the relay — before subscribers are told — means a feature
+        // reloading in response to the event cannot read the retired snapshot.
+        self.changeRelay = LibraryChangeRelay { catalog.invalidate() }
+    }
 
     func libraryChanges() -> AsyncStream<Void> {
         changeRelay.makeStream()
@@ -54,50 +66,9 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
     }
     
     func fetchScreenshots() async -> [Screenshot] {
-        let options = PHFetchOptions()
-        if !Self.includeAllImagesForManualTesting {
-            options.predicate = NSPredicate(
-                format: "(mediaSubtypes & %d) != 0",
-                PHAssetMediaSubtype.photoScreenshot.rawValue
-            )
-        }
-        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        
-        let result = PHAsset.fetchAssets(with: .image, options: options)
-        var screenshots: [Screenshot] = []
-        screenshots.reserveCapacity(result.count)
-        result.enumerateObjects { asset, _, _ in
-            screenshots.append(
-                Screenshot(
-                    id: asset.localIdentifier,
-                    pixelWidth: asset.pixelWidth,
-                    pixelHeight: asset.pixelHeight,
-                    creationDate: asset.creationDate,
-                    byteSize: Self.byteSize(for: asset)
-                )
-            )
-        }
-        return screenshots
+        await catalog.screenshots()
     }
 
-    private static var includeAllImagesForManualTesting: Bool {
-        #if DEBUG && targetEnvironment(simulator)
-        ProcessInfo.processInfo.arguments.contains("-SnapTriageIncludeAllImages")
-        #else
-        false
-        #endif
-    }
-
-    // PHAsset exposes no public size; resource `fileSize` (KVC) is the standard read.
-    // Falls back to a 4-bytes-per-pixel estimate when the resource is unavailable (e.g. iCloud-only).
-    private static func byteSize(for asset: PHAsset) -> Int {
-        let resources = PHAssetResource.assetResources(for: asset)
-        if let bytes = resources.compactMap({ $0.value(forKey: "fileSize") as? Int64 }).max() {
-            return Int(bytes)
-        }
-        return asset.pixelWidth * asset.pixelHeight * 4
-    }
-    
     func thumbnail(
         for id: Screenshot.ID,
         targetSize: CGSize,
@@ -225,6 +196,111 @@ private extension PhotoLibraryAuthorization {
     }
 }
 
+/// One shared snapshot of the screenshot library.
+///
+/// The PhotoKit fetch is the app's most expensive read — it walks every asset
+/// and asks PhotoKit for its resource size — and all five features want the same
+/// answer. The first caller pays for it; anyone arriving while it runs joins that
+/// fetch instead of starting a second one, so opening Triage no longer repeats
+/// the enumeration Overview just finished. A library change retires the snapshot.
+private final class ScreenshotCatalog: Sendable {
+
+    private enum Lookup {
+        case cached([Screenshot])
+        case fetching(generation: Int, task: Task<[Screenshot], Never>)
+    }
+
+    private struct Guarded {
+        var cached: [Screenshot]?
+        var inFlight: Task<[Screenshot], Never>?
+        /// Bumped on every invalidation, so a fetch that was already running when
+        /// the library changed still answers its own caller but never becomes the
+        /// cached snapshot.
+        var generation = 0
+    }
+
+    private let state = Mutex(Guarded())
+
+    func screenshots() async -> [Screenshot] {
+        let lookup: Lookup = state.withLock { guarded in
+            if let cached = guarded.cached { return .cached(cached) }
+            if let inFlight = guarded.inFlight {
+                return .fetching(generation: guarded.generation, task: inFlight)
+            }
+            let task = Task(priority: .userInitiated) { Self.fetch() }
+            guarded.inFlight = task
+            return .fetching(generation: guarded.generation, task: task)
+        }
+
+        switch lookup {
+        case .cached(let screenshots):
+            return screenshots
+
+        case .fetching(let generation, let task):
+            let screenshots = await task.value
+            state.withLock { guarded in
+                guard guarded.generation == generation else { return }
+                guarded.cached = screenshots
+                guarded.inFlight = nil
+            }
+            return screenshots
+        }
+    }
+
+    func invalidate() {
+        state.withLock { guarded in
+            guarded.generation += 1
+            guarded.cached = nil
+            guarded.inFlight = nil
+        }
+    }
+
+    private static func fetch() -> [Screenshot] {
+        let options = PHFetchOptions()
+        if !includeAllImagesForManualTesting {
+            options.predicate = NSPredicate(
+                format: "(mediaSubtypes & %d) != 0",
+                PHAssetMediaSubtype.photoScreenshot.rawValue
+            )
+        }
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+
+        let result = PHAsset.fetchAssets(with: .image, options: options)
+        var screenshots: [Screenshot] = []
+        screenshots.reserveCapacity(result.count)
+        result.enumerateObjects { asset, _, _ in
+            screenshots.append(
+                Screenshot(
+                    id: asset.localIdentifier,
+                    pixelWidth: asset.pixelWidth,
+                    pixelHeight: asset.pixelHeight,
+                    creationDate: asset.creationDate,
+                    byteSize: byteSize(for: asset)
+                )
+            )
+        }
+        return screenshots
+    }
+
+    private static var includeAllImagesForManualTesting: Bool {
+        #if DEBUG && targetEnvironment(simulator)
+        ProcessInfo.processInfo.arguments.contains("-SnapTriageIncludeAllImages")
+        #else
+        false
+        #endif
+    }
+
+    // PHAsset exposes no public size; resource `fileSize` (KVC) is the standard read.
+    // Falls back to a 4-bytes-per-pixel estimate when the resource is unavailable (e.g. iCloud-only).
+    private static func byteSize(for asset: PHAsset) -> Int {
+        let resources = PHAssetResource.assetResources(for: asset)
+        if let bytes = resources.compactMap({ $0.value(forKey: "fileSize") as? Int64 }).max() {
+            return Int(bytes)
+        }
+        return asset.pixelWidth * asset.pixelHeight * 4
+    }
+}
+
 /// Fans PhotoKit's change callbacks out to any number of `AsyncStream`
 /// subscribers. Events are debounced: a screenshot spree or batch delete fires
 /// one emission, not one per asset. Deliberately unfiltered — subscribers
@@ -236,6 +312,13 @@ private final class LibraryChangeRelay: NSObject, PHPhotoLibraryChangeObserver, 
     private var continuations: [UUID: AsyncStream<Void>.Continuation] = [:]
     private var pendingEmit: Task<Void, Never>?
     private var isRegistered = false
+    /// Runs before subscribers are notified, so anything the event invalidates is
+    /// already stale by the time a feature reacts to it.
+    private let onChange: @Sendable () -> Void
+
+    init(onChange: @escaping @Sendable () -> Void) {
+        self.onChange = onChange
+    }
 
     deinit {
         guard isRegistered else { return }
@@ -297,6 +380,7 @@ private final class LibraryChangeRelay: NSObject, PHPhotoLibraryChangeObserver, 
         pendingEmit = nil
         let subscribers = Array(continuations.values)
         lock.unlock()
+        onChange()
         subscribers.forEach { $0.yield() }
     }
 }
