@@ -212,7 +212,7 @@ struct TriageView: View {
         if let current = viewModel.state.current {
             // Pending classification shows a neutral "Analyzing…" pill — never a
             // premature category or safe-to-delete verdict.
-            let classification = viewModel.state.classification(for: current)
+            let classification = viewModel.classification(for: current)
             HStack(spacing: 6) {
                 Image(systemName: classification?.category.systemImage ?? "hourglass")
                     .font(.caption.weight(.semibold))
@@ -255,13 +255,13 @@ struct TriageView: View {
 
     // Back-to-front render order: up-next behind, current on top.
     private var deckWindow: [Screenshot] {
-        [viewModel.state.upNext, viewModel.state.current].compactMap(\.self)
+        [viewModel.upNext, viewModel.state.current].compactMap(\.self)
     }
 
     private func card(for screenshot: Screenshot, onTap: @escaping () -> Void) -> some View {
         TriageCardView(
             screenshot: screenshot,
-            classification: viewModel.state.classification(for: screenshot),
+            classification: viewModel.classification(for: screenshot),
             imageMode: imageMode,
             loadThumbnail: { id, size in
                 await viewModel.thumbnail(for: id, targetSize: size)

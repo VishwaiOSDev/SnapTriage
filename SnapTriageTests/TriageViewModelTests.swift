@@ -125,7 +125,7 @@ struct TriageViewModelTests {
     func libraryChangeMergesNewScreenshot() async {
         let (vm, _, service) = makeSUT()
         vm.send(.onAppear)
-        await waitUntil { vm.state.classifications.count == 4 }
+        await waitUntil { vm.classifications.count == 4 }
 
         vm.send(.decide(.keep))              // "1"
         vm.send(.decide(.markForDeletion))   // "2"
@@ -141,7 +141,7 @@ struct TriageViewModelTests {
         #expect(vm.state.current?.id == "3")
         #expect(vm.state.keptCount == 1)
         #expect(vm.state.markedCount == 1)
-        #expect(vm.state.upNext?.id == "4")
+        #expect(vm.upNext?.id == "4")
 
         // Once the resolved cards are spent, the newcomer is all that's left.
         vm.send(.decide(.keep))
@@ -157,12 +157,12 @@ struct TriageViewModelTests {
         service.screenshots.insert(Fixture.screenshot(id: "0"), at: 0)
 
         vm.send(.onAppear)
-        await waitUntil { vm.state.classifications.count == 4 }
+        await waitUntil { vm.classifications.count == 4 }
 
         // "0" leads the library but has no verdict, so the deck steps over it
         // rather than asking the user to decide on a placeholder.
         #expect(vm.state.current?.id == "1")
-        #expect(vm.state.upNext?.id == "2")
+        #expect(vm.upNext?.id == "2")
     }
 
     @Test("A swipe lands in the store before the deck advances")
