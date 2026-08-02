@@ -17,27 +17,60 @@ Target: **iOS 18+** (so we standardize on `@Observable` and the new Vision Swift
 
 ## 2. Project structure
 
+Four top-level layers. Dependencies only ever point downward: `App` → `Features`
+→ `Domain` → `Common`.
+
+```
+App/              // @main, composition root, navigation state, background work
+Common/           // framework-level shared code, no domain knowledge
+Domain/           // cross-feature domain modules
+Features/         // one folder per screen
+```
+
 Each feature is organized as:
 
 ```
 Features/<Feature>/
   Model/          // pure value types (struct/enum)
-  View/           // SwiftUI views
+  View/           // the screen; View/Components/ holds its extracted parts
   ViewModel/      // @MainActor @Observable, owns state, exposes send(_:)
   UseCase/        // business rules; depend on Service protocols
   Service/        // IO (persistence/network/system) + pure transforms
   Router/         // navigation routes + Router protocol for this feature
   Composition/    // factory that builds the feature's object graph
+  Store/          // persistence owned by this feature
 ```
 
-Shared code:
+A feature holds only what one screen needs. The moment a second screen depends
+on something, it moves to `Domain/` as its own module — that is what keeps
+"features never import each other" (§12) true instead of aspirational. Domain
+modules use the same folder vocabulary (`Model/`, `Service/`, `UseCase/`,
+`Store/`), minus the presentation layers:
+
+```
+Domain/
+  TriageError.swift   // the app's typed domain error (§7)
+  PhotoLibrary/       // Screenshot, PhotoLibraryService, load/observe/authorize
+  Classification/     // OCR, the categorizer cascade (§15), stores, ClassifyLibrary
+```
+
+Shared code with no domain knowledge:
 
 ```
 Common/
-  Constants/      // storage keys, feature flags, numeric constants
-  DesignSystem/   // colors, typography, spacing, animation, strings, modifiers
+  DesignSystem/   // Palette, Spacing, LiquidGlass, GlassCard, HeroMetricText, Strings
+  Formatting/     // MetricFormatter — counts and byte sizes, formatted once
+  Persistence/    // PersistedDictionary and other storage primitives
   Utilities/      // extensions, helpers, pure cross-cutting tools
 ```
+
+### View files
+
+A view file holds **one** screen or component. When a screen grows a private
+`struct`, that struct is a component: it moves to `View/Components/` under its
+own name. Design tokens are never re-declared per screen — colours come from
+`Palette`, geometry from `Spacing`, and only genuinely screen-specific geometry
+(e.g. `TriageMetrics`) stays with its feature.
 
 ---
 

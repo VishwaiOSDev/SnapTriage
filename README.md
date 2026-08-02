@@ -91,29 +91,46 @@ The core ideas, in brief:
 
 ### Project structure
 
+Four layers, read top to bottom: the app shell wires things together, the design
+system and domain modules are shared, and each feature is one screen.
+
 ```
 SnapTriage/
-├── SnapTriageApp.swift          # @main entry point
-├── ContentView.swift            # builds the Triage feature via its composition root
-├── Common/
-│   └── DesignSystem/            # Spacing, Strings (shared, framework-agnostic copy)
-└── Features/
-    └── Triage/
-        ├── Model/               # Screenshot, OCRResult, OCRLine, TriageError, …
-        ├── View/                # TriageView, ScreenshotThumbnailView
-        ├── ViewModel/           # TriageViewModel (@MainActor @Observable, send(_:))
-        ├── UseCase/             # RequestPhotoAccess, LoadScreenshots, RecognizeScreenshotText
-        ├── Service/             # PhotoLibraryService (PhotoKit), TextRecognitionService (Vision)
-        ├── Router/              # TriageRouter protocol + SystemTriageRouter
-        └── Composition/         # TriageComposition — assembles the object graph
+├── App/                         # lifecycle, composition root, navigation
+│   ├── SnapTriageApp.swift      # @main entry point
+│   ├── AppRootView.swift        # Overview → Review push, Triage cover
+│   ├── AppNavigation.swift      # navigation modelled as state
+│   ├── AppComposition.swift     # builds the shared object graph once
+│   └── Background/              # BGProcessingTask pass + completion notification
+├── Common/                      # framework-level shared code
+│   ├── DesignSystem/            # Palette, Spacing, LiquidGlass, GlassCard, Strings
+│   ├── Formatting/              # MetricFormatter (counts and byte sizes)
+│   └── Persistence/             # PersistedDictionary
+├── Domain/                      # cross-feature domain modules
+│   ├── PhotoLibrary/            # Screenshot, PhotoLibraryService, load/observe use cases
+│   └── Classification/          # OCR, the categorizer cascade, stores, ClassifyLibrary
+└── Features/                    # one folder per screen
+    ├── Overview/                # library summary and entry point
+    ├── Triage/                  # the swipe deck
+    └── Review/                  # confirm and delete
+        ├── Model/               # value types owned by the screen
+        ├── View/                # the screen, plus View/Components/ for its parts
+        ├── ViewModel/           # @MainActor @Observable, state + send(_:)
+        ├── UseCase/             # business rules
+        ├── Router/              # route protocol + system implementation
+        └── Composition/         # assembles the feature's object graph
 ```
+
+A feature owns only what one screen needs. Anything two screens both depend on —
+the photo library, the classification pipeline — lives in `Domain/`, so features
+still never import each other.
 
 ### High-level architecture
 
 ```mermaid
 flowchart TD
     subgraph Presentation
-        V["TriageView / ScreenshotThumbnailView<br/>(SwiftUI)"]
+        V["TriageView + View/Components<br/>(SwiftUI)"]
         VM["TriageViewModel<br/>@MainActor · @Observable<br/>state + send(_:)"]
     end
 
