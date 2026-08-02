@@ -18,6 +18,7 @@
 		11E2E7CCA6C89D205A4FB6EE /* OverviewStatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5975932CE2082454937780 /* OverviewStatCard.swift */; };
 		17E477066152AA1BD17A99C1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A43FE831A4BC8426E6689C03 /* Assets.xcassets */; };
 		1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2F267ADC28E3E38EC40280 /* GlassCard.swift */; };
+		C7A21F04B9E3D51A6D830F11 /* GlossyActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B38E27A1C64F09B2E7D340 /* GlossyActionButton.swift */; };
 		1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244570B34CFD4B7380757C0 /* TriageView.swift */; };
 		2146665DA89A3D461F58A7F7 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05D6CA1102658E0FC552100 /* Strings.swift */; };
 		21B1CFE707A94303BB3D618A /* EmptyScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2506FE5FE0AFC41A63B264F8 /* EmptyScreenshotsView.swift */; };
@@ -189,6 +190,7 @@
 		96E74A2B0CC8658D3890000F /* TriageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageViewModel.swift; sourceTree = "<group>"; };
 		9BEC4CA3D9966A5335535F0D /* ReviewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewItem.swift; sourceTree = "<group>"; };
 		9D2F267ADC28E3E38EC40280 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		D5B38E27A1C64F09B2E7D340 /* GlossyActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossyActionButton.swift; sourceTree = "<group>"; };
 		A1981206E7343DAFAA48A51D /* TextRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionService.swift; sourceTree = "<group>"; };
 		A364472E52EC9DB35F8DA911 /* ClassifyLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassifyLibraryUseCase.swift; sourceTree = "<group>"; };
 		A43B6867EFF6F4B3D1161353 /* ReviewTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTestDoubles.swift; sourceTree = "<group>"; };
@@ -325,6 +327,7 @@
 			isa = PBXGroup;
 			children = (
 				9D2F267ADC28E3E38EC40280 /* GlassCard.swift */,
+				D5B38E27A1C64F09B2E7D340 /* GlossyActionButton.swift */,
 				36B194757255571A816E3539 /* HeroMetricText.swift */,
 				0A0A1E000500000000000000 /* LimitedAccessBanner.swift */,
 				DBC3867CA58A176131910DA2 /* LiquidGlass.swift */,
@@ -953,6 +956,7 @@
 				F3C5B5C866B4D92B2FAF5731 /* ClassificationNotifier.swift in Sources */,
 				68970EA1B9CF8C5CFCE4E679 /* ForegroundNotificationPresenter.swift in Sources */,
 				1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */,
+				C7A21F04B9E3D51A6D830F11 /* GlossyActionButton.swift in Sources */,
 				29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */,
 				43F5EEBE45DADFD12F8533F7 /* LiquidGlass.swift in Sources */,
 				5F967497B43A77B59E4AD5AB /* Palette.swift in Sources */,
