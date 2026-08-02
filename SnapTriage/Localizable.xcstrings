@@ -193,30 +193,6 @@
         }
       }
     },
-    "Categories.appliedKept": {
-      "comment": "Undo bar text after a bulk keep; %@ count, %@ category",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kept %@ %@ screenshots"
-          }
-        }
-      }
-    },
-    "Categories.appliedMarked": {
-      "comment": "Undo bar text after a bulk mark; %@ count, %@ category",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marked %@ %@ screenshots"
-          }
-        }
-      }
-    },
     "Categories.emptyMessage": {
       "comment": "Message when there is nothing left to sort by category",
       "extractionState": "manual",
