@@ -14,6 +14,7 @@ struct ReviewViewModelTests {
 
     // Three safe-to-delete screenshots plus one useful, so the loaded set is "1","2","3".
     private func makeSUT(
+        scope: ReviewScope = .triage,
         deleteError: Error? = nil,
         authorization: PhotoLibraryAuthorization = .authorized,
         decisions: SeededTriageDecisionStore = SeededTriageDecisionStore()
@@ -35,17 +36,11 @@ struct ReviewViewModelTests {
             "3": .conversation,
             "4": .receipt
         ])
-        let vm = ReviewViewModel(
-            requestAccess: RequestPhotoAccessUseCase(service: service),
-            loadItems: Fixture.loadReviewItems(service: service, store: store, decisions: decisions),
-            deleteScreenshots: DeleteScreenshotsUseCase(service: service),
-            pruneRecords: PruneScreenshotRecordsUseCase(
-                decisions: decisions,
-                categories: store,
-                ocr: InMemoryOCRStore()
-            ),
-            imageLoader: service,
-            router: StubReviewRouter()
+        let vm = Fixture.reviewViewModel(
+            scope: scope,
+            service: service,
+            store: store,
+            decisions: decisions
         )
         return (vm, service, store)
     }
