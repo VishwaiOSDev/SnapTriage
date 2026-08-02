@@ -37,4 +37,10 @@ enum TriageMetrics {
     static let hintDividerHeight: CGFloat = 32
 
     static let imageModeTransitionDuration = 0.18
+
+    /// Ceiling on a card thumbnail's long edge, as a multiple of the card's own
+    /// long edge in pixels. Sizing an asset for aspect-fill is right for a phone
+    /// screenshot but pathological for a stitched scrolling capture, where it
+    /// asks PhotoKit for a several-megapixel strip the card can never show.
+    static let thumbnailLongEdgeMultiple: CGFloat = 2
 }
