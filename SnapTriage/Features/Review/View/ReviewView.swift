@@ -39,7 +39,7 @@ struct ReviewView: View {
 
         case .loaded:
             if viewModel.state.items.isEmpty {
-                status { EmptyReviewView() }
+                status { EmptyReviewView(scope: viewModel.scope) }
             } else {
                 loaded
             }
