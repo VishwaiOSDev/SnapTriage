@@ -141,7 +141,7 @@ struct AppNavigationTests {
         navigation.finishToReview()
 
         #expect(navigation.isTriagePresented == false)
-        #expect(navigation.path == [.review])
+        #expect(navigation.path == [.review(.triage)])
     }
 }
 
