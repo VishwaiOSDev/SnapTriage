@@ -93,6 +93,10 @@ enum Strings {
         static func deleteSubtitle(_ size: String) -> String { String(localized: .reviewDeleteSubtitle(size)) }
         static func itemCount(_ count: String) -> String { String(localized: .reviewItemCount(count)) }
         static let yesterday = String(localized: .reviewYesterday)
+        static let scopedSectionTitle = String(localized: .reviewScopedSectionTitle)
+        static func scopedSectionSubtitle(_ count: String, _ size: String) -> String {
+            String(localized: .reviewScopedSectionSubtitle(count, size))
+        }
         static func scopedNavSubtitle(_ selected: String, _ total: String) -> String {
             String(localized: .reviewScopedNavSubtitle(selected, total))
         }
