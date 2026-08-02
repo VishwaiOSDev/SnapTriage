@@ -44,23 +44,25 @@ struct LoadReviewItemsUseCase {
             case .keep:
                 return nil
             case .markForDeletion:
-                let category = classifications[shot.id]?.category ?? .other
-                return ReviewItem(
-                    id: shot.id,
-                    category: category,
-                    byteSize: shot.byteSize,
-                    source: .userMarked
-                )
+                return item(shot, classifications[shot.id]?.category ?? .other, .userMarked)
             case nil:
                 guard let classification = classifications[shot.id],
                       classification.disposition == .safeToDelete else { return nil }
-                return ReviewItem(
-                    id: shot.id,
-                    category: classification.category,
-                    byteSize: shot.byteSize,
-                    source: .suggested
-                )
+                return item(shot, classification.category, .suggested)
             }
         }
+    }
+    private func item(
+        _ shot: Screenshot,
+        _ category: ScreenshotCategory,
+        _ source: ReviewItem.Source
+    ) -> ReviewItem {
+        ReviewItem(
+            id: shot.id,
+            category: category,
+            byteSize: shot.byteSize,
+            source: source,
+            creationDate: shot.creationDate
+        )
     }
 }
