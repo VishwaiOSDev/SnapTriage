@@ -24,8 +24,23 @@ struct OverviewView: View {
 
     var body: some View {
         ZStack {
-            Metrics.background.ignoresSafeArea()
+            Palette.background.ignoresSafeArea()
             content
+        }
+        .navigationTitle(Strings.Overview.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                AppMarkView()
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.send(.openSettings)
+                } label: {
+                    Image(systemName: "gearshape.fill")
+                }
+                .accessibilityLabel(Strings.Overview.settings)
+            }
         }
         .task { viewModel.send(.onAppear) }
     }
@@ -34,71 +49,42 @@ struct OverviewView: View {
     private var content: some View {
         switch viewModel.state.phase {
         case .idle, .loading:
-            chrome { ProgressView(Strings.Triage.loading) }
+            status { ProgressView(Strings.Triage.loading) }
 
         case .failed:
-            chrome { failure }
+            status { failure }
 
         case .loaded:
             if viewModel.state.summary.totalCount == 0 {
-                chrome { EmptyOverviewView() }
+                status { EmptyOverviewView() }
             } else {
                 loaded
             }
         }
     }
 
-    // Keeps the header pinned while a centered status view fills the rest.
-    private func chrome<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
-        VStack(spacing: Metrics.sectionSpacing) {
-            header
-            inner()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .padding(.horizontal, Metrics.screenPadding)
-        .padding(.top, Metrics.screenPadding)
+    // Centers a non-content state in the space below the navigation bar.
+    private func status<Inner: View>(@ViewBuilder _ inner: () -> Inner) -> some View {
+        inner()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal, Spacing.screenPadding)
     }
 
     private var loaded: some View {
         ScrollView {
-            glassContainer {
-                VStack(spacing: Metrics.sectionSpacing) {
-                    header
-                    PrivacyPillView()
-                    hero
-                    summaryCard
-                    featureCard
-                }
+            VStack(spacing: Spacing.sectionSpacing) {
+                PrivacyPillView()
+                hero
+                summaryCard
+                featureCard
             }
-            .padding(.horizontal, Metrics.screenPadding)
-            .padding(.top, Metrics.screenPadding)
-            .padding(.bottom, Metrics.sectionSpacing)
+            .glassContainer()
+            .padding(.horizontal, Spacing.screenPadding)
+            .padding(.top, Spacing.sectionSpacing)
+            .padding(.bottom, Spacing.sectionSpacing)
             .animation(.default, value: viewModel.state.summary)
         }
         .scrollIndicators(.hidden)
-    }
-
-    // Lets neighboring glass elements sample and blend one another (iOS 26+).
-    @ViewBuilder
-    private func glassContainer<C: View>(@ViewBuilder _ content: () -> C) -> some View {
-        if #available(iOS 26.0, *) {
-            GlassEffectContainer(spacing: Metrics.sectionSpacing, content: content)
-        } else {
-            content()
-        }
-    }
-
-    private var header: some View {
-        HStack(spacing: 12) {
-            AppMarkView()
-            Text(Strings.Overview.title)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.white)
-            Spacer()
-            CircularIconButton(systemImage: "gearshape.fill", accessibilityLabel: Strings.Overview.settings) {
-                viewModel.send(.openSettings)
-            }
-        }
     }
 
     // The reclaimable figure is the reward and the door to Review: tapping it
@@ -109,7 +95,7 @@ struct OverviewView: View {
         return Button(action: onOpenReview) {
             VStack(spacing: 6) {
                 VStack(spacing: 2) {
-                    HeroMetricText(sizeText(summary.reclaimableBytes), size: 72)
+                    HeroMetricText(MetricFormatter.size(summary.reclaimableBytes), size: 72)
                     Text(Strings.Overview.reclaimableHeadline)
                         .font(.system(size: 46, weight: .bold))
                         .foregroundStyle(.white)
@@ -119,7 +105,7 @@ struct OverviewView: View {
                 .multilineTextAlignment(.center)
 
                 HStack(spacing: 4) {
-                    Text(Strings.Overview.heroCaption(countText(summary.totalCount)))
+                    Text(Strings.Overview.heroCaption(MetricFormatter.count(summary.totalCount)))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     if hasReclaimable {
@@ -133,8 +119,8 @@ struct OverviewView: View {
                 if viewModel.state.isClassifying {
                     Label(
                         Strings.Overview.analyzing(
-                            countText(viewModel.state.classifiedCount),
-                            countText(summary.totalCount)
+                            MetricFormatter.count(viewModel.state.classifiedCount),
+                            MetricFormatter.count(summary.totalCount)
                         ),
                         systemImage: "wand.and.stars"
                     )
@@ -151,26 +137,7 @@ struct OverviewView: View {
 
     private var summaryCard: some View {
         ZStack {
-            // Give the neutral glass a real blue light source to sample. Keeping
-            // this behind the material is more natural than tinting the card.
-            RoundedRectangle(cornerRadius: Metrics.cardCornerRadius, style: .continuous)
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Metrics.accent.opacity(0.24),
-                            Metrics.accent.opacity(0.08),
-                            .clear
-                        ],
-                        center: .top,
-                        startRadius: 0,
-                        endRadius: 230
-                    )
-                )
-                .blur(radius: 30)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .accessibilityHidden(true)
-
+            summaryCardGlow
             GlassCard {
                 VStack(spacing: 20) {
                     HStack(alignment: .top, spacing: 12) {
@@ -190,9 +157,31 @@ struct OverviewView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                .padding(Metrics.cardPadding)
+                .padding(Spacing.cardPadding)
             }
         }
+    }
+
+    // Give the neutral glass a real blue light source to sample. Keeping this
+    // behind the material is more natural than tinting the card.
+    private var summaryCardGlow: some View {
+        RoundedRectangle(cornerRadius: Spacing.cardCornerRadius, style: .continuous)
+            .fill(
+                RadialGradient(
+                    colors: [
+                        Palette.accent.opacity(0.24),
+                        Palette.accent.opacity(0.08),
+                        .clear
+                    ],
+                    center: .top,
+                    startRadius: 0,
+                    endRadius: 230
+                )
+            )
+            .blur(radius: 30)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .accessibilityHidden(true)
     }
 
     private var featureCard: some View {
@@ -241,16 +230,16 @@ struct OverviewView: View {
         return [
             TriageStat(
                 id: .useful,
-                value: countText(summary.usefulCount),
+                value: MetricFormatter.count(summary.usefulCount),
                 title: Strings.Overview.usefulTitle,
-                detail: sizeText(summary.usefulBytes),
+                detail: MetricFormatter.size(summary.usefulBytes),
                 indicator: .icon("checkmark.circle.fill")
             ),
             TriageStat(
                 id: .safeToDelete,
-                value: countText(summary.safeCount),
+                value: MetricFormatter.count(summary.safeCount),
                 title: Strings.Overview.safeToDeleteTitle,
-                detail: sizeText(summary.safeBytes),
+                detail: MetricFormatter.size(summary.safeBytes),
                 indicator: .icon("square.3.layers.3d")
             ),
             TriageStat(
@@ -262,58 +251,42 @@ struct OverviewView: View {
             )
         ]
     }
-
-    private func sizeText(_ bytes: Int) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-    }
-
-    private func countText(_ value: Int) -> String {
-        Self.counter.string(from: NSNumber(value: value)) ?? "\(value)"
-    }
-
-    private static let counter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
 }
 
-// MARK: - Design tokens
 
-private enum Metrics {
-    static let background = Color(red: 0.04, green: 0.05, blue: 0.07)
-    static let accent = Color("AccentColor")
-    static let cardCornerRadius: CGFloat = 28
-    static let cardPadding: CGFloat = 20
-    static let screenPadding: CGFloat = 20
-    static let sectionSpacing: CGFloat = 20
-    static let cardStroke = Color.white.opacity(0.08)
-    static let surfaceFill = Color.white.opacity(0.05)
+private struct AppMarkView: View {
+    var body: some View {
+        Image(systemName: "doc.text.viewfinder")
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 28, height: 28)
+            .background(Palette.accent, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .accessibilityHidden(true)
+    }
+}
 
-    // Sampled from the Figma primary action reference. A diagonal transition
-    // preserves its brighter leading edge and slightly deeper trailing edge.
-    static let primaryActionFill = LinearGradient(
-        colors: [
-            accent,
-            Color(red: 0.13, green: 0.41, blue: 0.87)
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-    static let primaryActionSheen = LinearGradient(
-        colors: [.white.opacity(0.025), .clear],
-        startPoint: .top,
-        endPoint: .center
-    )
-    static let primaryActionRim = LinearGradient(
-        colors: [
-            Color(red: 0.31, green: 0.61, blue: 1.0).opacity(0.9),
-            Color(red: 0.17, green: 0.51, blue: 0.97).opacity(0.7)
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-    static let primaryActionGlow = Color(red: 0.08, green: 0.38, blue: 0.95)
+private struct PrivacyPillView: View {
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "lock.fill")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(Palette.accent)
+            Text(Strings.Overview.privacyLead)
+                .foregroundStyle(.white)
+                .fontWeight(.semibold)
+            + Text(" " + privacyTrailing)
+                .foregroundStyle(.secondary)
+        }
+        .font(.footnote)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 14)
+        .liquidGlass(in: Capsule())
+    }
+
+    private var privacyTrailing: String {
+        Strings.Overview.privacy
+            .replacingOccurrences(of: Strings.Overview.privacyLead + " ", with: "")
+    }
 }
 
 private struct PrimaryActionButton: View {
@@ -349,17 +322,17 @@ private struct PrimaryActionButtonStyle: ButtonStyle {
         configuration.label
             .background {
                 Capsule()
-                    .fill(Metrics.primaryActionFill)
+                    .fill(Self.fill)
                     .overlay {
-                        Capsule().fill(Metrics.primaryActionSheen)
+                        Capsule().fill(Self.sheen)
                     }
                     .overlay {
                         Capsule()
-                            .strokeBorder(Metrics.primaryActionRim, lineWidth: 1)
+                            .strokeBorder(Self.rim, lineWidth: 1)
                     }
             }
             .shadow(
-                color: Metrics.primaryActionGlow.opacity(configuration.isPressed ? 0.06 : 0.10),
+                color: Self.glow.opacity(configuration.isPressed ? 0.06 : 0.10),
                 radius: configuration.isPressed ? 5 : 8,
                 y: 2
             )
@@ -368,63 +341,32 @@ private struct PrimaryActionButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
             .animation(.easeOut(duration: 0.16), value: configuration.isPressed)
     }
+
+    // Sampled from the Figma primary action reference. A diagonal transition
+    // preserves its brighter leading edge and slightly deeper trailing edge.
+    private static let fill = LinearGradient(
+        colors: [
+            Palette.accent,
+            Color(red: 0.13, green: 0.41, blue: 0.87)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    private static let sheen = LinearGradient(
+        colors: [.white.opacity(0.025), .clear],
+        startPoint: .top,
+        endPoint: .center
+    )
+    private static let rim = LinearGradient(
+        colors: [
+            Color(red: 0.31, green: 0.61, blue: 1.0).opacity(0.9),
+            Color(red: 0.17, green: 0.51, blue: 0.97).opacity(0.7)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    private static let glow = Color(red: 0.08, green: 0.38, blue: 0.95)
 }
-
-private struct AppMarkView: View {
-    var body: some View {
-        Image(systemName: "doc.text.viewfinder")
-            .font(.system(size: 18, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: 38, height: 38)
-            .background(Metrics.accent, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
-    }
-}
-
-private struct CircularIconButton: View {
-    let systemImage: String
-    let accessibilityLabel: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
-                .frame(width: 38, height: 38)
-                .liquidGlass(in: Circle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(accessibilityLabel)
-    }
-}
-
-// MARK: - Privacy pill
-
-private struct PrivacyPillView: View {
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "lock.fill")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Metrics.accent)
-            Text(Strings.Overview.privacyLead)
-                .foregroundStyle(.white)
-                .fontWeight(.semibold)
-            + Text(" " + privacyTrailing)
-                .foregroundStyle(.secondary)
-        }
-        .font(.footnote)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 14)
-        .liquidGlass(in: Capsule())
-    }
-
-    private var privacyTrailing: String {
-        Strings.Overview.privacy
-            .replacingOccurrences(of: Strings.Overview.privacyLead + " ", with: "")
-    }
-}
-
-// MARK: - Stat card
 
 private struct OverviewStatCard: View {
     let stat: TriageStat
@@ -457,7 +399,7 @@ private struct OverviewStatCard: View {
         case .icon(let name):
             Image(systemName: name)
                 .font(.system(size: 24, weight: .regular))
-                .foregroundStyle(Metrics.accent)
+                .foregroundStyle(Palette.accent)
         case .progress(let value):
             ProgressRing(progress: value)
                 .frame(width: 30, height: 30)
@@ -474,13 +416,11 @@ private struct ProgressRing: View {
                 .stroke(Color.white.opacity(0.12), lineWidth: 5)
             Circle()
                 .trim(from: 0, to: progress)
-                .stroke(Metrics.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .stroke(Palette.accent, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
         }
     }
 }
-
-// MARK: - Feature row
 
 private struct FeatureRowView: View {
     let feature: FeatureHighlight
@@ -491,9 +431,9 @@ private struct FeatureRowView: View {
             HStack(spacing: 14) {
                 Image(systemName: feature.systemImage)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Metrics.accent)
+                    .foregroundStyle(Palette.accent)
                     .frame(width: 34, height: 34)
-                    .background(Metrics.surfaceFill, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .background(Palette.surfaceFill, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(feature.title)
@@ -510,15 +450,13 @@ private struct FeatureRowView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            .padding(.horizontal, Metrics.cardPadding)
+            .padding(.horizontal, Spacing.cardPadding)
             .padding(.vertical, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 }
-
-// MARK: - Empty state
 
 private struct EmptyOverviewView: View {
     var body: some View {
@@ -540,7 +478,10 @@ private struct OverviewView_Previews: PreviewProvider {
     private static func makePreview() -> some View {
         let viewModel = AppComposition().makeOverview()
         viewModel.seedForPreview(.sample)
-        return OverviewView(viewModel: viewModel, onStartTriage: {}, onOpenReview: {})
+        return NavigationStack {
+            OverviewView(viewModel: viewModel, onStartTriage: {}, onOpenReview: {})
+        }
+        .preferredColorScheme(.dark)
     }
 }
 #endif
