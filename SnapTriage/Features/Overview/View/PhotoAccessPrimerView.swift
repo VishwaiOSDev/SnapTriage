@@ -21,7 +21,9 @@ struct PhotoAccessPrimerView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
+                brandLockup
                 hero
+                    .padding(.top, 28)
                 introduction
                     .padding(.top, 20)
                 privacyPromises
@@ -43,6 +45,38 @@ struct PhotoAccessPrimerView: View {
                 .background(Palette.background)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var brandLockup: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Palette.accent.gradient)
+
+                // Reuse the real Icon Composer artwork so onboarding and the
+                // Home Screen establish the same visual identity.
+                Image("OnboardingAppIcon")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .padding(2)
+            }
+            .frame(width: 42, height: 42)
+            .overlay {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(.white.opacity(0.18), lineWidth: 1)
+            }
+            .shadow(color: Palette.accent.opacity(0.18), radius: 8, y: 3)
+            .accessibilityHidden(true)
+
+            Text(Strings.Overview.title)
+                .font(.headline)
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 
     private var hero: some View {
