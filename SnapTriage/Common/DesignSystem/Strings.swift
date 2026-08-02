@@ -85,6 +85,8 @@ enum Strings {
         static let summaryLead = String(localized: .reviewSummaryLead)
         static func summaryCount(_ count: String) -> String { String(localized: .reviewSummaryCount(count)) }
         static func summaryFreeUp(_ size: String) -> String { String(localized: .reviewSummaryFreeUp(size)) }
+        static let summaryEmptyTitle = String(localized: .reviewSummaryEmptyTitle)
+        static let summaryEmptyDetail = String(localized: .reviewSummaryEmptyDetail)
     }
 
     enum Categories {

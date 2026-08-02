@@ -1069,6 +1069,30 @@
         }
       }
     },
+    "Review.summaryEmptyDetail": {
+      "comment": "Detail when nothing is selected",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a circle to include a screenshot. Tap the screenshot to see it full screen."
+          }
+        }
+      }
+    },
+    "Review.summaryEmptyTitle": {
+      "comment": "Deletion summary headline when nothing is selected",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing selected"
+          }
+        }
+      }
+    },
     "Review.summaryFreeUp": {
       "comment": "Detail line of the deletion summary card; %@ is a formatted size",
       "extractionState": "manual",
