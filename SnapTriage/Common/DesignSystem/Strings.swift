@@ -74,7 +74,6 @@ enum Strings {
 
     enum Access {
         static let title = String(localized: .accessTitle)
-        static let back = String(localized: .accessBack)
         static let openSettings = String(localized: .accessOpenSettings)
         static let retry = String(localized: .accessRetry)
     }
