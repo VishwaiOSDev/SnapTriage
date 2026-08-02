@@ -45,6 +45,7 @@
 		7F4E179BDAACE9ADA2D39003 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722C73933C870FC12D3102C9 /* DeleteScreenshotsUseCaseTests.swift */; };
 		80CC41A5E77B95CD2E32B60D /* ScreenshotThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7763160A48CDF1789B81AA93 /* ScreenshotThumbnailView.swift */; };
 		8646A08B7AA5B102F46AEC33 /* OverviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD77B384C150F95CB5BB9640 /* OverviewComposition.swift */; };
+		8D3C71A7DCB88E959DADBB87 /* HeuristicScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */; };
 		91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */; };
 		95FBA02DFA5B2C208FBD4C57 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351A2941BED148CD1B825572 /* LoadReviewItemsUseCaseTests.swift */; };
 		9F814139D070E1E2F4BD413A /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FFC765CAA4BD052B0AC7E1 /* PhotoLibraryService.swift */; };
@@ -137,6 +138,7 @@
 		722C73933C870FC12D3102C9 /* DeleteScreenshotsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCaseTests.swift; sourceTree = "<group>"; };
 		747F33D3A531731028D83F59 /* DeleteScreenshotsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCase.swift; sourceTree = "<group>"; };
 		7763160A48CDF1789B81AA93 /* ScreenshotThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotThumbnailView.swift; sourceTree = "<group>"; };
+		7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		816A3C527A3AF8C31CB35354 /* PruneScreenshotRecordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PruneScreenshotRecordsUseCase.swift; sourceTree = "<group>"; };
 		899BB95130A4C602309B513C /* PersistedDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistedDictionary.swift; sourceTree = "<group>"; };
 		9005F6A2C35E410DC9DF5F21 /* RecognizeScreenshotTextUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognizeScreenshotTextUseCase.swift; sourceTree = "<group>"; };
@@ -321,6 +323,7 @@
 			children = (
 				484A0E7258BAFB2C7FF25EE9 /* FallbackScreenshotCategorizer.swift */,
 				B4378FDBD5A9A81AABC0D6E4 /* FoundationModelScreenshotCategorizer.swift */,
+				7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */,
 				B506758E1E05349E9AD13F2A /* ImageContentClassifier.swift */,
 				340DA96341670B69CF08F72E /* ScreenshotCategorizer.swift */,
 				FA61B02CB7E0A671BC89B8A6 /* ScreenshotModelClassifier.swift */,
@@ -780,6 +783,7 @@
 				E435E3D6893AA898D7DA97BE /* ScreenshotDisposition.swift in Sources */,
 				D10A5770CB58F5A07E40DA5D /* FallbackScreenshotCategorizer.swift in Sources */,
 				01E417AC3DEF2B2880C7C99A /* FoundationModelScreenshotCategorizer.swift in Sources */,
+				8D3C71A7DCB88E959DADBB87 /* HeuristicScreenshotCategorizer.swift in Sources */,
 				C78858364F0C0FD16DE0D89C /* ImageContentClassifier.swift in Sources */,
 				7752619F3835D5DEE2130E40 /* ScreenshotCategorizer.swift in Sources */,
 				11820A39D10DD7F46DEE36DA /* ScreenshotModelClassifier.swift in Sources */,
