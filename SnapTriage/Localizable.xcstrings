@@ -1009,6 +1009,18 @@
         }
       }
     },
+    "Review.keepAll": {
+      "comment": "Menu action that keeps every screenshot in the category; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep all %@"
+          }
+        }
+      }
+    },
     "Review.markedSectionSubtitle": {
       "comment": "Subtitle under the marked section; %@ is a count",
       "extractionState": "manual",
