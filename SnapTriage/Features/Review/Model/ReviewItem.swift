@@ -26,16 +26,21 @@ struct ReviewItem: Identifiable, Equatable, Sendable {
     let category: ScreenshotCategory
     let byteSize: Int
     let source: Source
+    /// When the screenshot was taken, so a tile can say *when* rather than only
+    /// *what*. Nil for assets PhotoKit has no date for.
+    let creationDate: Date?
 
     init(
         id: Screenshot.ID,
         category: ScreenshotCategory,
         byteSize: Int,
-        source: Source = .userMarked
+        source: Source = .userMarked,
+        creationDate: Date? = nil
     ) {
         self.id = id
         self.category = category
         self.byteSize = byteSize
         self.source = source
+        self.creationDate = creationDate
     }
 }
