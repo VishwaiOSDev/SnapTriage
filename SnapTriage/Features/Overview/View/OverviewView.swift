@@ -254,30 +254,6 @@ struct OverviewView: View {
 }
 
 
-private struct PrivacyPillView: View {
-    var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "lock.fill")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Palette.accent)
-            Text(Strings.Overview.privacyLead)
-                .foregroundStyle(.white)
-                .fontWeight(.semibold)
-            + Text(" " + privacyTrailing)
-                .foregroundStyle(.secondary)
-        }
-        .font(.footnote)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 14)
-        .liquidGlass(in: Capsule())
-    }
-
-    private var privacyTrailing: String {
-        Strings.Overview.privacy
-            .replacingOccurrences(of: Strings.Overview.privacyLead + " ", with: "")
-    }
-}
-
 private struct PrimaryActionButton: View {
     let title: String
     let systemImage: String
