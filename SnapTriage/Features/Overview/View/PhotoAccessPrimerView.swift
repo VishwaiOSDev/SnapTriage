@@ -9,12 +9,9 @@ import SwiftUI
 
 /// Shown once, before the system photo prompt.
 ///
-/// The permission sheet is the single highest-stakes moment in the app: it is
-/// asked once, a "Don't Allow" is effectively permanent, and the reassurance
-/// that earns the yes — everything stays on device — used to sit behind the very
-/// permission being asked for. So the app says what it does and what it will
-/// never do first, and only fires the system dialog once the user has agreed to
-/// see it.
+/// This screen makes the privacy contract explicit before the app spends its
+/// one opportunity to ask for Photos access. The action stays reachable on
+/// short screens while the reassurance above it remains scrollable.
 struct PhotoAccessPrimerView: View {
     let onContinue: () -> Void
 
