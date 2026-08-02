@@ -1,53 +1,64 @@
-# Design QA — Overview “Start triage” CTA
+# Onboarding Design QA
 
-- Source visual truth: `/Users/vishweshwaran/.codex/visualizations/2026/07/15/019f6369-8c83-7940-8ec3-ff2028324a3b/figma-start-triage-reference-normalized.png`
-- Implementation screenshot: `/Users/vishweshwaran/.codex/visualizations/2026/07/15/019f6369-8c83-7940-8ec3-ff2028324a3b/snaptriage-overview-icons-v3.png`
-- Focused comparison: `/Users/vishweshwaran/.codex/visualizations/2026/07/15/019f6369-8c83-7940-8ec3-ff2028324a3b/snaptriage-overview-icons-comparison-v3.png`
-- Viewport: iPhone 17, iOS 26.4, 402 × 874 points at 3×
-- State: dark appearance, Overview loaded with stable sample summary data
+## Comparison Target
 
-## Full-view comparison evidence
+- Source visual truth: `/var/folders/8g/0z1j30cd1yxc188j0x56fy040000gn/T/codex-clipboard-beaa0d02-e14f-48d6-858f-be285571bdd8.png`
+- Final implementation capture: `/tmp/snaptriage-onboarding-final.png`
+- Combined comparison: `/tmp/snaptriage-onboarding-final-comparison.png`
+- State: dark appearance, first launch, Photos authorization not determined
+- Simulator: iPhone Air, iOS 27.0
 
-The full simulator capture confirms that the CTA remains centered within the existing summary card, preserves the card’s horizontal insets, does not collide with the statistics or helper copy, and maintains the overview’s visual hierarchy. The source is a component crop rather than a full-screen design, so the surrounding app layout is treated as an existing product constraint rather than a comparison target.
+## Viewport And Normalization
 
-## Focused region comparison evidence
+- Source pixels: 1086 x 2410, including a photographed/rendered device frame and perspective.
+- Implementation pixels: 1260 x 2736 at a 420 x 912 point viewport and 3x density.
+- Comparison normalization: both complete images were proportionally scaled to 1600 px high and placed side by side. Device bezel, status bar, Dynamic Island, and home-indicator differences were treated as system/template chrome rather than app-owned fidelity issues.
 
-The combined comparison normalizes both captures to the same pixel width. It confirms the sampled blue transition, capsule silhouette, bright edge rim, centered label, trailing chevron, and restrained elevation. The implementation retains the source’s native 56-point control height while responding to the narrower width inside the existing summary card.
+## Full-View Comparison Evidence
 
-## Required fidelity surfaces
+The final capture preserves the reference hierarchy and visual rhythm: branded lockup, protected-photo hero, two-line privacy headline, supporting copy, a three-row privacy card, a single prominent access action, and a restrained helper note. The app-owned content remains readable and complete at the tested viewport, with the action anchored inside the bottom safe area.
 
-- Fonts and typography: SF Pro through SwiftUI’s semantic `.body` style with medium weight; the label is centered, single-line, Dynamic Type-aware, and visually consistent with the reference.
-- Spacing and layout rhythm: 56-point minimum height, capsule boundary, 22-point horizontal content inset, centered title, and independently trailing chevron. The button remains responsive instead of using screenshot-derived absolute positioning.
-- Colors and visual tokens: reference samples range from approximately `#2874EB` at the brighter leading region to `#2269DE` at the deeper trailing region. `#2874EB` is now the shared asset-catalog accent for overview symbols and selected navigation, while the CTA maps the sampled range to a diagonal SwiftUI gradient with a subtle top sheen and blue rim.
-- Image quality and asset fidelity: the design contains no raster artwork. The chevron uses the native `chevron.right` SF Symbol for sharp rendering, RTL behavior, and accessibility.
-- Copy and content: “Start triage” matches the reference and the app’s localized string.
-- Interaction and accessibility: the existing navigation action is preserved; the custom button style adds pressed brightness/scale feedback, and the decorative chevron is hidden from accessibility while the text remains the button label.
+No actionable P0, P1, or P2 differences remain. The final implementation intentionally uses the production app-icon artwork instead of the simplified mock icon and native status-bar chrome instead of reproducing the reference device frame.
 
-## Comparison history
+## Focused Region Evidence
 
-### Pass 1
+- Brand and hero: the real app-icon artwork is sharp at 46 pt; the hero uses an SF Symbol with a separate lock badge and matches the reference's blue-on-dark protected-library motif.
+- Typography and copy: title weight, two-line wrapping, supporting-copy width, section heading, row labels, CTA copy, and two-line helper copy match the selected source structure.
+- Privacy card and action: the final custom dark surface is materially closer to the source than the initial system-glass rendering, row dividers and icons remain crisp, and the capsule CTA stays fully visible above the bottom safe area.
 
-- [P2] The top highlight rendered brighter than the source sample.
-- [P2] The blue shadow created a broader neon halo than the reference’s restrained elevation.
-- Fixes: reduced the white sheen from 10% to 2.5%; reduced the blue shadow opacity from 30% to 10%, its radius from 11 to 8 points, and its vertical offset from 4 to 2 points.
+## Required Fidelity Surfaces
 
-### Pass 2
+- Fonts and typography: system San Francisco typography, semantic text styles, matching bold/regular hierarchy, stable wrapping, and Dynamic Type-compatible labels. No truncation is visible at the tested size.
+- Spacing and layout rhythm: consistent 24 pt horizontal margins, balanced hero/title/section gaps, 72 pt trust rows, 24 pt continuous card radius, and a bottom-safe CTA. The layout scrolls when content needs more room.
+- Colors and visual tokens: project background and accent tokens are used; white/secondary/tertiary semantic foregrounds retain contrast; the trust card uses a subtle dark fill and hairline stroke matching the source.
+- Image quality and asset fidelity: the actual 1024 px Icon Composer artwork is reused from the project and compiled through the asset catalog. Standard UI iconography uses SF Symbols; no placeholder or handcrafted vector asset remains.
+- Copy and content: all visible reference copy is localized, including the privacy section heading and access guidance.
 
-- Post-fix evidence: the normalized focused comparison shows the blue fill, rim, text, chevron, and surrounding shadow tracking the source without the earlier over-bright top or broad halo.
-- No actionable P0, P1, or P2 differences remain.
+## Interaction And Accessibility Evidence
 
-### Pass 3
+- Activated `Choose Photo Access` in the running simulator.
+- Confirmed that it presents the native Photos authorization sheet with Select Photos, Allow Full Access, and Don't Allow choices.
+- Confirmed the brand, headline, supporting copy, privacy promises, CTA, and helper note appear as named accessibility elements.
+- The app returned to the Photos-not-determined state after interaction testing; no access choice was persisted.
 
-- [P2] Overview symbols and the selected tab still inherited the brighter system blue, visibly separating them from the Figma-derived CTA palette.
-- Fixes: defined the sampled `#2874EB` as the asset-catalog `AccentColor`, routed overview accents and root navigation tint through that token, and reused it as the CTA's leading gradient stop.
-- Post-fix evidence: the combined reference-and-simulator comparison shows the lock, statistic symbols, feature symbols, app mark, selected tab, and primary action reading as one coherent royal-blue family. Icon shapes, contrast, spacing, and hierarchy remain unchanged.
+## Comparison History
+
+1. Initial implementation capture: `/tmp/snaptriage-onboarding-pass-2.png`.
+   - P2: the iOS glass card rendered substantially brighter than the source.
+   - P2: the helper note remained on one line while the reference uses a narrower two-line measure.
+   - Fixes: replaced the glass treatment with a token-driven dark surface and stroke; constrained the helper note to 300 pt.
+2. Short-screen refinement.
+   - P2: an intermediate capture revealed the scroll view could adopt its content's ideal height, allowing the fixed action region to fall outside the visible proposal.
+   - Fixes: constrained the root scroll container to the available screen height and tightened only the vertical gaps needed to keep the privacy card complete.
+3. Final evidence: `/tmp/snaptriage-onboarding-final.png` and `/tmp/snaptriage-onboarding-final-comparison.png`.
+   - Post-fix result: the card, CTA, and helper note are all visible; the darker surface and two-line helper now match the reference treatment.
 
 ## Findings
 
-No actionable P0, P1, or P2 findings remain.
+No actionable P0/P1/P2 findings remain.
 
-## Follow-up polish
+## Follow-up Polish
 
-No P3 follow-up is necessary for the requested color-style match.
+- P3: the production app icon is more detailed than the simplified icon in the mock. This is intentional brand fidelity rather than an implementation mismatch.
 
 final result: passed
