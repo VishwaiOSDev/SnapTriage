@@ -166,6 +166,18 @@ struct LoadReviewItemsUseCaseTests {
         #expect(items.map(\.source) == [.userMarked, .suggested])
     }
 
+    @Test("A category scope never reaches outside its bucket", .tags(.fast))
+    func categoryScopeExcludesOtherBuckets() async throws {
+        let shots = [Fixture.screenshot(id: "1"), Fixture.screenshot(id: "2")]
+        let service = FakePhotoLibraryService(screenshots: shots)
+        let store = SeededCategoryStore(["1": .receipt, "2": .article])
+        let sut = Fixture.loadReviewItems(service: service, store: store)
+
+        let items = try await sut.execute(scope: .category(.receipt))
+
+        #expect(items.map(\.id) == ["1"])
+    }
+
     @Test("Denied access throws before classifying", .tags(.fast))
     func deniedThrows() async {
         let service = FakePhotoLibraryService(authorization: .denied)
