@@ -230,6 +230,12 @@ final class OverviewViewModel {
 
     // `base` is how many screenshots the cache already covered; the stream's
     // progress counts are relative to the pending slice handed to it.
+    //
+    // The stream is consumed off the main actor and published on a fixed tick.
+    // Applying every result as it lands put one `@Observable` mutation — and so
+    // one full re-render of the hero metric and the glass summary card — on the
+    // main thread per screenshot, for the length of a cold pass. That is what
+    // made the toolbar and Start Triage feel unresponsive on first launch.
     private func classifyFlow(_ screenshots: [Screenshot], startingFrom base: Int) {
         guard !screenshots.isEmpty else {
             progress.startedAt = nil
@@ -237,24 +243,57 @@ final class OverviewViewModel {
         }
         progress.startedAt = .now
         progress.startedFrom = base
-        run(.classify) { [weak self] in
-            guard let self else { return }
-            for await progress in self.classifyLibrary.execute(screenshots) {
+
+        let classifyLibrary = classifyLibrary
+        let sizes = sizes
+        let interval = Self.progressPublishInterval
+        tasks[.classify]?.cancel()
+        tasks[.classify] = Task.detached(priority: .utility) { [weak self] in
+            var batch = OverviewSummary()
+            var completed = 0
+            var lastPublish = ContinuousClock.now
+
+            for await progress in classifyLibrary.execute(screenshots) {
                 if Task.isCancelled { break }
-                self.progress.classifiedCount = base + progress.completed
-                guard let id = progress.id else { continue }
-                if let classification = progress.classification {
-                    self.progress.summary.add(
-                        bytes: self.sizes[id] ?? 0,
-                        disposition: classification.disposition
-                    )
-                } else {
-                    self.progress.summary.unknownCount += 1
+                completed = progress.completed
+                if let id = progress.id {
+                    if let classification = progress.classification {
+                        batch.add(bytes: sizes[id] ?? 0, disposition: classification.disposition)
+                    } else {
+                        batch.unknownCount += 1
+                    }
                 }
+
+                let now = ContinuousClock.now
+                guard now - lastPublish >= interval else { continue }
+                lastPublish = now
+                let published = batch
+                batch = OverviewSummary()
+                await self?.publish(published, classifiedCount: base + completed)
             }
-            self.progress.startedAt = nil
+
+            // A cancelled pass was superseded by a newer load, which has already
+            // reset the summary; its residual batch must not land on top.
+            guard !Task.isCancelled else { return }
+            await self?.finishClassifying(batch, classifiedCount: base + completed)
         }
     }
+
+    /// Folds one tick's worth of results into the screen's state.
+    private func publish(_ batch: OverviewSummary, classifiedCount: Int) {
+        progress.summary.merge(batch)
+        progress.classifiedCount = classifiedCount
+    }
+
+    private func finishClassifying(_ batch: OverviewSummary, classifiedCount: Int) {
+        publish(batch, classifiedCount: classifiedCount)
+        progress.startedAt = nil
+    }
+
+    /// How often a running pass is allowed to move the screen. Slow enough that
+    /// the summary card is not re-rendered per screenshot, fast enough that the
+    /// hero figure still reads as live.
+    private static let progressPublishInterval: Duration = .milliseconds(250)
 
     // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
     private func run(_ kind: TaskKind, _ operation: @escaping () async -> Void) {
