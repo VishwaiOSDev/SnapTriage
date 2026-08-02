@@ -48,6 +48,7 @@
 		8D3C71A7DCB88E959DADBB87 /* HeuristicScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */; };
 		91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */; };
 		95FBA02DFA5B2C208FBD4C57 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351A2941BED148CD1B825572 /* LoadReviewItemsUseCaseTests.swift */; };
+		99BD21E73ED1FB3E22810934 /* HeuristicCategoryRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E39FF5BFB289E60A382602 /* HeuristicCategoryRules.swift */; };
 		9F814139D070E1E2F4BD413A /* PhotoLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FFC765CAA4BD052B0AC7E1 /* PhotoLibraryService.swift */; };
 		A06C5B3815DEE901B5E59BF4 /* OverviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC82B337921E4E6CFEAFDC1 /* OverviewViewModel.swift */; };
 		A23A6407F1D934A7D0D80EC6 /* TriageDecisionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CD2E3C6FCF8C3E74FF9FD5 /* TriageDecisionStore.swift */; };
@@ -127,6 +128,7 @@
 		41E5CBFABC4344B00A0354B0 /* ScreenshotCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategory.swift; sourceTree = "<group>"; };
 		484A0E7258BAFB2C7FF25EE9 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		4CF1CBF61E0168CD873C9B27 /* MetricFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricFormatter.swift; sourceTree = "<group>"; };
+		52E39FF5BFB289E60A382602 /* HeuristicCategoryRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicCategoryRules.swift; sourceTree = "<group>"; };
 		61A8E75279720F0E0B36139D /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
 		63C12DFFCC365439E7F0F01C /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
 		6694FA44F818F4A5BFC09BE6 /* ReviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewComposition.swift; sourceTree = "<group>"; };
@@ -323,6 +325,7 @@
 			children = (
 				484A0E7258BAFB2C7FF25EE9 /* FallbackScreenshotCategorizer.swift */,
 				B4378FDBD5A9A81AABC0D6E4 /* FoundationModelScreenshotCategorizer.swift */,
+				52E39FF5BFB289E60A382602 /* HeuristicCategoryRules.swift */,
 				7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */,
 				B506758E1E05349E9AD13F2A /* ImageContentClassifier.swift */,
 				340DA96341670B69CF08F72E /* ScreenshotCategorizer.swift */,
@@ -783,6 +786,7 @@
 				E435E3D6893AA898D7DA97BE /* ScreenshotDisposition.swift in Sources */,
 				D10A5770CB58F5A07E40DA5D /* FallbackScreenshotCategorizer.swift in Sources */,
 				01E417AC3DEF2B2880C7C99A /* FoundationModelScreenshotCategorizer.swift in Sources */,
+				99BD21E73ED1FB3E22810934 /* HeuristicCategoryRules.swift in Sources */,
 				8D3C71A7DCB88E959DADBB87 /* HeuristicScreenshotCategorizer.swift in Sources */,
 				C78858364F0C0FD16DE0D89C /* ImageContentClassifier.swift in Sources */,
 				7752619F3835D5DEE2130E40 /* ScreenshotCategorizer.swift in Sources */,
