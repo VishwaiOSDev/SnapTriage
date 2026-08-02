@@ -46,7 +46,6 @@
 		7F4E179BDAACE9ADA2D39003 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722C73933C870FC12D3102C9 /* DeleteScreenshotsUseCaseTests.swift */; };
 		80CC41A5E77B95CD2E32B60D /* ScreenshotThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7763160A48CDF1789B81AA93 /* ScreenshotThumbnailView.swift */; };
 		8646A08B7AA5B102F46AEC33 /* OverviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD77B384C150F95CB5BB9640 /* OverviewComposition.swift */; };
-		8A3585A1EB291E5C5B46A985 /* TextRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A46128844A7AA182054B6E9 /* TextRecognitionService.swift */; };
 		91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */; };
 		95FBA02DFA5B2C208FBD4C57 /* LoadReviewItemsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351A2941BED148CD1B825572 /* LoadReviewItemsUseCaseTests.swift */; };
 		9CB762A655E9E75020A06081 /* ScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4E49DE27EF9236FEBDBE90 /* ScreenshotCategorizer.swift */; };
@@ -75,6 +74,7 @@
 		E79D413C53D8AEE9D89A003A /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2C5E510CDEB1C44C24888B /* AppNavigation.swift */; };
 		EABF8A9228F0D46FD68F9A2E /* LoadTriageProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD0EDD7D4F0994CBE38961B /* LoadTriageProgressUseCase.swift */; };
 		EEA9A8FAD05162C014D15A96 /* LoadScreenshotsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77CDBB4B3C1A8AF3E061A8F /* LoadScreenshotsUseCase.swift */; };
+		EEF24A043F3CAC27FAFDD11C /* TextRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1981206E7343DAFAA48A51D /* TextRecognitionService.swift */; };
 		F12B71978C2F0B8AFD30E577 /* OCRResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1D33FF01A15F8A1FED159C /* OCRResult.swift */; };
 		F201C24755B084E6C4F35ACF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 240B022BE64B8954FE0435F6 /* Localizable.xcstrings */; };
 		F3C5B5C866B4D92B2FAF5731 /* ClassificationNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */; };
@@ -146,10 +146,10 @@
 		962E03B3AE75031762EB31C2 /* LoadReviewItemsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCase.swift; sourceTree = "<group>"; };
 		96E74A2B0CC8658D3890000F /* TriageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageViewModel.swift; sourceTree = "<group>"; };
 		97BD6D27663370D28DDADA1E /* ReviewItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewItemView.swift; sourceTree = "<group>"; };
-		9A46128844A7AA182054B6E9 /* TextRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionService.swift; sourceTree = "<group>"; };
 		9BEC4CA3D9966A5335535F0D /* ReviewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewItem.swift; sourceTree = "<group>"; };
 		9D2F267ADC28E3E38EC40280 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
 		9D44D8A99F85FBBD0BD85BA1 /* FoundationModelScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelScreenshotCategorizer.swift; sourceTree = "<group>"; };
+		A1981206E7343DAFAA48A51D /* TextRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRecognitionService.swift; sourceTree = "<group>"; };
 		A43B6867EFF6F4B3D1161353 /* ReviewTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTestDoubles.swift; sourceTree = "<group>"; };
 		A43FE831A4BC8426E6689C03 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A4CC4413DCCA1E4E9D62221A /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
@@ -296,6 +296,7 @@
 			isa = PBXGroup;
 			children = (
 				47A01AADBFD0E3B38A218938 /* Model */,
+				8DD0B14FD0DAAF5CD206E454 /* Service */,
 			);
 			path = Classification;
 			sourceTree = "<group>";
@@ -309,6 +310,14 @@
 				D534FF42E8CAB9050CAB5D3A /* ScreenshotDisposition.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		8DD0B14FD0DAAF5CD206E454 /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				A1981206E7343DAFAA48A51D /* TextRecognitionService.swift */,
+			);
+			path = Service;
 			sourceTree = "<group>";
 		};
 		5D94EEFD193C90CAEA7BC78E /* PhotoLibrary */ = {
@@ -538,7 +547,6 @@
 				9D44D8A99F85FBBD0BD85BA1 /* FoundationModelScreenshotCategorizer.swift */,
 				B8FD43BB9954D5151295E66D /* ImageContentClassifier.swift */,
 				1E4E49DE27EF9236FEBDBE90 /* ScreenshotCategorizer.swift */,
-				9A46128844A7AA182054B6E9 /* TextRecognitionService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -748,6 +756,7 @@
 				F12B71978C2F0B8AFD30E577 /* OCRResult.swift in Sources */,
 				F69BE6F6475A86FB6E4B94EC /* ScreenshotCategory.swift in Sources */,
 				E435E3D6893AA898D7DA97BE /* ScreenshotDisposition.swift in Sources */,
+				EEF24A043F3CAC27FAFDD11C /* TextRecognitionService.swift in Sources */,
 				6F1938468F03A0883785E572 /* PhotoLibraryAuthorization.swift in Sources */,
 				29C5AE1A9C12F9AD15172F72 /* Screenshot.swift in Sources */,
 				9F814139D070E1E2F4BD413A /* PhotoLibraryService.swift in Sources */,
@@ -777,7 +786,6 @@
 				30469DCED1A2E5EFDFF09009 /* FoundationModelScreenshotCategorizer.swift in Sources */,
 				3D53A9052D2FB37FB4A5860E /* ImageContentClassifier.swift in Sources */,
 				9CB762A655E9E75020A06081 /* ScreenshotCategorizer.swift in Sources */,
-				8A3585A1EB291E5C5B46A985 /* TextRecognitionService.swift in Sources */,
 				68AFD31D44B515D38638DB6B /* OCRStore.swift in Sources */,
 				A23A6407F1D934A7D0D80EC6 /* TriageDecisionStore.swift in Sources */,
 				DB43238FAB8BD648E37124F3 /* CategorizeScreenshotUseCase.swift in Sources */,
