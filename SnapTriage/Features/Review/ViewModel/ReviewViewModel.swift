@@ -61,6 +61,10 @@ final class ReviewViewModel {
 
     private(set) var state = State()
 
+    /// Which screenshots this instance answers for. Fixed at construction: a
+    /// scope change is a different screen, not a different state.
+    let scope: ReviewScope
+
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadItems: LoadReviewItemsUseCase
     private let deleteScreenshots: DeleteScreenshotsUseCase
@@ -72,6 +76,7 @@ final class ReviewViewModel {
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
 
     init(
+        scope: ReviewScope = .triage,
         requestAccess: RequestPhotoAccessUseCase,
         loadItems: LoadReviewItemsUseCase,
         deleteScreenshots: DeleteScreenshotsUseCase,
@@ -79,6 +84,7 @@ final class ReviewViewModel {
         imageLoader: PhotoLibraryService,
         router: ReviewRouter
     ) {
+        self.scope = scope
         self.requestAccess = requestAccess
         self.loadItems = loadItems
         self.deleteScreenshots = deleteScreenshots
@@ -130,7 +136,7 @@ final class ReviewViewModel {
             }
 
             do {
-                let items = try await self.loadItems.execute()
+                let items = try await self.loadItems.execute(scope: self.scope)
                 try Task.checkCancellation()
                 // Two rules compose here. Only verdicts the user actually gave
                 // are ever armed for deletion — a classifier suggestion has to
