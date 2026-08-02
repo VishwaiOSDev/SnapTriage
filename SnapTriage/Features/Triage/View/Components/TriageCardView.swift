@@ -69,24 +69,16 @@ struct TriageCardView: View {
     private var preview: some View {
         if let image {
             GeometryReader { proxy in
-                // Explicitly constrain both layers to the viewport. Without
-                // this, the invisible Fill layer can still determine ZStack's
-                // layout and make the Fit presentation appear cropped.
-                ZStack {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .opacity(imageMode == .fit ? 1 : 0)
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
-                        .opacity(imageMode == .fill ? 1 : 0)
-                }
-                .frame(width: proxy.size.width, height: proxy.size.height)
-                .clipped()
+                // One layer that switches content mode, not one layer per mode.
+                // The hidden copy still cost a full texture, and the card is
+                // recomposited on every frame of a drag or a fly-off. Toggling
+                // now reads as a zoom between the two framings rather than a
+                // cross-fade, which suits Fit ↔ Fill anyway.
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: imageMode == .fill ? .fill : .fit)
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .clipped()
             }
             .animation(
                 .easeInOut(duration: TriageMetrics.imageModeTransitionDuration),
