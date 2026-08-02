@@ -1,0 +1,65 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          set -euo pipefail
+          XCODE_PATH=$(ls -d /Applications/Xcode*.app | sort -V | tail -n 1)
+          echo "Using $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH"
+          xcodebuild -version
+          swift --version
+
+      - name: Install xcbeautify
+        run: command -v xcbeautify >/dev/null 2>&1 || brew install xcbeautify
+
+      - name: Resolve iOS Simulator destination
+        id: destination
+        run: |
+          set -euo pipefail
+          RUNTIME=$(xcrun simctl list runtimes --json \
+            | python3 -c 'import json,sys; rs=[r for r in json.load(sys.stdin)["runtimes"] if r["isAvailable"] and r["platform"]=="iOS"]; rs.sort(key=lambda r: [int(p) for p in r["version"].split(".")]); print(rs[-1]["identifier"])')
+          UDID=$(xcrun simctl list devices available --json \
+            | python3 -c "import json,sys; ds=json.load(sys.stdin)['devices'].get('$RUNTIME', []); ds=[d for d in ds if 'iPhone' in d['name']]; ds.sort(key=lambda d: d['name']); print(ds[-1]['udid'])")
+          echo "Runtime: $RUNTIME"
+          echo "Simulator: $UDID"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Run unit tests
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -project SnapTriage.xcodeproj \
+            -scheme SnapTriage \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=${{ steps.destination.outputs.udid }}" \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify --renderer github-actions
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults.xcresult
+          retention-days: 7
