@@ -107,6 +107,25 @@ struct ReviewView: View {
                 }
             }
         }
+        ToolbarItem(placement: .topBarTrailing) {
+            // The bulk keep lives here rather than on the category list: it is
+            // safe, but it still retires the whole bucket, and the user should
+            // be able to see what they are dismissing while they do it.
+            if hasContent && viewModel.scope.isCategory {
+                Menu {
+                    Button {
+                        viewModel.send(.keepAll)
+                    } label: {
+                        Label(
+                            Strings.Review.keepAll(MetricFormatter.count(viewModel.state.items.count)),
+                            systemImage: "checkmark.circle"
+                        )
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
     }
 
     private var hasContent: Bool {
