@@ -40,10 +40,8 @@ struct OverviewView: View {
                 AppMarkView()
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: onOpenSettings) {
-                    Image(systemName: "gearshape.fill")
-                }
-                .accessibilityLabel(Strings.Overview.settings)
+                SettingsToolbarButton(action: onOpenSettings)
+                    .equatable()
             }
         }
         .task { viewModel.send(.onAppear) }
@@ -295,6 +293,23 @@ struct OverviewView: View {
                 indicator: .progress(summary.reclaimableRatio)
             )
         ]
+    }
+}
+
+/// The gear carries no state at all, so it should never be rebuilt — but its
+/// only stored property is a closure, which SwiftUI's own diffing always treats
+/// as changed. Declaring it unconditionally equal keeps the bar button item
+/// alive across parent updates, so a tap can't land on an item being replaced.
+private struct SettingsToolbarButton: View, Equatable {
+    let action: () -> Void
+
+    static func == (lhs: Self, rhs: Self) -> Bool { true }
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "gearshape.fill")
+        }
+        .accessibilityLabel(Strings.Overview.settings)
     }
 }
 
