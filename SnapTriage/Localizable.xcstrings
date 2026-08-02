@@ -1009,6 +1009,18 @@
         }
       }
     },
+    "Review.recoveryNote": {
+      "comment": "Reassurance that deletions are recoverable",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted items move to Recently Deleted. You can recover them for 30 days."
+          }
+        }
+      }
+    },
     "Review.selectAll": {
       "comment": "Button that selects every suggested screenshot",
       "extractionState": "manual",
