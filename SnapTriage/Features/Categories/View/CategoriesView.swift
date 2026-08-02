@@ -7,11 +7,14 @@
 
 import SwiftUI
 
-/// Bulk triage. The classifier has already read every screenshot; this screen
-/// spends that work instead of asking the user to re-derive it one swipe at a
-/// time. Clearing the three largest buckets here is the difference between a
-/// forty-minute chore and a two-minute one — and whatever is genuinely ambiguous
-/// is still there afterwards, waiting in the deck.
+/// Bulk triage, as a map rather than a verdict. The classifier has already read
+/// every screenshot; this screen spends that work by showing the user where
+/// their library actually is, and each row opens the bucket's photos.
+///
+/// It deliberately applies no verdict of its own. An earlier version offered
+/// "mark all N for deletion" straight from a row, which meant the fastest path
+/// to deleting hundreds of screenshots never showed the user one of them. Bulk
+/// actions now live one level in, next to the photos they apply to.
 struct CategoriesView: View {
     @State private var viewModel: CategoriesViewModel
     private let onOpenCategory: (ScreenshotCategory) -> Void
