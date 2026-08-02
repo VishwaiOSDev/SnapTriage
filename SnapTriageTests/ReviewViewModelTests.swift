@@ -293,6 +293,18 @@ struct ReviewViewModelTests {
         #expect(!vm.state.hasSelection)
     }
 
+    @Test("A category scope still arrives armed for the user's own swipes")
+    func categoryScopeKeepsUserMarks() async {
+        let decisions = SeededTriageDecisionStore(["4": .markForDeletion])
+        let (vm, _, _) = makeSUT(scope: .category(.receipt), decisions: decisions)
+
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        #expect(vm.state.markedItems.map(\.id) == ["4"])
+        #expect(vm.state.selectedIDs == ["4"])
+    }
+
     @Test("Denied access fails with a presentable message")
     func deniedAccessFails() async {
         let (vm, _, _) = makeSUT(authorization: .denied)
