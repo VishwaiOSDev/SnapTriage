@@ -175,6 +175,15 @@ struct ReviewViewModelTests {
         #expect(vm.state.items.count == 3)
     }
 
+    @Test("An empty selection reads as a real zero, not \"Zero KB\"")
+    func emptySelectionFormatsAsZero() async {
+        let (vm, _, _) = makeSUT()
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        #expect(MetricFormatter.size(vm.state.reclaimableBytes) == "0 bytes")
+    }
+
     @Test("Delete removes the selected items and forwards them to the library")
     func deleteRemovesSelected() async {
         let (vm, service, _) = makeSUT()
