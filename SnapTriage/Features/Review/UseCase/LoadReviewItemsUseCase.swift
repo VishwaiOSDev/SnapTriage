@@ -52,6 +52,30 @@ struct LoadReviewItemsUseCase {
             }
         }
     }
+
+    private func categoryItems(
+        _ screenshots: [Screenshot],
+        in category: ScreenshotCategory
+    ) async -> [ReviewItem] {
+        let classifications = await classifyLibrary.cachedClassifications()
+        let verdicts = decisions.allDecisions()
+        return screenshots.compactMap { shot in
+            switch verdicts[shot.id] {
+            case .keep:
+                return nil
+            case .markForDeletion:
+                // Screenshots already marked belong with their bucket rather than
+                // hidden from it: deleting half a category and leaving the rest
+                // invisible is how a user loses track of what they decided.
+                guard (classifications[shot.id]?.category ?? .other) == category else { return nil }
+                return item(shot, category, .userMarked)
+            case nil:
+                guard classifications[shot.id]?.category == category else { return nil }
+                return item(shot, category, .suggested)
+            }
+        }
+    }
+
     private func item(
         _ shot: Screenshot,
         _ category: ScreenshotCategory,
