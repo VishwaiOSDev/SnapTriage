@@ -61,6 +61,7 @@ final class ReviewViewModel {
         case retry
         case toggle(Screenshot.ID)
         case toggleAllSuggestions
+        case toggleSelectAll
         case deleteSelected
         case openSystemSettings
         case clearError
@@ -112,6 +113,8 @@ final class ReviewViewModel {
             toggle(id)
         case .toggleAllSuggestions:
             toggleAllSuggestions()
+        case .toggleSelectAll:
+            toggleSelectAll()
         case .deleteSelected:
             deleteFlow()
         case .openSystemSettings:
@@ -194,6 +197,17 @@ final class ReviewViewModel {
         }
     }
 
+    /// The screen-level control: arms everything, or clears the whole selection
+    /// if it is already armed. Suggestions are only ever included by this kind
+    /// of explicit tap, never by a default.
+    private func toggleSelectAll() {
+        guard !state.items.isEmpty else { return }
+        if state.areAllSelected {
+            state.selectedIDs.removeAll()
+        } else {
+            state.selectedIDs = Set(state.items.map(\.id))
+        }
+    }
     private func deleteFlow() {
         let ids = Array(state.selectedIDs)
         guard !ids.isEmpty, !state.isDeleting else { return }
