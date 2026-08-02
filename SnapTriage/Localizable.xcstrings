@@ -140,7 +140,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your photos and videos are never read."
+            "value": "Your personal photos and videos are never analyzed."
           }
         }
       }
@@ -152,7 +152,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Screenshots only"
+            "value": "Only your screenshots"
           }
         }
       }
