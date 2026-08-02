@@ -38,17 +38,3 @@ struct CategoryBreakdown: Equatable, Sendable {
 
     static let empty = CategoryBreakdown()
 }
-
-/// A bulk verdict that has been applied, kept so it can be taken back. Bulk
-/// actions touch hundreds of screenshots at once, which is exactly when a
-/// mis-tap is expensive and an undo is cheap.
-struct BulkTriageReceipt: Equatable, Sendable {
-    let category: ScreenshotCategory
-    let decision: TriageDecision
-    let ids: [Screenshot.ID]
-    /// Verdicts these screenshots carried beforehand, so undo restores the prior
-    /// state rather than merely clearing it.
-    let previous: [Screenshot.ID: TriageDecision]
-
-    var count: Int { ids.count }
-}
