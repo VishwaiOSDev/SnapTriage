@@ -44,9 +44,15 @@ final class ReviewViewModel {
 
         var suggestedBytes: Int { suggestedItems.reduce(0) { $0 + $1.byteSize } }
 
+        var totalBytes: Int { items.reduce(0) { $0 + $1.byteSize } }
+
         var areAllSuggestionsSelected: Bool {
             let suggested = suggestedItems
             return !suggested.isEmpty && suggested.allSatisfy { selectedIDs.contains($0.id) }
+        }
+
+        var areAllSelected: Bool {
+            !items.isEmpty && selectedIDs.count == items.count
         }
     }
 
