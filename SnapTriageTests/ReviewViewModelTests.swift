@@ -281,6 +281,18 @@ struct ReviewViewModelTests {
         #expect(vm.state.suggestedItems.map(\.id) == ["4"])
     }
 
+    @Test("Opening a category selects nothing, so no one can delete a bucket blind")
+    func categoryScopeSelectsNothing() async {
+        let (vm, _, _) = makeSUT(scope: .category(.social))
+
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        #expect(vm.state.items.map(\.id) == ["1"])
+        #expect(vm.state.selectedIDs.isEmpty)
+        #expect(!vm.state.hasSelection)
+    }
+
     @Test("Denied access fails with a presentable message")
     func deniedAccessFails() async {
         let (vm, _, _) = makeSUT(authorization: .denied)
