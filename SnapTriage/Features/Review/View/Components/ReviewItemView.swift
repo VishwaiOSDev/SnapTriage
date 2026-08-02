@@ -14,6 +14,7 @@ struct ReviewItemView: View {
     let isSelected: Bool
     let loadThumbnail: (Screenshot.ID, CGSize) async -> UIImage?
     let onToggle: () -> Void
+    let onOpen: () -> Void
 
     @Environment(\.displayScale) private var displayScale
     @State private var image: UIImage?
@@ -34,10 +35,15 @@ struct ReviewItemView: View {
                 // "disabled" — the checkmark carries selection.
                 .opacity(isSelected ? 1 : 0.55)
                 .contentShape(shape)
+                .onTapGesture(perform: onOpen)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(item.category.title)
+                .accessibilityValue(accessibilityValue)
+                .accessibilityHint(Strings.Review.openHint)
+                .accessibilityAddTraits(.isButton)
                 // Layered above the image so the circle wins the tap, and outside
                 // the dimming so the control never reads as disabled.
                 .overlay(alignment: .topTrailing) { selectionToggle }
-                .onTapGesture(perform: onToggle)
                 .animation(.easeInOut(duration: 0.15), value: isSelected)
                 .task(id: item.id) {
                     // Request in pixels, not points, so PhotoKit downscales to the right size.
@@ -49,10 +55,7 @@ struct ReviewItemView: View {
                 }
         }
         .aspectRatio(Spacing.reviewTileAspectRatio, contentMode: .fit)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(item.category.title)
-        .accessibilityValue(sizeText)
-        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder
