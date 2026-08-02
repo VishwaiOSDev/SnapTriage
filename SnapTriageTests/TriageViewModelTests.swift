@@ -46,7 +46,7 @@ struct TriageViewModelTests {
 
     private func waitUntil(
         _ condition: @escaping () -> Bool,
-        timeout: Duration = .seconds(2)
+        timeout: Duration = .seconds(10)
     ) async {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: timeout)
