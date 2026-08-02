@@ -148,6 +148,24 @@ struct LoadReviewItemsUseCaseTests {
         #expect(items.allSatisfy { $0.source == .suggested })
     }
 
+    @Test("A category scope keeps the user's own marks in with their bucket", .tags(.fast))
+    func categoryScopeKeepsUserMarks() async throws {
+        let shots = [
+            Fixture.screenshot(id: "1", byteSize: 100),   // social, marked
+            Fixture.screenshot(id: "2", byteSize: 200),   // social, undecided
+            Fixture.screenshot(id: "3", byteSize: 300)    // social, kept
+        ]
+        let service = FakePhotoLibraryService(screenshots: shots)
+        let store = SeededCategoryStore(["1": .social, "2": .social, "3": .social])
+        let decisions = SeededTriageDecisionStore(["1": .markForDeletion, "3": .keep])
+        let sut = Fixture.loadReviewItems(service: service, store: store, decisions: decisions)
+
+        let items = try await sut.execute(scope: .category(.social))
+
+        #expect(items.map(\.id) == ["1", "2"])
+        #expect(items.map(\.source) == [.userMarked, .suggested])
+    }
+
     @Test("Denied access throws before classifying", .tags(.fast))
     func deniedThrows() async {
         let service = FakePhotoLibraryService(authorization: .denied)
