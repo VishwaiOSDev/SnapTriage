@@ -116,6 +116,14 @@ final class TriageViewModel {
         return screenshot(at: preferredIndex(excluding: [current.id]))
     }
 
+    /// The card two swipes out. It is never shown; the deck mounts it so its
+    /// thumbnail is fetched and decoded before it is needed. Without it, a
+    /// card's first load lands in the middle of the outgoing card's fly-off.
+    var prefetch: Screenshot? {
+        guard let current = state.current, let upNext else { return nil }
+        return screenshot(at: preferredIndex(excluding: [current.id, upNext.id]))
+    }
+
     private func screenshot(at index: Int) -> Screenshot? {
         state.screenshots.indices.contains(index) ? state.screenshots[index] : nil
     }

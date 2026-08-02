@@ -165,6 +165,29 @@ struct TriageViewModelTests {
         #expect(vm.upNext?.id == "2")
     }
 
+    @Test("The prefetch slot is the card after up-next, never one already shown")
+    func prefetchFollowsUpNext() async {
+        let (vm, _, _) = makeSUT()
+        vm.send(.onAppear)
+        await waitUntil { vm.classifications.count == 4 }
+
+        #expect(vm.state.current?.id == "1")
+        #expect(vm.upNext?.id == "2")
+        #expect(vm.prefetch?.id == "3")
+
+        vm.send(.decide(.keep))
+        #expect(vm.state.current?.id == "2")
+        #expect(vm.upNext?.id == "3")
+        #expect(vm.prefetch?.id == "4")
+
+        // The tail of the deck has nothing left to warm up.
+        vm.send(.decide(.keep))
+        vm.send(.decide(.keep))
+        #expect(vm.state.current?.id == "4")
+        #expect(vm.upNext == nil)
+        #expect(vm.prefetch == nil)
+    }
+
     @Test("A swipe lands in the store before the deck advances")
     func swipeRecordsBeforeAdvancing() async {
         let (vm, decisions, _) = makeSUT()
