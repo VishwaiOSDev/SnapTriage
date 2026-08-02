@@ -7,12 +7,30 @@
 
 import Foundation
 
+/// A bulk verdict that has been applied, kept so it can be taken back. Bulk
+/// actions touch hundreds of screenshots at once, which is exactly when a
+/// mis-tap is expensive and an undo is cheap.
+struct BulkTriageReceipt: Equatable, Sendable {
+    let category: ScreenshotCategory
+    let decision: TriageDecision
+    let ids: [Screenshot.ID]
+    /// Verdicts these screenshots carried beforehand, so undo restores the prior
+    /// state rather than merely clearing it.
+    let previous: [Screenshot.ID: TriageDecision]
+
+    var count: Int { ids.count }
+}
+
 /// Records one verdict across a whole category.
 ///
 /// Writes to the same decision store a swipe does, so a bulk verdict is a
 /// first-class triage decision: the deck stops offering those cards, and marked
 /// screenshots land in Review as user-marked, behind the same confirmation as
 /// anything else. Nothing here touches the photo library.
+///
+/// Lives with the other triage decision use cases because that is what it
+/// writes. Its caller is the category-scoped Review screen, which is the only
+/// place a bulk verdict can be given — with the screenshots on screen.
 struct ApplyBulkTriageUseCase {
 
     let store: TriageDecisionStore
