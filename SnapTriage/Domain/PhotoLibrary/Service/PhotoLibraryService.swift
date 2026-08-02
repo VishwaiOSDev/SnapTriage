@@ -95,7 +95,7 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
         options.isSynchronous = false
 
         let cancellation = PhotoRequestCancellation()
-        return await withTaskCancellationHandler {
+        let image: UIImage? = await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in
                 let once = ResumeOnce()
                 let requestID = imageManager.requestImage(
@@ -117,6 +117,11 @@ final class PhotoKitLibraryService: PhotoLibraryService, @unchecked Sendable {
         } onCancel: {
             cancellation.cancel(manager: imageManager)
         }
+
+        // PhotoKit returns a lazily-decoded image, so the decode lands on the
+        // render thread the first time it is drawn — which, for the deck, is in
+        // the middle of a fly-off animation. Pay it here, off the main actor.
+        return await image?.byPreparingForDisplay() ?? image
     }
 
     func cgImage(for id: Screenshot.ID, longEdge: CGFloat) async -> CGImage? {
