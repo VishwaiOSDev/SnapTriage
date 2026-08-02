@@ -13,21 +13,23 @@ concurrency:
 jobs:
   unit-tests:
     name: Unit Tests
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 30
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select newest Xcode
+      - name: Verify Xcode 27
         run: |
           set -euo pipefail
-          XCODE_PATH=$(ls -d /Applications/Xcode*.app | sort -V | tail -n 1)
-          echo "Using $XCODE_PATH"
-          sudo xcode-select -s "$XCODE_PATH"
           xcodebuild -version
           swift --version
+          XCODE_VERSION=$(xcodebuild -version | awk 'NR == 1 { print $2 }')
+          if [[ "$XCODE_VERSION" != 27.* ]]; then
+            echo "::error::Expected Xcode 27, found Xcode $XCODE_VERSION"
+            exit 1
+          fi
 
       - name: Install xcbeautify
         run: command -v xcbeautify >/dev/null 2>&1 || brew install xcbeautify
