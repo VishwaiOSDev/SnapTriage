@@ -78,7 +78,6 @@ struct CategoriesView: View {
             .padding(.vertical, Spacing.sectionSpacing)
         }
         .scrollIndicators(.hidden)
-        .safeAreaInset(edge: .bottom) { undoBar }
         .animation(.default, value: viewModel.state.breakdown)
     }
 
@@ -117,27 +116,6 @@ struct CategoriesView: View {
         .padding(.top, 6)
     }
 
-    @ViewBuilder
-    private var undoBar: some View {
-        if let receipt = viewModel.state.lastReceipt {
-            HStack(spacing: 12) {
-                Text(undoText(receipt))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                Spacer(minLength: 0)
-                Button(Strings.Triage.undo) { viewModel.send(.undoLast) }
-                    .font(.footnote.weight(.semibold))
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Palette.accent)
-            }
-            .padding(.horizontal, Spacing.screenPadding)
-            .padding(.vertical, 14)
-            .background(.ultraThinMaterial)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
-    }
-
     private var failure: some View {
         ContentUnavailableView {
             Label(Strings.Access.title, systemImage: "lock.fill")
@@ -150,13 +128,6 @@ struct CategoriesView: View {
 
     // MARK: - Display
 
-    private func undoText(_ receipt: BulkTriageReceipt) -> String {
-        let count = countText(receipt.count)
-        let category = receipt.category.title
-        return switch receipt.decision {
-        case .markForDeletion: Strings.Categories.appliedMarked(count, category)
-        case .keep:            Strings.Categories.appliedKept(count, category)
-        }
     }
 
     private func sizeText(_ bytes: Int) -> String {
