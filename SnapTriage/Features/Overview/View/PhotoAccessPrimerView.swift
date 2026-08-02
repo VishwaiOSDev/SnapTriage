@@ -161,16 +161,19 @@ struct PhotoAccessPrimerView: View {
     }
 
     private var actionArea: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 11) {
             PrimaryActionButton(
                 title: Strings.Access.primerContinue,
                 systemImage: "chevron.right",
                 action: onContinue
             )
+
             Text(Strings.Access.primerFootnote)
-                .font(.caption2)
+                .font(.footnote)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 300)
         }
     }
 
