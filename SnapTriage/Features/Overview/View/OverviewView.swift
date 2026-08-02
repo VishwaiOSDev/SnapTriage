@@ -253,17 +253,6 @@ struct OverviewView: View {
     }
 }
 
-
-private struct EmptyOverviewView: View {
-    var body: some View {
-        ContentUnavailableView {
-            Label(Strings.Triage.emptyTitle, systemImage: "photo.on.rectangle.angled")
-        } description: {
-            Text(Strings.Triage.emptyMessage)
-        }
-    }
-}
-
 #if DEBUG
 @MainActor
 private struct OverviewView_Previews: PreviewProvider {
