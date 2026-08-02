@@ -440,8 +440,6 @@
 				3E46450829C1F5FAD02725F2 /* Composition */,
 				F820E94BF14C4C9FBE70C5CB /* Model */,
 				C0B65557C66A2368CCC24A23 /* Router */,
-				AE55FAF82C5986C6882FB124 /* Store */,
-				3B56C0C3C1ABA8919B781802 /* UseCase */,
 				6D4C0BB84D277DF0FCED283D /* View */,
 				C468E335811B2479B5A7591E /* ViewModel */,
 			);
@@ -470,22 +468,6 @@
 				BEAC4D33849613118BBC3BA5 /* OverviewRouter.swift */,
 			);
 			path = Router;
-			sourceTree = "<group>";
-		};
-		AE55FAF82C5986C6882FB124 /* Store */ = {
-			isa = PBXGroup;
-			children = (
-
-			);
-			path = Store;
-			sourceTree = "<group>";
-		};
-		3B56C0C3C1ABA8919B781802 /* UseCase */ = {
-			isa = PBXGroup;
-			children = (
-
-			);
-			path = UseCase;
 			sourceTree = "<group>";
 		};
 		6D4C0BB84D277DF0FCED283D /* View */ = {
@@ -597,7 +579,6 @@
 				3910D5B9C88E80E967ACE570 /* Composition */,
 				D4262204B44D4C0F12A0DF33 /* Model */,
 				01006165AB891F8A6FCEECB9 /* Router */,
-				7FE4F83B8AE97F807A073A08 /* Service */,
 				D6CBE2E57BA4ADC526F5A3AB /* Store */,
 				DE4595F09D6FA0646D97A0BE /* UseCase */,
 				004A363566C5D6356D04F98B /* View */,
@@ -629,14 +610,6 @@
 				EAF2F8D48A2EA4D76302BBD6 /* TriageRouter.swift */,
 			);
 			path = Router;
-			sourceTree = "<group>";
-		};
-		7FE4F83B8AE97F807A073A08 /* Service */ = {
-			isa = PBXGroup;
-			children = (
-
-			);
-			path = Service;
 			sourceTree = "<group>";
 		};
 		D6CBE2E57BA4ADC526F5A3AB /* Store */ = {
