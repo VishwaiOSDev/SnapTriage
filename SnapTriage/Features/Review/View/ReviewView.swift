@@ -314,7 +314,9 @@ private struct SectionHeader<Accessory: View>: View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.caption.weight(.semibold))
+                    .textCase(.uppercase)
+                    .kerning(0.6)
                     .foregroundStyle(.white)
                 Text(subtitle)
                     .font(.caption)
