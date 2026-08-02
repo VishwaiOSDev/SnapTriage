@@ -16,6 +16,10 @@ struct TriageView: View {
     /// Drag state is pure UI: it lives in the view and never reaches the
     /// ViewModel. Only the final decision crosses the boundary via `send`.
     @State private var drag: CGSize = .zero
+    /// Translation reported by the first `onChanged`. Subtracting it keeps the
+    /// card pinned to the finger instead of teleporting by the activation
+    /// distance the moment the gesture is claimed.
+    @State private var dragAnchor: CGSize?
     @State private var isDismissing = false
     @State private var isUndoing = false
     @State private var fullScreenShot: Screenshot?
@@ -178,7 +182,13 @@ struct TriageView: View {
                 deckCard(for: screenshot, isTop: screenshot.id == viewModel.state.current?.id)
             }
         }
+        // The drag must be measured against the deck, which never moves. In the
+        // gesture's own (default) local space the card is being offset and
+        // rotated by the very values being read, which skews the translation.
+        .coordinateSpace(.named(Self.deckSpace))
     }
+
+    private static let deckSpace = "triage.deck"
 
     private func deckCard(for screenshot: Screenshot, isTop: Bool) -> some View {
         let scale: CGFloat = isTop
@@ -238,16 +248,24 @@ struct TriageView: View {
     // MARK: - Gesture
 
     private var dragGesture: some Gesture {
-        DragGesture()
+        DragGesture(coordinateSpace: .named(Self.deckSpace))
             .onChanged { value in
                 guard !isDismissing else { return }
-                drag = value.translation
+                let anchor = dragAnchor ?? value.translation
+                if dragAnchor == nil { dragAnchor = anchor }
+                drag = CGSize(
+                    width: value.translation.width - anchor.width,
+                    height: value.translation.height - anchor.height
+                )
             }
-            .onEnded { value in
+            .onEnded { _ in
+                let width = drag.width
+                dragAnchor = nil
+
                 guard !isDismissing else { return }
-                if value.translation.width > TriageMetrics.decisionThreshold {
+                if width > TriageMetrics.decisionThreshold {
                     fly(.keep)
-                } else if value.translation.width < -TriageMetrics.decisionThreshold {
+                } else if width < -TriageMetrics.decisionThreshold {
                     fly(.markForDeletion)
                 } else {
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
@@ -275,6 +293,7 @@ struct TriageView: View {
             var transaction = Transaction()
             transaction.disablesAnimations = true
             withTransaction(transaction) { drag = .zero }
+            dragAnchor = nil
             isDismissing = false
         }
     }
