@@ -254,17 +254,6 @@ struct OverviewView: View {
 }
 
 
-private struct AppMarkView: View {
-    var body: some View {
-        Image(systemName: "doc.text.viewfinder")
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: 28, height: 28)
-            .background(Palette.accent, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .accessibilityHidden(true)
-    }
-}
-
 private struct PrivacyPillView: View {
     var body: some View {
         HStack(spacing: 6) {
