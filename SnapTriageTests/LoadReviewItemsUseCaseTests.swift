@@ -128,6 +128,26 @@ struct LoadReviewItemsUseCaseTests {
         #expect(items.map(\.id) == ["1"])
     }
 
+    // MARK: - Category scope
+
+    @Test("A category scope returns that bucket whatever its retention leaning", .tags(.fast))
+    func categoryScopeIgnoresDisposition() async throws {
+        let shots = [
+            Fixture.screenshot(id: "1", byteSize: 100),   // otp     -> useful
+            Fixture.screenshot(id: "2", byteSize: 200),   // otp     -> useful
+            Fixture.screenshot(id: "3", byteSize: 300)    // social  -> safe
+        ]
+        let service = FakePhotoLibraryService(screenshots: shots)
+        let store = SeededCategoryStore(["1": .otp, "2": .otp, "3": .social])
+        let sut = Fixture.loadReviewItems(service: service, store: store)
+
+        let items = try await sut.execute(scope: .category(.otp))
+
+        // The triage inbox would return none of these; the bucket returns both.
+        #expect(items.map(\.id) == ["1", "2"])
+        #expect(items.allSatisfy { $0.source == .suggested })
+    }
+
     @Test("Denied access throws before classifying", .tags(.fast))
     func deniedThrows() async {
         let service = FakePhotoLibraryService(authorization: .denied)
