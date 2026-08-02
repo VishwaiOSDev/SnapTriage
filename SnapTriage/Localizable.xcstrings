@@ -1177,6 +1177,18 @@
         }
       }
     },
+    "Review.yesterday": {
+      "comment": "Timestamp shown on a review tile for a screenshot taken yesterday",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday"
+          }
+        }
+      }
+    },
     "Settings.accessDenied": {
       "comment": "Photo access status: denied",
       "extractionState": "manual",
