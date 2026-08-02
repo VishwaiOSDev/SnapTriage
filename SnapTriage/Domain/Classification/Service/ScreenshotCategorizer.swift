@@ -9,40 +9,6 @@ import Foundation
 import CoreGraphics
 import NaturalLanguage
 
-// MARK: - Model classifier abstraction
-
-/// One verdict from the foundation model. `usedImage` records whether the
-/// multimodal (pixels + OCR) path ran, so the caller can label the source
-/// `foundationModelMultimodal` vs `foundationModelText` and tests can assert it.
-struct ModelVerdict: Sendable, Equatable {
-    let category: ScreenshotCategory
-    let usedImage: Bool
-}
-
-/// The expensive, last-resort stage of the cascade. Kept behind a protocol so
-/// the orchestrator can be driven by a recording test double that counts calls
-/// and never touches Apple Intelligence.
-///
-/// Returns `nil` when the model cannot run at all (iOS < 26, Apple Intelligence
-/// off, still downloading, or any inference error) — the caller then falls back
-/// to the deterministic heuristic. Implementations must serialize inference (a
-/// single on-device model session) and run each screenshot in a fresh context.
-protocol ScreenshotModelClassifier: Sendable {
-    func classify(ocr: OCRResult, image: CGImage?) async -> ModelVerdict?
-    func prewarm()
-}
-
-extension ScreenshotModelClassifier {
-    func prewarm() {}
-}
-
-// MARK: - Heuristic result
-
-/// The rich outcome of one heuristic evaluation. Beyond the winning category it
-/// exposes the runner-up, the raw score and margin, a confidence tier, the
-/// matched evidence, and — when it abstains — why. The cascade uses all of this
-/// to decide whether a deterministic verdict is trustworthy enough to skip the
-/// foundation model.
 struct HeuristicResult: Sendable, Equatable {
     let category: ScreenshotCategory
     let runnerUp: ScreenshotCategory?
@@ -101,7 +67,7 @@ struct HeuristicScreenshotCategorizer: Sendable {
     func evaluate(_ result: OCRResult) -> HeuristicResult {
         guard !result.transcript.isEmpty else { return .unresolved }
 
-        let features = Features(text: result.transcript)
+        let features = TextFeatures(text: result.transcript)
 
         // Structural short-circuits. A membership card or record is protected
         // (promote to keep); a day/task routine has no category (resolve to other).
@@ -160,7 +126,7 @@ struct HeuristicScreenshotCategorizer: Sendable {
     /// similar task plans. They have no dedicated user-facing category, so `other` is correct.
     static func isStructuredPlan(_ result: OCRResult) -> Bool {
         guard !result.transcript.isEmpty else { return false }
-        return isStructuredPlan(Features(text: result.transcript))
+        return isStructuredPlan(TextFeatures(text: result.transcript))
     }
 
     /// Whether OCR contains corroborated evidence of a government-issued
@@ -168,10 +134,10 @@ struct HeuristicScreenshotCategorizer: Sendable {
     /// signals can never outvote a passport, visa, Aadhaar, PAN, or licence.
     static func isIdentityDocument(_ result: OCRResult) -> Bool {
         guard !result.transcript.isEmpty else { return false }
-        return isIdentityLike(Features(text: result.transcript))
+        return isIdentityLike(TextFeatures(text: result.transcript))
     }
 
-    private func score(_ rule: CategoryRule, _ f: Features) -> (Double, [ClassificationEvidence]) {
+    private func score(_ rule: CategoryRule, _ f: TextFeatures) -> (Double, [ClassificationEvidence]) {
         var total = 0.0
         var evidence: [ClassificationEvidence] = []
 
@@ -196,19 +162,15 @@ struct HeuristicScreenshotCategorizer: Sendable {
     }
 }
 
-// MARK: - Rule table
-
-/// A category's evidence: lemmatized `terms`, structural `signals`, and exact
-/// `phrases`, each contributing weighted score. Tune accuracy here, not in code.
-private struct CategoryRule {
+struct CategoryRule {
     let category: ScreenshotCategory
     var terms: Set<String> = []
     var termWeight: Double = 1
-    var signals: [Signal: Double] = [:]
+    var signals: [TextSignal: Double] = [:]
     var phrases: [String: Double] = [:]
 }
 
-private extension HeuristicScreenshotCategorizer {
+extension HeuristicScreenshotCategorizer {
     static let gameTerms: Set<String> = [
         "game", "play", "player", "level", "score", "match", "battle",
         "quest", "mission", "leaderboard", "achievement", "inventory", "guild",
@@ -281,7 +243,7 @@ private extension HeuristicScreenshotCategorizer {
         "issued", "issue", "expiry", "expires", "authority", "signature",
     ]
 
-    static func hasRequiredEvidence(for category: ScreenshotCategory, features: Features) -> Bool {
+    static func hasRequiredEvidence(for category: ScreenshotCategory, features: TextFeatures) -> Bool {
         switch category {
         case .receipt:
             // A balance and a currency amount alone are not a receipt (a wallet,
@@ -322,7 +284,7 @@ private extension HeuristicScreenshotCategorizer {
         }
     }
 
-    static func isDocumentLike(_ features: Features) -> Bool {
+    static func isDocumentLike(_ features: TextFeatures) -> Bool {
         let termCount = documentTerms.intersection(features.terms).count
         let fieldCount = features.value(for: .documentField)
         // This is deliberately structural rather than insurer-specific: records and membership
@@ -334,7 +296,7 @@ private extension HeuristicScreenshotCategorizer {
     /// Recognizes an official ID from an anchor plus corroborating structure.
     /// `visa` and `pan` need issuer/field/number context so a Visa payment card
     /// or the English word "pan" cannot become an identity false positive.
-    static func isIdentityLike(_ features: Features) -> Bool {
+    static func isIdentityLike(_ features: TextFeatures) -> Bool {
         let text = features.lowercased
         let terms = features.terms
         let fieldCount = identityFields.intersection(terms).count
@@ -375,7 +337,7 @@ private extension HeuristicScreenshotCategorizer {
         return hasIssuer && hasNumber && fieldCount >= 1
     }
 
-    static func isStructuredPlan(_ features: Features) -> Bool {
+    static func isStructuredPlan(_ features: TextFeatures) -> Bool {
         // A weekday by itself is not enough: require recurring task quantities too. This avoids
         // treating calendar headings as plans while covering routines across several domains.
         features.value(for: .weekdayHeading) >= 2 && features.value(for: .taskQuantity) >= 2
@@ -487,9 +449,7 @@ private extension HeuristicScreenshotCategorizer {
     ]
 }
 
-// MARK: - Signals
-
-private enum Signal {
+enum TextSignal {
     case money, amount, date, phone, link, address, handle, hashtag, code, otpCode
     case chatLines, proseLines, documentField, identityNumber, governmentIssuer
     case weekdayHeading, taskQuantity, weekdayList
@@ -498,15 +458,15 @@ private enum Signal {
 // MARK: - Feature extraction
 
 /// Signals mined once from a transcript, shared across every rule's score.
-private struct Features {
+struct TextFeatures {
 
     let lowercased: String
     /// Lowercased word tokens *and* their lemmas, so inflected forms match base keywords.
     let terms: Set<String>
 
-    private let counts: [Signal: Double]
+    private let counts: [TextSignal: Double]
 
-    func value(for signal: Signal) -> Double { counts[signal] ?? 0 }
+    func value(for signal: TextSignal) -> Double { counts[signal] ?? 0 }
 
     init(text: String) {
         lowercased = text.lowercased()
