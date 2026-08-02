@@ -80,10 +80,32 @@ struct PhotoAccessPrimerView: View {
     }
 
     private var hero: some View {
-        Image(systemName: "photo.stack")
-            .font(.system(size: 52, weight: .light))
-            .foregroundStyle(Palette.accent)
-            .accessibilityHidden(true)
+        ZStack(alignment: .bottomTrailing) {
+            ZStack {
+                Circle()
+                    .fill(Color.white.opacity(0.035))
+                Circle()
+                    .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
+
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.system(size: 41, weight: .regular))
+                    .symbolRenderingMode(.monochrome)
+                    .foregroundStyle(Palette.accent)
+            }
+            .frame(width: 104, height: 104)
+
+            Image(systemName: "lock.fill")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 32, height: 32)
+                .background(Palette.accent.gradient, in: Circle())
+                .overlay {
+                    Circle().strokeBorder(.white.opacity(0.16), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.30), radius: 5, y: 2)
+                .offset(x: -3, y: -3)
+        }
+        .accessibilityHidden(true)
     }
 
     private var introduction: some View {
