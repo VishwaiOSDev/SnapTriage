@@ -305,6 +305,28 @@ struct ReviewViewModelTests {
         #expect(vm.state.selectedIDs == ["4"])
     }
 
+    @Test("Keep-all retires the category without deleting anything, and undoes cleanly")
+    func keepAllIsReversible() async {
+        let decisions = SeededTriageDecisionStore()
+        let (vm, service, _) = makeSUT(scope: .category(.social), decisions: decisions)
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+        #expect(vm.state.items.map(\.id) == ["1"])
+
+        vm.send(.keepAll)
+        await waitUntil { vm.state.items.isEmpty }
+
+        #expect(decisions.decision(for: "1") == .keep)
+        #expect(service.deleteCallCount == 0)
+        #expect(vm.state.lastReceipt?.count == 1)
+
+        vm.send(.undoBulk)
+        await waitUntil { !vm.state.items.isEmpty }
+
+        #expect(decisions.decision(for: "1") == nil)
+        #expect(vm.state.lastReceipt == nil)
+    }
+
     @Test("Denied access fails with a presentable message")
     func deniedAccessFails() async {
         let (vm, _, _) = makeSUT(authorization: .denied)
