@@ -10,9 +10,6 @@ import UserNotifications
 
 /// Presents the completion banner in the foreground and routes notification
 /// taps directly to the Triage tab.
-
-/// Presents the completion banner in the foreground and routes notification
-/// taps directly to the Triage tab.
 final class ForegroundNotificationPresenter: NSObject, UNUserNotificationCenterDelegate, @unchecked Sendable {
     private let onOpenTriage: @MainActor @Sendable () -> Void
 
@@ -32,9 +29,10 @@ final class ForegroundNotificationPresenter: NSObject, UNUserNotificationCenterD
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        let request = response.notification.request
         let shouldOpenTriage =
-            response.notification.request.identifier == "classification-ready" &&
-            response.notification.request.content.userInfo["destination"] as? String == "triage"
+            request.identifier == NotificationKey.readyIdentifier &&
+            request.content.userInfo[NotificationKey.destination] as? String == NotificationKey.triageDestination
 
         // Never make UserNotifications wait for the main actor while SwiftUI is
         // creating/restoring its scene. Acknowledge the response synchronously;

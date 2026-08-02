@@ -10,6 +10,11 @@ import UserNotifications
 
 /// Whether a completion notification actually reached the user, was
 /// intentionally suppressed, or must be retried later.
+enum ClassificationNotificationDelivery {
+    case delivered
+    case suppressed
+    case deferred
+}
 
 @MainActor
 protocol ClassificationNotifying {
@@ -17,12 +22,7 @@ protocol ClassificationNotifying {
     func notifyReady(count: Int) async throws -> ClassificationNotificationDelivery
 }
 
-enum ClassificationNotificationDelivery {
-    case delivered
-    case suppressed
-    case deferred
-}
-
+/// Tells the user their library finished classifying while the app was away.
 @MainActor
 struct ClassificationNotifier: ClassificationNotifying {
     private let center: UNUserNotificationCenter
@@ -58,14 +58,22 @@ struct ClassificationNotifier: ClassificationNotifying {
             defaultValue: "\(count) screenshots have been sorted. Open SnapTriage to review them."
         )
         content.sound = .default
-        content.userInfo = ["destination": "triage"]
+        content.userInfo = [NotificationKey.destination: NotificationKey.triageDestination]
 
         let request = UNNotificationRequest(
-            identifier: "classification-ready",
+            identifier: NotificationKey.readyIdentifier,
             content: content,
             trigger: nil
         )
         try await center.add(request)
         return .delivered
     }
+}
+
+/// Shared between the notifier that writes the payload and the presenter that
+/// reads it back when the user taps.
+enum NotificationKey {
+    static let readyIdentifier = "classification-ready"
+    static let destination = "destination"
+    static let triageDestination = "triage"
 }
