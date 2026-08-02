@@ -1069,6 +1069,18 @@
         }
       }
     },
+    "Review.openHint": {
+      "comment": "VoiceOver hint on a Review thumbnail",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the screenshot full screen"
+          }
+        }
+      }
+    },
     "Review.reclaimableHeadline": {
       "comment": "Caption under the hero reclaimable-space number on the review screen",
       "extractionState": "manual",

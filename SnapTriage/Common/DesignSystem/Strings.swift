@@ -108,6 +108,7 @@ enum Strings {
         static func keptAll(_ count: String, _ category: String) -> String {
             String(localized: .reviewKeptAll(count, category))
         }
+        static let openHint = String(localized: .reviewOpenHint)
     }
 
     enum Categories {
