@@ -11,15 +11,21 @@ struct OverviewView: View {
     @State private var viewModel: OverviewViewModel
     private let onStartTriage: () -> Void
     private let onOpenReview: () -> Void
+    private let onOpenCategories: () -> Void
+    private let onOpenSettings: () -> Void
 
     init(
         viewModel: OverviewViewModel,
         onStartTriage: @escaping () -> Void,
-        onOpenReview: @escaping () -> Void
+        onOpenReview: @escaping () -> Void,
+        onOpenCategories: @escaping () -> Void = {},
+        onOpenSettings: @escaping () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
         self.onStartTriage = onStartTriage
         self.onOpenReview = onOpenReview
+        self.onOpenCategories = onOpenCategories
+        self.onOpenSettings = onOpenSettings
     }
 
     var body: some View {
@@ -34,9 +40,7 @@ struct OverviewView: View {
                 AppMarkView()
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.send(.openSettings)
-                } label: {
+                Button(action: onOpenSettings) {
                     Image(systemName: "gearshape.fill")
                 }
                 .accessibilityLabel(Strings.Overview.settings)
@@ -50,6 +54,9 @@ struct OverviewView: View {
         switch viewModel.state.phase {
         case .idle, .loading:
             status { ProgressView(Strings.Triage.loading) }
+
+        case .primingAccess:
+            PhotoAccessPrimerView { viewModel.send(.grantAccess) }
 
         case .failed:
             status { failure }
@@ -74,6 +81,9 @@ struct OverviewView: View {
         ScrollView {
             VStack(spacing: Spacing.sectionSpacing) {
                 PrivacyPillView()
+                if viewModel.state.isLimitedAccess {
+                    LimitedAccessBanner { viewModel.send(.addMorePhotos) }
+                }
                 hero
                 summaryCard
                 featureCard
@@ -117,15 +127,7 @@ struct OverviewView: View {
                 }
 
                 if viewModel.state.isClassifying {
-                    Label(
-                        Strings.Overview.analyzing(
-                            MetricFormatter.count(viewModel.state.classifiedCount),
-                            MetricFormatter.count(summary.totalCount)
-                        ),
-                        systemImage: "wand.and.stars"
-                    )
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    analyzingStatus
                 }
             }
             .frame(maxWidth: .infinity)
@@ -133,6 +135,37 @@ struct OverviewView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    // "Analyzing 42 of 1,204" is honest but says nothing about how long, and
+    // hides the best thing about the pass: it survives the app being closed.
+    private var analyzingStatus: some View {
+        VStack(spacing: 3) {
+            Label(analyzingText, systemImage: "wand.and.stars")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            Text(Strings.Overview.analyzingContinuesInBackground)
+                .font(.caption2)
+                .foregroundStyle(.quaternary)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    private var analyzingText: String {
+        let current = MetricFormatter.count(viewModel.state.classifiedCount)
+        let total = MetricFormatter.count(viewModel.state.summary.totalCount)
+        guard let seconds = viewModel.state.estimatedSecondsRemaining else {
+            return Strings.Overview.analyzing(current, total)
+        }
+        return Strings.Overview.analyzingWithEstimate(current, total, Self.durationText(seconds))
+    }
+
+    /// Coarse on purpose: a single unit reads as an estimate, where "3 min 41 s"
+    /// reads as a promise the throughput cannot keep.
+    private static func durationText(_ seconds: Int) -> String {
+        Duration.seconds(seconds).formatted(
+            .units(allowed: [.hours, .minutes, .seconds], width: .wide, maximumUnitCount: 1)
+        )
     }
 
     private var summaryCard: some View {
@@ -156,6 +189,16 @@ struct OverviewView: View {
                     Text(Strings.Overview.startTriageHelper)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+
+                    // Swiping is not the only way through a large library, and
+                    // the alternative belongs next to the primary action rather
+                    // than buried a menu deep.
+                    Button(action: onOpenCategories) {
+                        Label(Strings.Categories.title, systemImage: "square.stack.3d.up")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Palette.accent)
                 }
                 .padding(Spacing.cardPadding)
             }
@@ -189,9 +232,7 @@ struct OverviewView: View {
             VStack(spacing: 0) {
                 let features = viewModel.state.features
                 ForEach(Array(features.enumerated()), id: \.element.id) { index, feature in
-                    FeatureRowView(feature: feature) {
-                        viewModel.send(.selectFeature(feature.id))
-                    }
+                    FeatureRowView(feature: feature)
                     if index < features.count - 1 {
                         Divider()
                             .overlay(Color.white.opacity(0.06))
@@ -210,7 +251,7 @@ struct OverviewView: View {
             Text(viewModel.state.errorMessage ?? Strings.Error.generic)
         } actions: {
             if showsOpenSettings {
-                Button(Strings.Access.openSettings) { viewModel.send(.openSettings) }
+                Button(Strings.Access.openSettings) { viewModel.send(.openSystemSettings) }
                     .buttonStyle(.borderedProminent)
             }
             Button(Strings.Access.retry) { viewModel.send(.retry) }

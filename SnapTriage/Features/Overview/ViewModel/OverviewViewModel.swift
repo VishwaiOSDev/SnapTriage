@@ -12,7 +12,16 @@ import Observation
 @Observable
 final class OverviewViewModel {
 
-    enum Phase: Equatable { case idle, loading, loaded, failed }
+    enum Phase: Equatable {
+        case idle
+        /// Explaining why the app needs the library, *before* the system dialog.
+        /// The permission sheet is the highest-stakes moment in the app and it
+        /// used to fire over a blank screen.
+        case primingAccess
+        case loading
+        case loaded
+        case failed
+    }
 
     struct State: Equatable {
         var phase: Phase = .idle
@@ -21,17 +30,44 @@ final class OverviewViewModel {
         var errorMessage: String?
         var authorization: PhotoLibraryAuthorization = .notDetermined
         var features: [FeatureHighlight] = FeatureHighlight.defaults
+        /// When the current classification run started, and how much of the
+        /// library it had already covered. Together these give an observed
+        /// throughput to project the remainder against.
+        var classificationStartedAt: Date?
+        var classificationStartedFrom = 0
 
         var isClassifying: Bool {
             phase == .loaded && summary.totalCount > 0 && classifiedCount < summary.totalCount
         }
+
+        /// The user granted access to a hand-picked subset, so every figure on
+        /// this screen describes that subset and nothing else.
+        var isLimitedAccess: Bool { authorization == .limited }
+
+        /// Seconds left in the current pass, or `nil` until enough screenshots
+        /// have completed to project honestly. A wrong ETA is worse than none,
+        /// so the first few results only build the sample.
+        var estimatedSecondsRemaining: Int? {
+            guard isClassifying, let start = classificationStartedAt else { return nil }
+            let completed = classifiedCount - classificationStartedFrom
+            guard completed >= Self.minimumEtaSample else { return nil }
+            let elapsed = Date.now.timeIntervalSince(start)
+            guard elapsed > 0 else { return nil }
+            let remaining = Double(summary.totalCount - classifiedCount)
+            let seconds = remaining * elapsed / Double(completed)
+            guard seconds.isFinite, seconds >= 1 else { return nil }
+            return Int(seconds.rounded())
+        }
+
+        private static let minimumEtaSample = 8
     }
 
     enum Input {
         case onAppear
+        case grantAccess
         case retry
-        case openSettings
-        case selectFeature(FeatureHighlight.ID)
+        case openSystemSettings
+        case addMorePhotos
     }
 
     private(set) var state = State()
@@ -63,16 +99,24 @@ final class OverviewViewModel {
     func send(_ input: Input) {
         switch input {
         case .onAppear:
-            if state.phase == .idle {
+            guard state.phase == .idle else { return }
+            // Asking for the library before the user has seen a single screen
+            // spends the one permission prompt the app gets on a stranger. Show
+            // what the app does first; prompt when they say yes.
+            if requestAccess.current() == .notDetermined {
+                state.phase = .primingAccess
+            } else {
                 loadFlow()
-                observeChanges()
             }
+        case .grantAccess:
+            guard state.phase == .primingAccess else { return }
+            loadFlow()
         case .retry:
             loadFlow()
-        case .openSettings:
-            router.openSettings()
-        case .selectFeature:
-            break
+        case .openSystemSettings:
+            router.openSystemSettings()
+        case .addMorePhotos:
+            router.presentLimitedLibraryPicker()
         }
     }
 
@@ -84,6 +128,7 @@ final class OverviewViewModel {
             self.state.errorMessage = nil
             self.state.summary = .empty
             self.state.classifiedCount = 0
+            self.state.classificationStartedAt = nil
 
             let authorization = await self.requestAccess.execute()
             if Task.isCancelled { return }
@@ -94,6 +139,11 @@ final class OverviewViewModel {
                 self.state.phase = .failed
                 return
             }
+
+            // Subscribe only now, with access in hand: this registers a
+            // PhotoKit change observer, which has nothing to observe (and no
+            // business reaching into the library) before the user has agreed.
+            self.observeChanges()
 
             do {
                 let screenshots = try await self.loadScreenshots.execute()
@@ -152,6 +202,7 @@ final class OverviewViewModel {
     }
 
     private func observeChanges() {
+        guard tasks[.observe] == nil else { return }
         tasks[.observe] = Task { [weak self] in
             guard let stream = self?.observeLibrary.execute() else { return }
             for await _ in stream {
@@ -164,7 +215,12 @@ final class OverviewViewModel {
     // `base` is how many screenshots the cache already covered; the stream's
     // progress counts are relative to the pending slice handed to it.
     private func classifyFlow(_ screenshots: [Screenshot], startingFrom base: Int) {
-        guard !screenshots.isEmpty else { return }
+        guard !screenshots.isEmpty else {
+            state.classificationStartedAt = nil
+            return
+        }
+        state.classificationStartedAt = .now
+        state.classificationStartedFrom = base
         run(.classify) { [weak self] in
             guard let self else { return }
             for await progress in self.classifyLibrary.execute(screenshots) {
@@ -180,6 +236,7 @@ final class OverviewViewModel {
                     self.state.summary.unknownCount += 1
                 }
             }
+            self.state.classificationStartedAt = nil
         }
     }
 

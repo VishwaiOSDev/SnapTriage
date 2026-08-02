@@ -95,9 +95,7 @@ actor SeededCategoryStore: CategoryStore {
     func save(_ classification: ScreenshotClassification, for id: Screenshot.ID) { cache[id] = classification }
     func allClassifications() -> [Screenshot.ID: ScreenshotClassification] { cache }
     func remove(_ ids: [Screenshot.ID]) { ids.forEach { cache[$0] = nil } }
-    #if DEBUG
     func removeAll() { cache.removeAll() }
-    #endif
 }
 
 // MARK: - Decision store fake

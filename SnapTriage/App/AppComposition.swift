@@ -83,6 +83,27 @@ final class AppComposition {
         )
     }
 
+    func makeCategories() -> CategoriesViewModel {
+        CategoriesComposition.make(
+            service: service,
+            classifyLibrary: classifyLibrary,
+            decisionStore: decisionStore
+        )
+    }
+
+    func makeSettings(
+        notifications: (any NotificationSettingsReading)? = nil,
+        router: (any SettingsRouter)? = nil
+    ) -> SettingsViewModel {
+        SettingsComposition.make(
+            service: service,
+            classifyLibrary: classifyLibrary,
+            ocrStore: ocrStore,
+            notifications: notifications ?? SystemNotificationSettingsReader(),
+            router: router ?? SystemSettingsRouter()
+        )
+    }
+
     func makeReview(router: (any ReviewRouter)? = nil) -> ReviewViewModel {
         ReviewComposition.make(
             service: service,

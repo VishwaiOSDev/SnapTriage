@@ -16,17 +16,23 @@ private struct LiquidGlassModifier<S: InsettableShape>: ViewModifier {
 
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
-            content.glassEffect(.regular.tint(tint), in: shape)
+            content.glassEffect(resolvedGlass, in: shape)
         } else {
             content
                 .background(tint?.opacity(0.2) ?? Palette.surfaceFill, in: shape)
                 .background(.ultraThinMaterial, in: shape)
                 .overlay {
-                    shape.strokeBorder(
-                        tint?.opacity(0.4) ?? Palette.cardStroke,
-                        lineWidth: 1
-                    )
+                    shape.strokeBorder(tint?.opacity(0.4) ?? Palette.cardStroke, lineWidth: 1)
                 }
+        }
+    }
+
+    @available(iOS 26.0, *)
+    private var resolvedGlass: Glass {
+        if let tint {
+            Glass.regular.tint(tint)
+        } else {
+            .regular
         }
     }
 }

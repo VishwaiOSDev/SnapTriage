@@ -235,18 +235,39 @@ private final class LibraryChangeRelay: NSObject, PHPhotoLibraryChangeObserver, 
     private let lock = NSLock()
     private var continuations: [UUID: AsyncStream<Void>.Continuation] = [:]
     private var pendingEmit: Task<Void, Never>?
-
-    override init() {
-        super.init()
-        PHPhotoLibrary.shared().register(self)
-    }
+    private var isRegistered = false
 
     deinit {
+        guard isRegistered else { return }
         PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
 
+    /// `PHPhotoLibrary.shared()` is only meaningful once the user has granted
+    /// access, and the service is constructed during launch — long before the
+    /// permission screen has even been shown. So registration waits until there
+    /// is a library to observe, rather than reaching into PhotoKit on a status
+    /// the app has not asked about yet.
+    private func registerIfNeeded() {
+        lock.lock()
+        let alreadyRegistered = isRegistered
+        lock.unlock()
+        guard !alreadyRegistered else { return }
+
+        switch PHPhotoLibrary.authorizationStatus(for: .readWrite) {
+        case .authorized, .limited: break
+        default: return
+        }
+
+        lock.lock()
+        defer { lock.unlock() }
+        guard !isRegistered else { return }
+        isRegistered = true
+        PHPhotoLibrary.shared().register(self)
+    }
+
     func makeStream() -> AsyncStream<Void> {
-        AsyncStream { continuation in
+        registerIfNeeded()
+        return AsyncStream { continuation in
             let id = UUID()
             lock.lock()
             continuations[id] = continuation

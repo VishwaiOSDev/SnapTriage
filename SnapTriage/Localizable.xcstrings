@@ -1,6 +1,42 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Access.limitedAction": {
+      "comment": "Button that reopens the limited photo picker",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select more screenshots"
+          }
+        }
+      }
+    },
+    "Access.limitedMessage": {
+      "comment": "Body of the banner shown when photo access is limited",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SnapTriage can only see the screenshots you picked, so every figure here counts just those."
+          }
+        }
+      }
+    },
+    "Access.limitedTitle": {
+      "comment": "Title of the banner shown when photo access is limited",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're seeing a limited selection"
+          }
+        }
+      }
+    },
     "Access.openSettings": {
       "comment": "Button that deep-links to the system Settings app",
       "extractionState": "manual",
@@ -9,6 +45,126 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "Access.primerContinue": {
+      "comment": "Button that triggers the system photo permission prompt",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "Access.primerFootnote": {
+      "comment": "Footnote under the permission primer's continue button",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS will ask next. You can choose a limited selection if you'd rather start small."
+          }
+        }
+      }
+    },
+    "Access.primerMessage": {
+      "comment": "Body of the screen shown before the photo permission prompt",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SnapTriage reads your screenshots to work out which ones you'll never look at again. To do that, it needs to see your photo library."
+          }
+        }
+      }
+    },
+    "Access.primerNoDeleteDetail": {
+      "comment": "Permission primer promise detail: nothing is deleted automatically",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You confirm every deletion, and iOS asks once more after that."
+          }
+        }
+      }
+    },
+    "Access.primerNoDeleteTitle": {
+      "comment": "Permission primer promise: nothing is deleted automatically",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing is deleted without you"
+          }
+        }
+      }
+    },
+    "Access.primerOnDeviceDetail": {
+      "comment": "Permission primer promise detail: on-device processing",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No uploads, no accounts, no analytics on your screenshots."
+          }
+        }
+      }
+    },
+    "Access.primerOnDeviceTitle": {
+      "comment": "Permission primer promise: on-device processing",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything stays on this device"
+          }
+        }
+      }
+    },
+    "Access.primerScreenshotsOnlyDetail": {
+      "comment": "Permission primer promise detail: screenshots only",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your photos and videos are never read."
+          }
+        }
+      }
+    },
+    "Access.primerScreenshotsOnlyTitle": {
+      "comment": "Permission primer promise: screenshots only",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots only"
+          }
+        }
+      }
+    },
+    "Access.primerTitle": {
+      "comment": "Title of the screen shown before the photo permission prompt",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find the space in your screenshots"
           }
         }
       }
@@ -33,6 +189,174 @@
           "stringUnit": {
             "state": "translated",
             "value": "Photo Access Needed"
+          }
+        }
+      }
+    },
+    "Categories.actionMessage": {
+      "comment": "Message of the bulk action sheet; %@ is a size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ in total. Marked screenshots wait in Review — nothing is deleted until you confirm there."
+          }
+        }
+      }
+    },
+    "Categories.actionTitle": {
+      "comment": "Title of the bulk action sheet; %@ is a category name",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All %@ screenshots"
+          }
+        }
+      }
+    },
+    "Categories.appliedKept": {
+      "comment": "Undo bar text after a bulk keep; %@ count, %@ category",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kept %@ %@ screenshots"
+          }
+        }
+      }
+    },
+    "Categories.appliedMarked": {
+      "comment": "Undo bar text after a bulk mark; %@ count, %@ category",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marked %@ %@ screenshots"
+          }
+        }
+      }
+    },
+    "Categories.emptyMessage": {
+      "comment": "Message when there is nothing left to sort by category",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every screenshot already has a verdict."
+          }
+        }
+      }
+    },
+    "Categories.emptyTitle": {
+      "comment": "Title when there is nothing left to sort by category",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing left to sort"
+          }
+        }
+      }
+    },
+    "Categories.headline": {
+      "comment": "Headline on the category screen; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ screenshots still undecided"
+          }
+        }
+      }
+    },
+    "Categories.keepAll": {
+      "comment": "Bulk action that keeps a whole category; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep all %@"
+          }
+        }
+      }
+    },
+    "Categories.markAll": {
+      "comment": "Bulk action that marks a whole category for deletion; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark %@ for deletion"
+          }
+        }
+      }
+    },
+    "Categories.rowDetail": {
+      "comment": "Category row detail; first %@ is a count, second %@ a size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ screenshots · %@"
+          }
+        }
+      }
+    },
+    "Categories.safetyNote": {
+      "comment": "Reassurance at the bottom of the category screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bulk actions only record a verdict. Deletion still happens in Review, after you confirm."
+          }
+        }
+      }
+    },
+    "Categories.stillAnalyzing": {
+      "comment": "Note about screenshots not yet classified; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ still being analyzed"
+          }
+        }
+      }
+    },
+    "Categories.subheadline": {
+      "comment": "Subheadline on the category screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear a whole category in one tap, then swipe only what's left."
+          }
+        }
+      }
+    },
+    "Categories.title": {
+      "comment": "Title of the bulk category screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort by category"
           }
         }
       }
@@ -325,28 +649,6 @@
         }
       }
     },
-    "notification.classificationReady.body": {
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%lld screenshots have been sorted. Open SnapTriage to review them."
-          }
-        }
-      }
-    },
-    "notification.classificationReady.title": {
-      "extractionState": "extracted_with_value",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Screenshots ready to triage"
-          }
-        }
-      }
-    },
     "Overview.analyzing": {
       "comment": "Progress label while classifying the library; both %@ are counts",
       "extractionState": "manual",
@@ -355,6 +657,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Analyzing %@ of %@…"
+          }
+        }
+      }
+    },
+    "Overview.analyzingContinuesInBackground": {
+      "comment": "Reassurance that analysis survives leaving the app",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keeps going in the background. We'll let you know when it's done."
+          }
+        }
+      }
+    },
+    "Overview.analyzingWithEstimate": {
+      "comment": "Progress label with a time estimate; %@ count, %@ total, %@ duration",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing %@ of %@ · about %@ left"
           }
         }
       }
@@ -611,6 +937,18 @@
         }
       }
     },
+    "Review.deselectAll": {
+      "comment": "Button that deselects every suggested screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deselect all"
+          }
+        }
+      }
+    },
     "Review.emptyMessage": {
       "comment": "Empty state message when there is nothing left to review",
       "extractionState": "manual",
@@ -635,6 +973,30 @@
         }
       }
     },
+    "Review.markedSectionSubtitle": {
+      "comment": "Subtitle under the marked section; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ swiped left during triage"
+          }
+        }
+      }
+    },
+    "Review.markedSectionTitle": {
+      "comment": "Header for the screenshots the user swiped left",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You marked these"
+          }
+        }
+      }
+    },
     "Review.reclaimableHeadline": {
       "comment": "Caption under the hero reclaimable-space number on the review screen",
       "extractionState": "manual",
@@ -643,6 +1005,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "to free up"
+          }
+        }
+      }
+    },
+    "Review.selectAll": {
+      "comment": "Button that selects every suggested screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select all"
           }
         }
       }
@@ -659,6 +1033,30 @@
         }
       }
     },
+    "Review.suggestedSectionSubtitle": {
+      "comment": "Subtitle under the suggestions; first %@ is a count, second %@ a size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ screenshots · %@. You haven't reviewed these, so nothing here is selected."
+          }
+        }
+      }
+    },
+    "Review.suggestedSectionTitle": {
+      "comment": "Header for screenshots only the classifier flagged",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SnapTriage suggests"
+          }
+        }
+      }
+    },
     "Review.title": {
       "comment": "Review screen navigation title",
       "extractionState": "manual",
@@ -667,6 +1065,354 @@
           "stringUnit": {
             "state": "translated",
             "value": "Review"
+          }
+        }
+      }
+    },
+    "Settings.accessDenied": {
+      "comment": "Photo access status: denied",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denied"
+          }
+        }
+      }
+    },
+    "Settings.accessFull": {
+      "comment": "Photo access status: full library",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full library"
+          }
+        }
+      }
+    },
+    "Settings.accessLimited": {
+      "comment": "Photo access status: limited selection",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limited selection"
+          }
+        }
+      }
+    },
+    "Settings.accessNotDetermined": {
+      "comment": "Photo access status: not yet asked",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not granted"
+          }
+        }
+      }
+    },
+    "Settings.accessRestricted": {
+      "comment": "Photo access status: restricted",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restricted"
+          }
+        }
+      }
+    },
+    "Settings.cachedAnalysisTitle": {
+      "comment": "Settings row showing how many screenshots are cached",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cached analysis"
+          }
+        }
+      }
+    },
+    "Settings.cachedAnalysisValue": {
+      "comment": "Value for the cached analysis row; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ screenshots"
+          }
+        }
+      }
+    },
+    "Settings.cardsSection": {
+      "comment": "Settings section header for triage card options",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triage cards"
+          }
+        }
+      }
+    },
+    "Settings.clearCache": {
+      "comment": "Button that clears the cached analysis",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear cached analysis"
+          }
+        }
+      }
+    },
+    "Settings.clearCacheConfirm": {
+      "comment": "Destructive confirm button for clearing the cache",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "Settings.clearCacheConfirmMessage": {
+      "comment": "Message of the clear cache confirmation",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every screenshot will be analyzed again from scratch. This can take a while on a large library."
+          }
+        }
+      }
+    },
+    "Settings.clearCacheConfirmTitle": {
+      "comment": "Title of the clear cache confirmation",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear cached analysis?"
+          }
+        }
+      }
+    },
+    "Settings.clearCacheFootnote": {
+      "comment": "Explanation of what clearing the cache does",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frees the space the analysis takes up and re-reads every screenshot next time. Your keep and delete verdicts are untouched."
+          }
+        }
+      }
+    },
+    "Settings.imageModeFill": {
+      "comment": "Card framing option cropping the screenshot to fill",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fill"
+          }
+        }
+      }
+    },
+    "Settings.imageModeFit": {
+      "comment": "Card framing option showing the whole screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit"
+          }
+        }
+      }
+    },
+    "Settings.imageModeFootnote": {
+      "comment": "Explanation of the card framing setting",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit shows the whole screenshot. Fill crops it to the card, which reads better for long pages."
+          }
+        }
+      }
+    },
+    "Settings.imageModeTitle": {
+      "comment": "Setting that chooses how screenshots are framed on a card",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image framing"
+          }
+        }
+      }
+    },
+    "Settings.notificationsFootnote": {
+      "comment": "Explanation of what notifications are used for",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used once per pass, to tell you analysis finished while the app was closed."
+          }
+        }
+      }
+    },
+    "Settings.notificationsSection": {
+      "comment": "Settings section header for notifications",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "Settings.notificationsTitle": {
+      "comment": "Settings row showing whether notifications are allowed",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allowed"
+          }
+        }
+      }
+    },
+    "Settings.photoAccessTitle": {
+      "comment": "Settings row showing the current photo access level",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library access"
+          }
+        }
+      }
+    },
+    "Settings.photosSection": {
+      "comment": "Settings section header for photo library access",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos"
+          }
+        }
+      }
+    },
+    "Settings.privacySection": {
+      "comment": "Settings section header for the privacy statement",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        }
+      }
+    },
+    "Settings.privacyStatement": {
+      "comment": "The app's privacy statement",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screenshots are read on this device using Apple's on-device text recognition and language models. Nothing is uploaded, no account is required, and no analytics describe what your screenshots contain. Recognized text and categories are cached on device and can be cleared above."
+          }
+        }
+      }
+    },
+    "Settings.statusOff": {
+      "comment": "Generic off status",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
+    "Settings.statusOn": {
+      "comment": "Generic on status",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        }
+      }
+    },
+    "Settings.storageSection": {
+      "comment": "Settings section header for cached analysis",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        }
+      }
+    },
+    "Settings.title": {
+      "comment": "Title of the in-app settings screen",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Settings.version": {
+      "comment": "App version footnote; %@ is a version string",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SnapTriage %@"
           }
         }
       }
@@ -863,6 +1609,18 @@
         }
       }
     },
+    "Triage.fitImage": {
+      "comment": "Compact contextual menu action that fits the entire screenshot inside the card",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit image"
+          }
+        }
+      }
+    },
     "Triage.keep": {
       "comment": "Swipe action label to keep a screenshot",
       "extractionState": "manual",
@@ -935,6 +1693,18 @@
         }
       }
     },
+    "Triage.restartTriage": {
+      "comment": "Neutral overflow-menu action that opens the restart confirmation alert",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart triage"
+          }
+        }
+      }
+    },
     "Triage.safeToDelete": {
       "comment": "Category chip label indicating a screenshot is safe to delete",
       "extractionState": "manual",
@@ -943,18 +1713,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Safe to delete"
-          }
-        }
-      }
-    },
-    "Triage.fitImage": {
-      "comment": "Compact contextual menu action that fits the entire screenshot inside the card",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fit image"
           }
         }
       }
@@ -991,18 +1749,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Start over?"
-          }
-        }
-      }
-    },
-    "Triage.restartTriage": {
-      "comment": "Neutral overflow-menu action that opens the restart confirmation alert",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restart triage"
           }
         }
       }
@@ -1091,74 +1837,24 @@
         }
       }
     },
-    "Review.deselectAll": {
-      "comment": "Button that deselects every suggested screenshot",
-      "extractionState": "manual",
+    "notification.classificationReady.body": {
+      "extractionState": "extracted_with_value",
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "translated",
-            "value": "Deselect all"
+            "state": "new",
+            "value": "%lld screenshots have been sorted. Open SnapTriage to review them."
           }
         }
       }
     },
-    "Review.markedSectionSubtitle": {
-      "comment": "Subtitle under the marked section; %@ is a count",
-      "extractionState": "manual",
+    "notification.classificationReady.title": {
+      "extractionState": "extracted_with_value",
       "localizations": {
         "en": {
           "stringUnit": {
-            "state": "translated",
-            "value": "%@ swiped left during triage"
-          }
-        }
-      }
-    },
-    "Review.markedSectionTitle": {
-      "comment": "Header for the screenshots the user swiped left",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You marked these"
-          }
-        }
-      }
-    },
-    "Review.selectAll": {
-      "comment": "Button that selects every suggested screenshot",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select all"
-          }
-        }
-      }
-    },
-    "Review.suggestedSectionSubtitle": {
-      "comment": "Subtitle under the suggestions; first %@ is a count, second %@ a size",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ screenshots · %@. You haven't reviewed these, so nothing here is selected."
-          }
-        }
-      }
-    },
-    "Review.suggestedSectionTitle": {
-      "comment": "Header for screenshots only the classifier flagged",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SnapTriage suggests"
+            "state": "new",
+            "value": "Screenshots ready to triage"
           }
         }
       }
