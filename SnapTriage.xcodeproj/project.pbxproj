@@ -24,7 +24,6 @@
 		3AD3D3E71E8C607430D45A00 /* LoadReviewItemsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962E03B3AE75031762EB31C2 /* LoadReviewItemsUseCase.swift */; };
 		3BF4EE2424CDED6BE72972FE /* RecordTriageDecisionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE77130537C36EAB490A9E5 /* RecordTriageDecisionUseCase.swift */; };
 		3D53A9052D2FB37FB4A5860E /* ImageContentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FD43BB9954D5151295E66D /* ImageContentClassifier.swift */; };
-		3D7342F2E46894A74473E914 /* BackgroundClassificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79306B329A2868CFEA9E0EF6 /* BackgroundClassificationCoordinator.swift */; };
 		40864CDCCFFE7166B0FC175F /* TriageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E74A2B0CC8658D3890000F /* TriageViewModel.swift */; };
 		43F5EEBE45DADFD12F8533F7 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC3867CA58A176131910DA2 /* LiquidGlass.swift */; };
 		44D48983B05E1B7731430801 /* OverviewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEAC4D33849613118BBC3BA5 /* OverviewRouter.swift */; };
@@ -70,6 +69,7 @@
 		DA7161D21C7AB414D37267A7 /* TriageRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAF2F8D48A2EA4D76302BBD6 /* TriageRouter.swift */; };
 		DB43238FAB8BD648E37124F3 /* CategorizeScreenshotUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361C6D2FDE448AC2371A9D21 /* CategorizeScreenshotUseCase.swift */; };
 		DD95FB2EEF16B3F6A7E072EC /* CategorizeScreenshotUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70E8C9B972844D5F1C7CFE05 /* CategorizeScreenshotUseCaseTests.swift */; };
+		E054C22594D8CDED4512D252 /* BackgroundClassificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */; };
 		E79D413C53D8AEE9D89A003A /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2C5E510CDEB1C44C24888B /* AppNavigation.swift */; };
 		EABF8A9228F0D46FD68F9A2E /* LoadTriageProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD0EDD7D4F0994CBE38961B /* LoadTriageProgressUseCase.swift */; };
 		EC7E8BBC11AFECD0FA74C897 /* ScreenshotDisposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDD24F0F552B8E79A14BC38 /* ScreenshotDisposition.swift */; };
@@ -132,7 +132,6 @@
 		722C73933C870FC12D3102C9 /* DeleteScreenshotsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCaseTests.swift; sourceTree = "<group>"; };
 		747F33D3A531731028D83F59 /* DeleteScreenshotsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteScreenshotsUseCase.swift; sourceTree = "<group>"; };
 		7763160A48CDF1789B81AA93 /* ScreenshotThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotThumbnailView.swift; sourceTree = "<group>"; };
-		79306B329A2868CFEA9E0EF6 /* BackgroundClassificationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClassificationCoordinator.swift; sourceTree = "<group>"; };
 		7DCF2EE05280B4D90FE591FB /* OCRStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRStore.swift; sourceTree = "<group>"; };
 		816A3C527A3AF8C31CB35354 /* PruneScreenshotRecordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PruneScreenshotRecordsUseCase.swift; sourceTree = "<group>"; };
 		82D4EBD367F429D246C09885 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
@@ -159,6 +158,7 @@
 		BA1E65353EF6F88FC859E0D7 /* TestTags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTags.swift; sourceTree = "<group>"; };
 		BE49DB378D23F6F4068E3669 /* SnapTriageIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = SnapTriageIcon.icon; sourceTree = "<group>"; };
 		BEAC4D33849613118BBC3BA5 /* OverviewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewRouter.swift; sourceTree = "<group>"; };
+		CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundClassificationCoordinator.swift; sourceTree = "<group>"; };
 		D05D6CA1102658E0FC552100 /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		DA69FE98F7842167D0BA4A03 /* TriageComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageComposition.swift; sourceTree = "<group>"; };
 		DBC3867CA58A176131910DA2 /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
@@ -201,7 +201,6 @@
 			isa = PBXGroup;
 			children = (
 				A43FE831A4BC8426E6689C03 /* Assets.xcassets */,
-				79306B329A2868CFEA9E0EF6 /* BackgroundClassificationCoordinator.swift */,
 				240B022BE64B8954FE0435F6 /* Localizable.xcstrings */,
 				DF4B83DAC957C166EACB3DA8 /* App */,
 				7991CF9AEDD240F7F305A064 /* Common */,
@@ -218,8 +217,17 @@
 				EA2C5E510CDEB1C44C24888B /* AppNavigation.swift */,
 				A4CC4413DCCA1E4E9D62221A /* AppRootView.swift */,
 				69DE7EE572E181AFC46A22A4 /* SnapTriageApp.swift */,
+				927B25674656990ACB44BE8E /* Background */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		927B25674656990ACB44BE8E /* Background */ = {
+			isa = PBXGroup;
+			children = (
+				CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */,
+			);
+			path = Background;
 			sourceTree = "<group>";
 		};
 		7991CF9AEDD240F7F305A064 /* Common */ = {
@@ -650,11 +658,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3D7342F2E46894A74473E914 /* BackgroundClassificationCoordinator.swift in Sources */,
 				49898DDCB78FAB6772125DAE /* AppComposition.swift in Sources */,
 				E79D413C53D8AEE9D89A003A /* AppNavigation.swift in Sources */,
 				CB9BDDB1DD37CCA5A35F45A9 /* AppRootView.swift in Sources */,
 				BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */,
+				E054C22594D8CDED4512D252 /* BackgroundClassificationCoordinator.swift in Sources */,
 				1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */,
 				29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */,
 				43F5EEBE45DADFD12F8533F7 /* LiquidGlass.swift in Sources */,
