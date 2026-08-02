@@ -10,6 +10,7 @@ import Foundation
 enum ReviewComposition {
     @MainActor
     static func make(
+        scope: ReviewScope = .triage,
         service: PhotoLibraryService,
         classifyLibrary: ClassifyLibraryUseCase,
         categoryStore: CategoryStore,
@@ -18,6 +19,7 @@ enum ReviewComposition {
         router: ReviewRouter
     ) -> ReviewViewModel {
         return ReviewViewModel(
+            scope: scope,
             requestAccess: RequestPhotoAccessUseCase(service: service),
             loadItems: LoadReviewItemsUseCase(
                 loadScreenshots: LoadScreenshotsUseCase(service: service),
@@ -31,6 +33,8 @@ enum ReviewComposition {
                 categories: categoryStore,
                 ocr: ocrStore
             ),
+            applyBulk: ApplyBulkTriageUseCase(store: decisionStore),
+            revertBulk: RevertBulkTriageUseCase(store: decisionStore),
             imageLoader: service,
             router: router
         )
