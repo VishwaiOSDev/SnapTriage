@@ -316,55 +316,6 @@ private enum Metrics {
     static let primaryActionGlow = Color(red: 0.08, green: 0.38, blue: 0.95)
 }
 
-// MARK: - Liquid Glass
-
-/// One surface treatment for every glass element. On iOS 26 it's the real
-/// `glassEffect` — it samples, reflects, and refracts whatever sits behind and
-/// beside it. Older systems fall back to a translucent material + hairline border.
-private struct LiquidGlassModifier<S: InsettableShape>: ViewModifier {
-    let shape: S
-    var tint: Color?
-
-    func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content.glassEffect(resolvedGlass, in: shape)
-        } else {
-            content
-                .background(Metrics.surfaceFill, in: shape)
-                .background(.ultraThinMaterial, in: shape)
-                .overlay(shape.strokeBorder(Metrics.cardStroke, lineWidth: 1))
-        }
-    }
-
-    @available(iOS 26.0, *)
-    private var resolvedGlass: Glass {
-        if let tint {
-            Glass.regular.tint(tint.opacity(0.5))
-        } else {
-            .regular
-        }
-    }
-}
-
-private extension View {
-    func liquidGlass<S: InsettableShape>(in shape: S, tint: Color? = nil) -> some View {
-        modifier(LiquidGlassModifier(shape: shape, tint: tint))
-    }
-}
-
-// MARK: - Reusable surfaces
-
-private struct GlassCard<Content: View>: View {
-    var cornerRadius: CGFloat = Metrics.cardCornerRadius
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        content
-            .frame(maxWidth: .infinity)
-            .liquidGlass(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-    }
-}
-
 private struct PrimaryActionButton: View {
     let title: String
     let systemImage: String

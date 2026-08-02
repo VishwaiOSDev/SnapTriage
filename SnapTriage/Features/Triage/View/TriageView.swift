@@ -584,37 +584,6 @@ private enum Metrics {
     static let imageModeTransitionDuration = 0.18
 }
 
-// MARK: - Liquid Glass
-
-/// Same treatment as the Overview surfaces: real `glassEffect` on iOS 26,
-/// translucent material + hairline border on older systems.
-private struct LiquidGlassModifier<S: InsettableShape>: ViewModifier {
-    let shape: S
-    let tint: Color?
-
-    func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content.glassEffect(.regular.tint(tint), in: shape)
-        } else {
-            content
-                .background(tint?.opacity(0.2) ?? Metrics.surfaceFill, in: shape)
-                .background(.ultraThinMaterial, in: shape)
-                .overlay {
-                    shape.strokeBorder(
-                        tint?.opacity(0.4) ?? Metrics.cardStroke,
-                        lineWidth: 1
-                    )
-                }
-        }
-    }
-}
-
-private extension View {
-    func liquidGlass<S: InsettableShape>(in shape: S, tint: Color? = nil) -> some View {
-        modifier(LiquidGlassModifier(shape: shape, tint: tint))
-    }
-}
-
 private struct CircularIconButton: View {
     let systemImage: String
     let accessibilityLabel: String
