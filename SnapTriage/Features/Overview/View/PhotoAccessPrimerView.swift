@@ -23,65 +23,86 @@ struct PhotoAccessPrimerView: View {
             Spacer(minLength: 0)
 
             VStack(spacing: 18) {
-                Image(systemName: "photo.stack")
-                    .font(.system(size: 52, weight: .light))
-                    .foregroundStyle(Palette.accent)
-                    .accessibilityHidden(true)
-
-                VStack(spacing: 8) {
-                    Text(Strings.Access.primerTitle)
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(.white)
-                    Text(Strings.Access.primerMessage)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .multilineTextAlignment(.center)
+                hero
+                introduction
             }
 
-            VStack(alignment: .leading, spacing: 14) {
-                ForEach(Self.promises, id: \.title) { promise in
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: promise.systemImage)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Palette.accent)
-                            .frame(width: 26)
-                            .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(promise.title)
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.white)
-                            Text(promise.detail)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                    .accessibilityElement(children: .combine)
-                }
-            }
-            .padding(Spacing.cardPadding)
-            .liquidGlass(in: RoundedRectangle(cornerRadius: Spacing.cardCornerRadius, style: .continuous))
-            .padding(.top, 32)
+            privacyPromises
+                .padding(.top, 32)
 
             Spacer(minLength: 0)
 
-            VStack(spacing: 10) {
-                PrimaryActionButton(
-                    title: Strings.Access.primerContinue,
-                    systemImage: "chevron.right",
-                    action: onContinue
-                )
-                Text(Strings.Access.primerFootnote)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .multilineTextAlignment(.center)
-            }
+            actionArea
         }
         .padding(.horizontal, Spacing.screenPadding)
         .padding(.vertical, 32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var hero: some View {
+        Image(systemName: "photo.stack")
+            .font(.system(size: 52, weight: .light))
+            .foregroundStyle(Palette.accent)
+            .accessibilityHidden(true)
+    }
+
+    private var introduction: some View {
+        VStack(spacing: 8) {
+            Text(Strings.Access.primerTitle)
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+            Text(Strings.Access.primerMessage)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .multilineTextAlignment(.center)
+    }
+
+    private var privacyPromises: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            ForEach(Self.promises, id: \.title) { promise in
+                promiseRow(promise)
+            }
+        }
+        .padding(Spacing.cardPadding)
+        .liquidGlass(in: RoundedRectangle(cornerRadius: Spacing.cardCornerRadius, style: .continuous))
+    }
+
+    private func promiseRow(_ promise: Promise) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: promise.systemImage)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Palette.accent)
+                .frame(width: 26)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(promise.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(promise.detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var actionArea: some View {
+        VStack(spacing: 10) {
+            PrimaryActionButton(
+                title: Strings.Access.primerContinue,
+                systemImage: "chevron.right",
+                action: onContinue
+            )
+            Text(Strings.Access.primerFootnote)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+        }
     }
 
     private struct Promise {
