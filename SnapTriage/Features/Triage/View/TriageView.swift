@@ -50,7 +50,12 @@ struct TriageView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    titleView
+                    TriageTitleView(
+                        phase: viewModel.state.phase,
+                        decidedCount: viewModel.state.decidedIDs.count,
+                        totalCount: viewModel.state.screenshots.count
+                    )
+                    .equatable()
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -61,7 +66,19 @@ struct TriageView: View {
                     .accessibilityLabel(Strings.Triage.close)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    overflowMenu
+                    TriageOverflowMenu(
+                        imageMode: imageMode,
+                        canStartOver: viewModel.state.hasProgress && !viewModel.state.isFinished,
+                        onBulkTriage: onBulkTriage,
+                        onToggleImageMode: {
+                            withAnimation(.easeInOut(duration: TriageMetrics.imageModeTransitionDuration)) {
+                                imageMode = imageMode.toggled
+                            }
+                        },
+                        onStartOver: requestStartOver,
+                        onRecategorizeAll: { viewModel.send(.recategorizeAll) }
+                    )
+                    .equatable()
                 }
             }
         }
@@ -127,82 +144,6 @@ struct TriageView: View {
         .padding(.horizontal, Spacing.screenPadding)
         .padding(.top, TriageMetrics.sectionSpacing)
         .padding(.bottom, TriageMetrics.sectionSpacing)
-    }
-
-    // MARK: - Navigation bar
-
-    // Progress belongs with the title, so a two-line principal item stands in
-    // for `navigationSubtitle`, which needs iOS 26.
-    private var titleView: some View {
-        VStack(spacing: 2) {
-            Text(Strings.Triage.title)
-                .font(.headline)
-                .foregroundStyle(.white)
-            if case .loaded = viewModel.state.phase, !viewModel.state.screenshots.isEmpty {
-                Text(progressText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .contentTransition(.numericText())
-            }
-        }
-        .animation(.default, value: viewModel.state.decidedIDs.count)
-    }
-
-    private var overflowMenu: some View {
-        Menu {
-            // 1,200 screenshots is 1,200 swipes only if the classifier's work is
-            // thrown away. Hand the user the escape hatch from inside the deck,
-            // where the tedium is actually felt.
-            Button {
-                onBulkTriage()
-            } label: {
-                Label(Strings.Categories.title, systemImage: "square.stack.3d.up")
-            }
-
-            Divider()
-
-            Button {
-                withAnimation(.easeInOut(duration: TriageMetrics.imageModeTransitionDuration)) {
-                    imageMode = imageMode.toggled
-                }
-            } label: {
-                Label(
-                    imageMode == .fill
-                        ? Strings.Triage.fitImage
-                        : Strings.Triage.fillImage,
-                    systemImage: imageMode == .fill
-                        ? "arrow.down.forward.and.arrow.up.backward"
-                        : "arrow.up.left.and.arrow.down.right"
-                )
-            }
-
-            // Only offer a mid-pass restart while there is progress to discard;
-            // the finished screen already exposes its own restart control.
-            if viewModel.state.hasProgress && !viewModel.state.isFinished {
-                Divider()
-                // This only opens a confirmation; reserve destructive red for
-                // the action that actually clears the pass.
-                Button {
-                    requestStartOver()
-                } label: {
-                    Label(Strings.Triage.restartTriage, systemImage: "arrow.counterclockwise")
-                }
-            }
-
-            #if DEBUG
-            Divider()
-            // Wipes the classification cache and re-runs the pipeline. Debug-only:
-            // for exercising categorization (and the background pass) end to end.
-            Button {
-                viewModel.send(.recategorizeAll)
-            } label: {
-                Label("Re-categorize all (debug)", systemImage: "wand.and.stars")
-            }
-            #endif
-        } label: {
-            Image(systemName: "ellipsis")
-        }
-        .accessibilityLabel(Strings.Triage.more)
     }
 
     // MARK: - Card stack
@@ -474,20 +415,112 @@ struct TriageView: View {
         return !auth.canAccessLibrary && auth != .notDetermined
     }
 
-    // MARK: - Display
+    private func requestStartOver() {
+        showStartOverConfirmation = true
+    }
+}
+
+// MARK: - Navigation bar
+
+/// Title and pass progress, split out of `TriageView` so the bar diffs on these
+/// three values instead of on the whole view model.
+///
+/// `.toolbar` bridges to `UIBarButtonItem`/`UINavigationItem`. Rebuilding those
+/// under a live presentation is what made the overflow menu flicker and swallow
+/// the tap that opened it, so nothing that moves at pipeline frequency may reach
+/// this far.
+private struct TriageTitleView: View, Equatable {
+    let phase: TriageViewModel.Phase
+    let decidedCount: Int
+    let totalCount: Int
+
+    var body: some View {
+        // Progress belongs with the title, so a two-line principal item stands
+        // in for `navigationSubtitle`, which needs iOS 26.
+        VStack(spacing: 2) {
+            Text(Strings.Triage.title)
+                .font(.headline)
+                .foregroundStyle(.white)
+            if phase == .loaded, totalCount > 0 {
+                Text(progressText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .contentTransition(.numericText())
+            }
+        }
+        .animation(.default, value: decidedCount)
+    }
 
     // Counts verdicts given, not the cursor's position: the deck surfaces
     // classified cards first, so the index no longer advances monotonically.
     private var progressText: String {
-        let total = viewModel.state.screenshots.count
-        return Strings.Triage.progress(
-            MetricFormatter.count(min(viewModel.state.decidedIDs.count + 1, total)),
-            MetricFormatter.count(total)
+        Strings.Triage.progress(
+            MetricFormatter.count(min(decidedCount + 1, totalCount)),
+            MetricFormatter.count(totalCount)
         )
     }
+}
 
-    private func requestStartOver() {
-        showStartOverConfirmation = true
+private struct TriageOverflowMenu: View, Equatable {
+    let imageMode: CardImageMode
+    /// Only offer a mid-pass restart while there is progress to discard; the
+    /// finished screen already exposes its own restart control.
+    let canStartOver: Bool
+    let onBulkTriage: () -> Void
+    let onToggleImageMode: () -> Void
+    let onStartOver: () -> Void
+    let onRecategorizeAll: () -> Void
+
+    /// Closures never compare equal, so leaving this to SwiftUI's own diffing
+    /// would re-run `body` — and rebuild the menu — on every parent update.
+    /// Identity here is the value inputs alone.
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.imageMode == rhs.imageMode && lhs.canStartOver == rhs.canStartOver
+    }
+
+    var body: some View {
+        Menu {
+            // 1,200 screenshots is 1,200 swipes only if the classifier's work is
+            // thrown away. Hand the user the escape hatch from inside the deck,
+            // where the tedium is actually felt.
+            Button(action: onBulkTriage) {
+                Label(Strings.Categories.title, systemImage: "square.stack.3d.up")
+            }
+
+            Divider()
+
+            Button(action: onToggleImageMode) {
+                Label(
+                    imageMode == .fill
+                        ? Strings.Triage.fitImage
+                        : Strings.Triage.fillImage,
+                    systemImage: imageMode == .fill
+                        ? "arrow.down.forward.and.arrow.up.backward"
+                        : "arrow.up.left.and.arrow.down.right"
+                )
+            }
+
+            if canStartOver {
+                Divider()
+                // This only opens a confirmation; reserve destructive red for
+                // the action that actually clears the pass.
+                Button(action: onStartOver) {
+                    Label(Strings.Triage.restartTriage, systemImage: "arrow.counterclockwise")
+                }
+            }
+
+            #if DEBUG
+            Divider()
+            // Wipes the classification cache and re-runs the pipeline. Debug-only:
+            // for exercising categorization (and the background pass) end to end.
+            Button(action: onRecategorizeAll) {
+                Label("Re-categorize all (debug)", systemImage: "wand.and.stars")
+            }
+            #endif
+        } label: {
+            Image(systemName: "ellipsis")
+        }
+        .accessibilityLabel(Strings.Triage.more)
     }
 }
 
