@@ -19,9 +19,7 @@ enum CategoriesComposition {
                 loadScreenshots: LoadScreenshotsUseCase(service: service),
                 classifyLibrary: classifyLibrary,
                 decisions: decisionStore
-            ),
-            applyBulk: ApplyBulkTriageUseCase(store: decisionStore),
-            revertBulk: RevertBulkTriageUseCase(store: decisionStore)
+            )
         )
     }
 }
