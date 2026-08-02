@@ -111,6 +111,10 @@ enum Strings {
         static let openHint = String(localized: .reviewOpenHint)
         static let select = String(localized: .reviewSelect)
         static let deselect = String(localized: .reviewDeselect)
+        static let viewerDone = String(localized: .reviewViewerDone)
+        static func viewerPosition(_ index: String, _ total: String) -> String {
+            String(localized: .reviewViewerPosition(index, total))
+        }
     }
 
     enum Categories {

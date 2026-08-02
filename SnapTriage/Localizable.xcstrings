@@ -1309,6 +1309,30 @@
         }
       }
     },
+    "Review.viewerDone": {
+      "comment": "Button that closes the full-screen viewer",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Review.viewerPosition": {
+      "comment": "Position in the full-screen viewer; first %@ is the index, second %@ the total",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ of %@"
+          }
+        }
+      }
+    },
     "Review.yesterday": {
       "comment": "Timestamp shown on a review tile for a screenshot taken yesterday",
       "extractionState": "manual",
