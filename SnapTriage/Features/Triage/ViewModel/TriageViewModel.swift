@@ -20,10 +20,14 @@ final class TriageViewModel {
         let decision: TriageDecision
     }
 
+    /// Deck state only. Classifications are deliberately *not* here: they arrive
+    /// at pipeline frequency, and `@Observable` tracks stored properties rather
+    /// than struct fields — so folding them in made every classified screenshot
+    /// invalidate every view that reads any part of `state`, the navigation bar
+    /// included. See ``TriageViewModel/classifications``.
     struct State: Equatable {
         var authorization: PhotoLibraryAuthorization = .notDetermined
         var screenshots: [Screenshot] = []
-        var classifications: [Screenshot.ID: ScreenshotClassification] = [:]
         var phase: Phase = .idle
         var errorMessage: String?
         var currentIndex = 0
@@ -42,12 +46,6 @@ final class TriageViewModel {
             screenshots.indices.contains(currentIndex) ? screenshots[currentIndex] : nil
         }
 
-        var upNext: Screenshot? {
-            guard let current else { return nil }
-            let index = preferredIndex(excluding: current.id)
-            return screenshots.indices.contains(index) ? screenshots[index] : nil
-        }
-
         var isFinished: Bool {
             phase == .loaded && !screenshots.isEmpty && current == nil
         }
@@ -58,12 +56,6 @@ final class TriageViewModel {
         var canUndo: Bool { !decisionHistory.isEmpty }
 
         var lastDecision: TriageDecision? { decisionHistory.last?.decision }
-
-        /// Moves to the next card worth deciding on; lands on `count` (finished)
-        /// when none remain.
-        mutating func advance() {
-            currentIndex = preferredIndex()
-        }
 
         /// The undecided card the deck should surface next.
         ///
@@ -78,21 +70,17 @@ final class TriageViewModel {
         ///
         /// Returns `screenshots.count` when nothing is left, which is what
         /// surfaces the finished screen.
-        func preferredIndex(excluding excluded: Screenshot.ID? = nil) -> Int {
+        func preferredIndex(
+            excluding excluded: Set<Screenshot.ID> = [],
+            classifications: [Screenshot.ID: ScreenshotClassification]
+        ) -> Int {
             var firstUnclassified: Int?
             for (index, screenshot) in screenshots.enumerated() {
-                guard !decidedIDs.contains(screenshot.id), screenshot.id != excluded else { continue }
+                guard !decidedIDs.contains(screenshot.id), !excluded.contains(screenshot.id) else { continue }
                 if classifications[screenshot.id] != nil { return index }
                 if firstUnclassified == nil { firstUnclassified = index }
             }
             return firstUnclassified ?? screenshots.count
-        }
-
-        /// The verdict for a card, or `nil` while classification is still pending.
-        /// A pending card must show a neutral "Analyzing…" state, never `.other`
-        /// / safe-to-delete, so the view distinguishes "unknown yet" from "done".
-        func classification(for screenshot: Screenshot) -> ScreenshotClassification? {
-            classifications[screenshot.id]
         }
     }
 
@@ -110,6 +98,37 @@ final class TriageViewModel {
     }
 
     private(set) var state = State()
+
+    /// Verdicts as the pipeline produces them, observed separately from ``state``.
+    /// A pass writes here many times a second; anything that only needs deck state
+    /// — the navigation bar above all — must not be dragged into that churn.
+    private(set) var classifications: [Screenshot.ID: ScreenshotClassification] = [:]
+
+    /// The verdict for a card, or `nil` while classification is still pending.
+    /// A pending card must show a neutral "Analyzing…" state, never `.other`
+    /// / safe-to-delete, so the view distinguishes "unknown yet" from "done".
+    func classification(for screenshot: Screenshot) -> ScreenshotClassification? {
+        classifications[screenshot.id]
+    }
+
+    var upNext: Screenshot? {
+        guard let current = state.current else { return nil }
+        return screenshot(at: preferredIndex(excluding: [current.id]))
+    }
+
+    private func screenshot(at index: Int) -> Screenshot? {
+        state.screenshots.indices.contains(index) ? state.screenshots[index] : nil
+    }
+
+    private func preferredIndex(excluding excluded: Set<Screenshot.ID> = []) -> Int {
+        state.preferredIndex(excluding: excluded, classifications: classifications)
+    }
+
+    /// Moves to the next card worth deciding on; lands on `count` (finished)
+    /// when none remain.
+    private func advance() {
+        state.currentIndex = preferredIndex()
+    }
 
     private let requestAccess: RequestPhotoAccessUseCase
     private let loadScreenshots: LoadScreenshotsUseCase
@@ -193,12 +212,12 @@ final class TriageViewModel {
             }
             await self.classifyLibrary.clearCache()
             if Task.isCancelled { return }
-            self.state.classifications = [:]
+            self.classifications = [:]
 
             for await progress in self.classifyLibrary.execute(self.state.screenshots) {
                 if Task.isCancelled { return }
                 if let id = progress.id, let classification = progress.classification {
-                    self.state.classifications[id] = classification
+                    self.classifications[id] = classification
                 }
             }
             await self.classifyLibrary.flush()
@@ -264,7 +283,7 @@ final class TriageViewModel {
         // Classifications carry over from the previous snapshot, so a re-sync
         // resumes on a resolved card rather than whichever one happens to sit
         // earliest in the library.
-        state.currentIndex = state.preferredIndex()
+        state.currentIndex = preferredIndex()
         state.keptCount = progress.keptCount
         state.markedCount = progress.markedCount
         // Loading or externally reordering the library establishes a new deck
@@ -316,7 +335,7 @@ final class TriageViewModel {
             screenshotID: screenshot.id,
             decision: decision
         ))
-        state.advance()
+        advance()
         classifyWindow()
     }
 
@@ -378,7 +397,7 @@ final class TriageViewModel {
                 var window: [Screenshot] = []
                 for screenshot in self.state.screenshots
                 where !self.state.decidedIDs.contains(screenshot.id)
-                    && self.state.classifications[screenshot.id] == nil
+                    && self.classifications[screenshot.id] == nil
                     && !attempted.contains(screenshot.id) {
                     window.append(screenshot)
                     if window.count == self.classifyLookahead { break }
@@ -406,9 +425,9 @@ final class TriageViewModel {
     /// costs nothing; a resolved card is never taken away.
     private func resurfaceIfCurrentIsUnresolved() {
         guard let current = state.current,
-              state.classifications[current.id] == nil
+              classifications[current.id] == nil
         else { return }
-        state.currentIndex = state.preferredIndex()
+        state.currentIndex = preferredIndex()
     }
 
     // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
@@ -442,7 +461,7 @@ final class TriageViewModel {
         state.phase = .loaded
         state.authorization = .authorized
         state.screenshots = screenshots
-        state.classifications = categories.mapValues {
+        classifications = categories.mapValues {
             ScreenshotClassification(category: $0, confidence: .high, source: .heuristic)
         }
     }
