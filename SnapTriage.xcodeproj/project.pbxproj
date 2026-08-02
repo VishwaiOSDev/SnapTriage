@@ -32,6 +32,7 @@
 		49898DDCB78FAB6772125DAE /* AppComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A773D22AF59C4D017172A44 /* AppComposition.swift */; };
 		502A7245217F5EC25D2B383D /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C12DFFCC365439E7F0F01C /* OverviewView.swift */; };
 		516394BC76CE07D173E12881 /* ObservePhotoLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97F7D383C7250B116EA174B /* ObservePhotoLibraryUseCase.swift */; };
+		57B068DE1D889C7C1320429E /* BackgroundTaskAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66ECC20CF9224E685AEAA0F2 /* BackgroundTaskAssertion.swift */; };
 		5F967497B43A77B59E4AD5AB /* Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8CC5A0C8AB224F76FC172B /* Palette.swift */; };
 		6089CF6764642E412F82B396 /* OverviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC6CFF4863506B2227BC5 /* OverviewViewModelTests.swift */; };
 		6284BB7BF85153D902A607FA /* ReviewItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BD6D27663370D28DDADA1E /* ReviewItemView.swift */; };
@@ -131,6 +132,7 @@
 		63C12DFFCC365439E7F0F01C /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
 		65602E8C050A0226860FFAA6 /* LoadScreenshotsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadScreenshotsUseCase.swift; sourceTree = "<group>"; };
 		6694FA44F818F4A5BFC09BE6 /* ReviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewComposition.swift; sourceTree = "<group>"; };
+		66ECC20CF9224E685AEAA0F2 /* BackgroundTaskAssertion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskAssertion.swift; sourceTree = "<group>"; };
 		69DE7EE572E181AFC46A22A4 /* SnapTriageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapTriageApp.swift; sourceTree = "<group>"; };
 		70E8C9B972844D5F1C7CFE05 /* CategorizeScreenshotUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCaseTests.swift; sourceTree = "<group>"; };
 		7122A39108AF5B302273EE48 /* PersistedDictionaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistedDictionaryTests.swift; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				CAEA4818DD51083ECFE05E41 /* BackgroundClassificationCoordinator.swift */,
+				66ECC20CF9224E685AEAA0F2 /* BackgroundTaskAssertion.swift */,
 				0F2D9FF20AAFFD76BE2BAF3A /* ClassificationCompletionStore.swift */,
 				B11532FF38991702DAC46CDF /* ClassificationNotifier.swift */,
 				0C98138EE952E9EF94F5297A /* ForegroundNotificationPresenter.swift */,
@@ -672,6 +675,7 @@
 				CB9BDDB1DD37CCA5A35F45A9 /* AppRootView.swift in Sources */,
 				BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */,
 				E054C22594D8CDED4512D252 /* BackgroundClassificationCoordinator.swift in Sources */,
+				57B068DE1D889C7C1320429E /* BackgroundTaskAssertion.swift in Sources */,
 				91AF7C220B08A9793476B37A /* ClassificationCompletionStore.swift in Sources */,
 				F3C5B5C866B4D92B2FAF5731 /* ClassificationNotifier.swift in Sources */,
 				68970EA1B9CF8C5CFCE4E679 /* ForegroundNotificationPresenter.swift in Sources */,
