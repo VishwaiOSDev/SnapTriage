@@ -1081,6 +1081,30 @@
         }
       }
     },
+    "Review.scopedSectionSubtitle": {
+      "comment": "Subtitle for the category section; first %@ is a count, second %@ a size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ screenshots · %@. You haven't ruled on these, so nothing here is selected."
+          }
+        }
+      }
+    },
+    "Review.scopedSectionTitle": {
+      "comment": "Section title for the rest of a category",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything else here"
+          }
+        }
+      }
+    },
     "Review.selectAll": {
       "comment": "Button that selects every suggested screenshot",
       "extractionState": "manual",
