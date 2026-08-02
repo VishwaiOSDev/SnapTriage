@@ -127,29 +127,30 @@ struct PhotoAccessPrimerView: View {
     }
 
     private var privacyPromises: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 22) {
             ForEach(Self.promises, id: \.title) { promise in
                 promiseRow(promise)
             }
         }
-        .padding(Spacing.cardPadding)
-        .liquidGlass(in: RoundedRectangle(cornerRadius: Spacing.cardCornerRadius, style: .continuous))
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func promiseRow(_ promise: Promise) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 16) {
             Image(systemName: promise.systemImage)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: 22, weight: .regular))
+                .symbolRenderingMode(.monochrome)
                 .foregroundStyle(Palette.accent)
-                .frame(width: 26)
+                .frame(width: 36, height: 36)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(promise.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
                 Text(promise.detail)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
