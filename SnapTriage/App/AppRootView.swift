@@ -65,7 +65,7 @@ struct AppRootView: View {
         }
         .tint(Palette.accent)
         .preferredColorScheme(.dark)
-        .onChange(of: overviewModel.state.isClassifying, initial: true) { _, isClassifying in
+        .onChange(of: overviewModel.isClassifying, initial: true) { _, isClassifying in
             // Only prompt after the user granted Photos access and actual work
             // exists. This keeps two system permission sheets from competing at
             // first launch and avoids asking users whose library is already warm.

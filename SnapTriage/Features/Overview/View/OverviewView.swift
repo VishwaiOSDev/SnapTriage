@@ -62,7 +62,7 @@ struct OverviewView: View {
             status { failure }
 
         case .loaded:
-            if viewModel.state.summary.totalCount == 0 {
+            if viewModel.progress.summary.totalCount == 0 {
                 status { EmptyOverviewView() }
             } else {
                 loaded
@@ -92,7 +92,6 @@ struct OverviewView: View {
             .padding(.horizontal, Spacing.screenPadding)
             .padding(.top, Spacing.sectionSpacing)
             .padding(.bottom, Spacing.sectionSpacing)
-            .animation(.default, value: viewModel.state.summary)
         }
         .scrollIndicators(.hidden)
     }
@@ -100,7 +99,7 @@ struct OverviewView: View {
     // The reclaimable figure is the reward and the door to Review: tapping it
     // takes the user straight to the final delete list, so Review needs no tab.
     private var hero: some View {
-        let summary = viewModel.state.summary
+        let summary = viewModel.progress.summary
         let hasReclaimable = summary.safeCount > 0
         return Button(action: onOpenReview) {
             VStack(spacing: 6) {
@@ -126,7 +125,7 @@ struct OverviewView: View {
                     }
                 }
 
-                if viewModel.state.isClassifying {
+                if viewModel.isClassifying {
                     analyzingStatus
                 }
             }
@@ -152,9 +151,9 @@ struct OverviewView: View {
     }
 
     private var analyzingText: String {
-        let current = MetricFormatter.count(viewModel.state.classifiedCount)
-        let total = MetricFormatter.count(viewModel.state.summary.totalCount)
-        guard let seconds = viewModel.state.estimatedSecondsRemaining else {
+        let current = MetricFormatter.count(viewModel.progress.classifiedCount)
+        let total = MetricFormatter.count(viewModel.progress.summary.totalCount)
+        guard let seconds = viewModel.estimatedSecondsRemaining else {
             return Strings.Overview.analyzing(current, total)
         }
         return Strings.Overview.analyzingWithEstimate(current, total, Self.durationText(seconds))
@@ -267,7 +266,7 @@ struct OverviewView: View {
     // MARK: - Display
 
     private var stats: [TriageStat] {
-        let summary = viewModel.state.summary
+        let summary = viewModel.progress.summary
         return [
             TriageStat(
                 id: .useful,
