@@ -178,6 +178,18 @@ struct LoadReviewItemsUseCaseTests {
         #expect(items.map(\.id) == ["1"])
     }
 
+    @Test("An unclassified screenshot belongs to no bucket yet", .tags(.fast))
+    func categoryScopeSkipsUnclassified() async throws {
+        let shots = [Fixture.screenshot(id: "1"), Fixture.screenshot(id: "2")]
+        let service = FakePhotoLibraryService(screenshots: shots)
+        let store = SeededCategoryStore(["1": .social])   // "2" has no verdict yet
+        let sut = Fixture.loadReviewItems(service: service, store: store)
+
+        let items = try await sut.execute(scope: .category(.social))
+
+        #expect(items.map(\.id) == ["1"])
+    }
+
     @Test("Denied access throws before classifying", .tags(.fast))
     func deniedThrows() async {
         let service = FakePhotoLibraryService(authorization: .denied)
