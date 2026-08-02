@@ -338,13 +338,13 @@
       }
     },
     "Categories.subheadline": {
-      "comment": "Subheadline on the category screen",
+      "comment": "Subtitle on the category list",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Clear a whole category in one tap, then swipe only what's left."
+            "value": "Open a category to see the screenshots in it before you decide."
           }
         }
       }
