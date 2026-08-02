@@ -70,6 +70,14 @@ enum Strings {
         static let emptyTitle = String(localized: .reviewEmptyTitle)
         static let emptyMessage = String(localized: .reviewEmptyMessage)
         static let deletionFailed = String(localized: .reviewDeletionFailed)
+        static let markedSectionTitle = String(localized: .reviewMarkedSectionTitle)
+        static func markedSectionSubtitle(_ count: String) -> String { String(localized: .reviewMarkedSectionSubtitle(count)) }
+        static let suggestedSectionTitle = String(localized: .reviewSuggestedSectionTitle)
+        static func suggestedSectionSubtitle(_ count: String, _ size: String) -> String {
+            String(localized: .reviewSuggestedSectionSubtitle(count, size))
+        }
+        static let selectAll = String(localized: .reviewSelectAll)
+        static let deselectAll = String(localized: .reviewDeselectAll)
     }
 
     enum Access {

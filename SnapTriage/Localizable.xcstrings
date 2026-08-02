@@ -1090,6 +1090,78 @@
           }
         }
       }
+    },
+    "Review.deselectAll": {
+      "comment": "Button that deselects every suggested screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deselect all"
+          }
+        }
+      }
+    },
+    "Review.markedSectionSubtitle": {
+      "comment": "Subtitle under the marked section; %@ is a count",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ swiped left during triage"
+          }
+        }
+      }
+    },
+    "Review.markedSectionTitle": {
+      "comment": "Header for the screenshots the user swiped left",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You marked these"
+          }
+        }
+      }
+    },
+    "Review.selectAll": {
+      "comment": "Button that selects every suggested screenshot",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select all"
+          }
+        }
+      }
+    },
+    "Review.suggestedSectionSubtitle": {
+      "comment": "Subtitle under the suggestions; first %@ is a count, second %@ a size",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ screenshots · %@. You haven't reviewed these, so nothing here is selected."
+          }
+        }
+      }
+    },
+    "Review.suggestedSectionTitle": {
+      "comment": "Header for screenshots only the classifier flagged",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SnapTriage suggests"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

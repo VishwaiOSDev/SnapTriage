@@ -57,7 +57,8 @@ struct ReviewView: View {
         ScrollView {
             VStack(spacing: Spacing.sectionSpacing) {
                 hero
-                grid
+                markedSection
+                suggestedSection
             }
             .padding(.horizontal, Spacing.screenPadding)
             .padding(.top, Spacing.sectionSpacing)
@@ -87,9 +88,56 @@ struct ReviewView: View {
         .animation(.default, value: viewModel.state.selectedIDs)
     }
 
-    private var grid: some View {
+    // The two sections carry different weight, and the layout has to say so.
+    // What the user swiped left is theirs and arrives armed; what the classifier
+    // merely guessed is presented as a proposal they can accept in one tap.
+    @ViewBuilder
+    private var markedSection: some View {
+        let items = viewModel.state.markedItems
+        if !items.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(
+                    title: Strings.Review.markedSectionTitle,
+                    subtitle: Strings.Review.markedSectionSubtitle(MetricFormatter.count(items.count))
+                )
+                grid(items)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var suggestedSection: some View {
+        let items = viewModel.state.suggestedItems
+        if !items.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeader(
+                    title: Strings.Review.suggestedSectionTitle,
+                    subtitle: Strings.Review.suggestedSectionSubtitle(
+                        MetricFormatter.count(items.count),
+                        MetricFormatter.size(viewModel.state.suggestedBytes)
+                    )
+                ) {
+                    Button {
+                        viewModel.send(.toggleAllSuggestions)
+                    } label: {
+                        Text(
+                            viewModel.state.areAllSuggestionsSelected
+                                ? Strings.Review.deselectAll
+                                : Strings.Review.selectAll
+                        )
+                        .font(.footnote.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Palette.accent)
+                }
+                grid(items)
+            }
+        }
+    }
+
+    private func grid(_ items: [ReviewItem]) -> some View {
         LazyVGrid(columns: columns, spacing: Spacing.gridSpacing) {
-            ForEach(viewModel.state.items) { item in
+            ForEach(items) { item in
                 ReviewItemView(
                     item: item,
                     isSelected: viewModel.state.selectedIDs.contains(item.id),
@@ -138,7 +186,7 @@ struct ReviewView: View {
             Text(viewModel.state.errorMessage ?? Strings.Error.generic)
         } actions: {
             if showsOpenSettings {
-                Button(Strings.Access.openSettings) { viewModel.send(.openSettings) }
+                Button(Strings.Access.openSettings) { viewModel.send(.openSystemSettings) }
                     .buttonStyle(.borderedProminent)
             }
             Button(Strings.Access.retry) { viewModel.send(.retry) }
@@ -168,6 +216,40 @@ struct ReviewView: View {
     }
 }
 
+// MARK: - Section header
+
+private struct SectionHeader<Accessory: View>: View {
+    let title: String
+    let subtitle: String
+    @ViewBuilder var accessory: Accessory
+
+    init(
+        title: String,
+        subtitle: String,
+        @ViewBuilder accessory: () -> Accessory = { EmptyView() }
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.accessory = accessory()
+    }
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+            accessory
+        }
+    }
+}
+
 #if DEBUG
 @MainActor
 private struct ReviewView_Previews: PreviewProvider {
@@ -178,10 +260,10 @@ private struct ReviewView_Previews: PreviewProvider {
     private static func makePreview() -> some View {
         let viewModel = AppComposition().makeReview()
         viewModel.seedForPreview([
-            ReviewItem(id: "1", category: .social, byteSize: 2_400_000),
-            ReviewItem(id: "2", category: .article, byteSize: 1_800_000),
-            ReviewItem(id: "3", category: .conversation, byteSize: 3_100_000),
-            ReviewItem(id: "4", category: .photo, byteSize: 5_600_000)
+            ReviewItem(id: "1", category: .social, byteSize: 2_400_000, source: .userMarked),
+            ReviewItem(id: "2", category: .article, byteSize: 1_800_000, source: .userMarked),
+            ReviewItem(id: "3", category: .conversation, byteSize: 3_100_000, source: .suggested),
+            ReviewItem(id: "4", category: .photo, byteSize: 5_600_000, source: .suggested)
         ])
         return NavigationStack {
             ReviewView(viewModel: viewModel)

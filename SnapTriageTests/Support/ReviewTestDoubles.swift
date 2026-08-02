@@ -122,7 +122,7 @@ final class SeededTriageDecisionStore: TriageDecisionStore, @unchecked Sendable 
 @MainActor
 final class StubReviewRouter: ReviewRouter {
     private(set) var openSettingsCount = 0
-    func openSettings() { openSettingsCount += 1 }
+    func openSystemSettings() { openSettingsCount += 1 }
 }
 
 // MARK: - Fixtures

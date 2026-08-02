@@ -9,12 +9,12 @@ import UIKit
 
 @MainActor
 protocol ReviewRouter {
-    func openSettings()
+    func openSystemSettings()
 }
 
 @MainActor
 final class SystemReviewRouter: ReviewRouter {
-    func openSettings() {
+    func openSystemSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString),
               UIApplication.shared.canOpenURL(url) else { return }
         UIApplication.shared.open(url)
