@@ -19,23 +19,29 @@ struct PhotoAccessPrimerView: View {
     let onContinue: () -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 0)
-
-            VStack(spacing: 18) {
+        ScrollView {
+            VStack(spacing: 0) {
                 hero
                 introduction
+                    .padding(.top, 20)
+                privacyPromises
+                    .padding(.top, 32)
             }
-
-            privacyPromises
-                .padding(.top, 32)
-
-            Spacer(minLength: 0)
-
-            actionArea
+            .padding(.horizontal, Spacing.screenPadding)
+            .padding(.top, 10)
+            .padding(.bottom, 24)
+            .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal, Spacing.screenPadding)
-        .padding(.vertical, 32)
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            actionArea
+                .padding(.horizontal, Spacing.screenPadding)
+                .padding(.top, 16)
+                .padding(.bottom, 8)
+                .frame(maxWidth: .infinity)
+                .background(Palette.background)
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
