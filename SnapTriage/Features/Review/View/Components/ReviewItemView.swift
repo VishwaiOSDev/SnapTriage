@@ -37,7 +37,6 @@ struct ReviewItemView: View {
                 // the dimming so the control never reads as disabled.
                 .overlay(alignment: .topTrailing) { selectionToggle }
                 .overlay(alignment: .bottom) { footer }
-                .overlay(alignment: .topLeading) { categoryBadge }
                 .onTapGesture(perform: onToggle)
                 .animation(.easeInOut(duration: 0.15), value: isSelected)
                 .task(id: item.id) {
@@ -82,13 +81,24 @@ struct ReviewItemView: View {
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 
-    private var categoryBadge: some View {
-        Image(systemName: item.category.systemImage)
-            .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(.white)
-            .padding(5)
-            .background(.black.opacity(0.45), in: Circle())
-            .padding(6)
+    private var selectionMark: some View {
+        Group {
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 22, height: 22)
+                    .background(Palette.delete, in: Circle())
+            } else {
+                Circle()
+                    .fill(.black.opacity(0.3))
+                    .overlay { Circle().strokeBorder(.white.opacity(0.85), lineWidth: 1.5) }
+                    .frame(width: 22, height: 22)
+            }
+        }
+        .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+        .padding(7)
     }
 
     private var footer: some View {
