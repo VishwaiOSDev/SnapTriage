@@ -37,6 +37,7 @@
 		49898DDCB78FAB6772125DAE /* AppComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A773D22AF59C4D017172A44 /* AppComposition.swift */; };
 		502A7245217F5EC25D2B383D /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C12DFFCC365439E7F0F01C /* OverviewView.swift */; };
 		57B068DE1D889C7C1320429E /* BackgroundTaskAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66ECC20CF9224E685AEAA0F2 /* BackgroundTaskAssertion.swift */; };
+		5C4CEEEBC7D3D181EC02F929 /* ScreenshotViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6DC9682F7745488DF6FD41 /* ScreenshotViewerView.swift */; };
 		5F967497B43A77B59E4AD5AB /* Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8CC5A0C8AB224F76FC172B /* Palette.swift */; };
 		6089CF6764642E412F82B396 /* OverviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC6CFF4863506B2227BC5 /* OverviewViewModelTests.swift */; };
 		6284BB7BF85153D902A607FA /* ReviewItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97BD6D27663370D28DDADA1E /* ReviewItemView.swift */; };
@@ -188,6 +189,7 @@
 		F4EF35EC11D079FDE70A8B77 /* OCRLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRLine.swift; sourceTree = "<group>"; };
 		FA61B02CB7E0A671BC89B8A6 /* ScreenshotModelClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotModelClassifier.swift; sourceTree = "<group>"; };
 		FD77B384C150F95CB5BB9640 /* OverviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewComposition.swift; sourceTree = "<group>"; };
+		FF6DC9682F7745488DF6FD41 /* ScreenshotViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotViewerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -621,6 +623,7 @@
 		54F76E523E34F4728060D535 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				FF6DC9682F7745488DF6FD41 /* ScreenshotViewerView.swift */,
 				DF48FB0EB67FB6E0DD5B5AAC /* TriageCardView.swift */,
 			);
 			path = Components;
@@ -845,6 +848,7 @@
 				3BF4EE2424CDED6BE72972FE /* RecordTriageDecisionUseCase.swift in Sources */,
 				0AAE0843FBC0FDBEB7E43374 /* TriageMetrics.swift in Sources */,
 				1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */,
+				5C4CEEEBC7D3D181EC02F929 /* ScreenshotViewerView.swift in Sources */,
 				37B46D3C99C0A61FECDCC33F /* TriageCardView.swift in Sources */,
 				40864CDCCFFE7166B0FC175F /* TriageViewModel.swift in Sources */,
 			);
