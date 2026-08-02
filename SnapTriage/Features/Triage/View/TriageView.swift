@@ -182,7 +182,7 @@ struct TriageView: View {
     private var cardStack: some View {
         ZStack {
             ForEach(deckWindow) { screenshot in
-                deckCard(for: screenshot, isTop: screenshot.id == viewModel.state.current?.id)
+                deckCard(for: screenshot, slot: slot(for: screenshot))
             }
         }
         // The drag must be measured against the deck, which never moves. In the
@@ -193,23 +193,45 @@ struct TriageView: View {
 
     private static let deckSpace = "triage.deck"
 
-    private func deckCard(for screenshot: Screenshot, isTop: Bool) -> some View {
+    private enum DeckSlot { case top, next, prefetch }
+
+    private func deckCard(for screenshot: Screenshot, slot: DeckSlot) -> some View {
+        let isTop = slot == .top
         let scale: CGFloat = isTop
             ? 1 - min(abs(drag.width) / 2400, 0.04)
             : 0.92 + 0.08 * dragProgress
         let rotation: Double = isTop ? Double(drag.width / 18) : 0
+        // The prefetch slot is in the hierarchy purely so its `task` runs; it is
+        // never drawn and never takes a touch.
+        let opacity: Double = switch slot {
+        case .top:      1
+        case .next:     0.6 + 0.4 * Double(dragProgress)
+        case .prefetch: 0
+        }
         return card(for: screenshot, onTap: isTop ? { fullScreenShot = screenshot } : {})
             .overlay { if isTop && !isUndoing { decisionStamps } }
             .scaleEffect(scale)
-            .opacity(isTop ? 1 : 0.6 + 0.4 * Double(dragProgress))
+            .opacity(opacity)
             .offset(isTop ? drag : .zero)
             .rotationEffect(.degrees(rotation), anchor: .bottom)
+            .allowsHitTesting(slot != .prefetch)
             .gesture(isTop ? dragGesture(for: screenshot) : nil)
     }
 
-    // Back-to-front render order: up-next behind, current on top.
+    // Back-to-front render order: the invisible prefetch card at the back,
+    // up-next behind, current on top.
     private var deckWindow: [Screenshot] {
-        [viewModel.upNext, viewModel.state.current].compactMap(\.self)
+        [
+            viewModel.prefetch,
+            viewModel.upNext,
+            viewModel.state.current
+        ].compactMap(\.self)
+    }
+
+    private func slot(for screenshot: Screenshot) -> DeckSlot {
+        if screenshot.id == viewModel.state.current?.id { return .top }
+        if screenshot.id == viewModel.upNext?.id { return .next }
+        return .prefetch
     }
 
     private func card(for screenshot: Screenshot, onTap: @escaping () -> Void) -> some View {
