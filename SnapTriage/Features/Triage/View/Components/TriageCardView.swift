@@ -109,7 +109,20 @@ struct TriageCardView: View {
             max(viewportPixels.width / source.width, viewportPixels.height / source.height),
             1
         )
-        return CGSize(width: source.width * scale, height: source.height * scale)
+        let target = CGSize(width: source.width * scale, height: source.height * scale)
+
+        // Aspect-fill sizing scales with the source's aspect ratio, so an
+        // extreme one (a stitched scrolling capture) blows the target up far
+        // past anything the card renders: Fill crops the excess away and Fit
+        // shrinks the whole strip to a sliver. Cap it — an image that decodes
+        // during a fly-off costs more than the sharpness it buys.
+        let limit = max(viewportPixels.width, viewportPixels.height)
+            * TriageMetrics.thumbnailLongEdgeMultiple
+        let longEdge = max(target.width, target.height)
+        guard longEdge > limit else { return target }
+
+        let clamp = limit / longEdge
+        return CGSize(width: target.width * clamp, height: target.height * clamp)
     }
 
     // Polished stand-in while PhotoKit loads (or in previews with no library).
