@@ -296,7 +296,18 @@ private final class ScreenshotCatalog: Sendable {
 
     private static var includeAllImagesForManualTesting: Bool {
         #if DEBUG && targetEnvironment(simulator)
-        ProcessInfo.processInfo.arguments.contains("-SnapTriageIncludeAllImages")
+        // The flag arrives as a scheme launch argument, which is only present
+        // when Xcode starts the app. Relaunching from the home screen dropped
+        // it, so a simulator library of ordinary images — the usual case, since
+        // a simulator rarely holds real screenshots — suddenly read as empty and
+        // the app said "No Screenshots". Sticking the flag makes the debug build
+        // behave the same however it was launched.
+        let key = "SnapTriageIncludeAllImages"
+        if ProcessInfo.processInfo.arguments.contains("-\(key)") {
+            UserDefaults.standard.set(true, forKey: key)
+            return true
+        }
+        return UserDefaults.standard.bool(forKey: key)
         #else
         false
         #endif
