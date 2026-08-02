@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0ACB577AB9E389F40FBCD589 /* TriageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0590E57D39E9938D9B36C738 /* TriageError.swift */; };
 		0DCAED9359AD488A5F712C08 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43B6867EFF6F4B3D1161353 /* ReviewTestDoubles.swift */; };
 		0ED33408917B0F1CF34CCFC2 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1E65353EF6F88FC859E0D7 /* TestTags.swift */; };
 		13B854BD94857DC6FB00F9E9 /* RecognizeScreenshotTextUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1AE1624EA37BBFDD7C7869 /* RecognizeScreenshotTextUseCase.swift */; };
@@ -59,6 +58,7 @@
 		ACB4104A2A81165AD153851D /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C320DAF4EEE0CD4643313B /* ReviewView.swift */; };
 		AF7B452AF33605401CFF93D9 /* TriageViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3ADB887A54D35398A90D951 /* TriageViewModelTests.swift */; };
 		B1AD401334158560CAA981F5 /* PruneScreenshotRecordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816A3C527A3AF8C31CB35354 /* PruneScreenshotRecordsUseCase.swift */; };
+		BA3C507A2EEF46ABEAEA5F1F /* TriageError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E104BED08267CA83E4D42A /* TriageError.swift */; };
 		BF70B95BA47498A0FFA9ACCF /* SnapTriageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69DE7EE572E181AFC46A22A4 /* SnapTriageApp.swift */; };
 		C0CEC4D10BF3AD3E00249F91 /* ClassifyLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084939A28E45D163DB7D5C73 /* ClassifyLibraryUseCase.swift */; };
 		C11932B0B3900A5528A238D2 /* OCRLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8411E5F8C425D1D6BF2DD7EE /* OCRLine.swift */; };
@@ -99,7 +99,6 @@
 /* Begin PBXFileReference section */
 		0244570B34CFD4B7380757C0 /* TriageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageView.swift; sourceTree = "<group>"; };
 		02D877FB727176AC4C601194 /* PhotoLibraryAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryAuthorization.swift; sourceTree = "<group>"; };
-		0590E57D39E9938D9B36C738 /* TriageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageError.swift; sourceTree = "<group>"; };
 		084939A28E45D163DB7D5C73 /* ClassifyLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassifyLibraryUseCase.swift; sourceTree = "<group>"; };
 		0A0A00130000000000000001 /* SnapTriage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapTriage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A0A0E000000000000000001 /* SnapTriageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapTriageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -122,6 +121,7 @@
 		35A2648E2DA86DB49D085F0F /* TriageStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageStat.swift; sourceTree = "<group>"; };
 		361C6D2FDE448AC2371A9D21 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
 		36B194757255571A816E3539 /* HeroMetricText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroMetricText.swift; sourceTree = "<group>"; };
+		39E104BED08267CA83E4D42A /* TriageError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageError.swift; sourceTree = "<group>"; };
 		3AD0EDD7D4F0994CBE38961B /* LoadTriageProgressUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadTriageProgressUseCase.swift; sourceTree = "<group>"; };
 		3CDD24F0F552B8E79A14BC38 /* ScreenshotDisposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDisposition.swift; sourceTree = "<group>"; };
 		40E5018115CD6637FF909F87 /* ReviewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModelTests.swift; sourceTree = "<group>"; };
@@ -285,6 +285,7 @@
 		04DA26358158B93767D6B308 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				39E104BED08267CA83E4D42A /* TriageError.swift */,
 				5D94EEFD193C90CAEA7BC78E /* PhotoLibrary */,
 			);
 			path = Domain;
@@ -502,7 +503,6 @@
 				5FF1C3BEDFDFB19537B109E8 /* ScreenshotCategory.swift */,
 				3CDD24F0F552B8E79A14BC38 /* ScreenshotDisposition.swift */,
 				0CE1F35E12425E6977C8A897 /* TriageDecision.swift */,
-				0590E57D39E9938D9B36C738 /* TriageError.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -727,6 +727,7 @@
 				2146665DA89A3D461F58A7F7 /* Strings.swift in Sources */,
 				A814B38772B95C92AEBA141F /* MetricFormatter.swift in Sources */,
 				497D8C688D7BBA8486CB996B /* PersistedDictionary.swift in Sources */,
+				BA3C507A2EEF46ABEAEA5F1F /* TriageError.swift in Sources */,
 				6F1938468F03A0883785E572 /* PhotoLibraryAuthorization.swift in Sources */,
 				29C5AE1A9C12F9AD15172F72 /* Screenshot.swift in Sources */,
 				9F814139D070E1E2F4BD413A /* PhotoLibraryService.swift in Sources */,
@@ -755,7 +756,6 @@
 				FEAA66E777FAB99D051561BB /* ScreenshotCategory.swift in Sources */,
 				EC7E8BBC11AFECD0FA74C897 /* ScreenshotDisposition.swift in Sources */,
 				6547E5456AC0BFDAE69271C7 /* TriageDecision.swift in Sources */,
-				0ACB577AB9E389F40FBCD589 /* TriageError.swift in Sources */,
 				DA7161D21C7AB414D37267A7 /* TriageRouter.swift in Sources */,
 				3849B91D5412A569515BE2B0 /* FallbackScreenshotCategorizer.swift in Sources */,
 				30469DCED1A2E5EFDFF09009 /* FoundationModelScreenshotCategorizer.swift in Sources */,
