@@ -143,6 +143,16 @@ struct AppNavigationTests {
         #expect(navigation.isTriagePresented == false)
         #expect(navigation.path == [.review(.triage)])
     }
+
+    @Test("Drilling into a category pushes it on top of the category list")
+    func showCategoryKeepsTheListUnderneath() {
+        let navigation = AppNavigation()
+
+        navigation.showCategory(.social)
+
+        // Back has to return to the buckets, not to Overview.
+        #expect(navigation.path == [.categories, .review(.category(.social))])
+    }
 }
 
 @Suite("Classification execution")
