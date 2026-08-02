@@ -18,6 +18,7 @@
 		1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2F267ADC28E3E38EC40280 /* GlassCard.swift */; };
 		1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244570B34CFD4B7380757C0 /* TriageView.swift */; };
 		2146665DA89A3D461F58A7F7 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05D6CA1102658E0FC552100 /* Strings.swift */; };
+		21B1CFE707A94303BB3D618A /* EmptyScreenshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2506FE5FE0AFC41A63B264F8 /* EmptyScreenshotsView.swift */; };
 		22D510635688E99CC0707756 /* ReviewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E5018115CD6637FF909F87 /* ReviewViewModelTests.swift */; };
 		254EC2F902C4E69B7B273EBE /* OCRStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A426E888ECB109A4FC55E1 /* OCRStore.swift */; };
 		29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B194757255571A816E3539 /* HeroMetricText.swift */; };
@@ -123,6 +124,7 @@
 		1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTriageDecisionsUseCase.swift; sourceTree = "<group>"; };
 		1EE77130537C36EAB490A9E5 /* RecordTriageDecisionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTriageDecisionUseCase.swift; sourceTree = "<group>"; };
 		240B022BE64B8954FE0435F6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		2506FE5FE0AFC41A63B264F8 /* EmptyScreenshotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyScreenshotsView.swift; sourceTree = "<group>"; };
 		25B057086ACB7F19B5C83E3A /* Screenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screenshot.swift; sourceTree = "<group>"; };
 		2A8CC5A0C8AB224F76FC172B /* Palette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Palette.swift; sourceTree = "<group>"; };
 		2B08EE910513A4B3243B49E6 /* ObservePhotoLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservePhotoLibraryUseCase.swift; sourceTree = "<group>"; };
@@ -633,6 +635,7 @@
 			children = (
 				1BAC4DCCAB16E8E4E0AF4A3B /* DecisionButton.swift */,
 				B95E40655DC8B595F96E1198 /* DecisionStamp.swift */,
+				2506FE5FE0AFC41A63B264F8 /* EmptyScreenshotsView.swift */,
 				FF6DC9682F7745488DF6FD41 /* ScreenshotViewerView.swift */,
 				3F263EF6EB340B0208939D4F /* SwipeHintsView.swift */,
 				DF48FB0EB67FB6E0DD5B5AAC /* TriageCardView.swift */,
@@ -862,6 +865,7 @@
 				1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */,
 				C163A8D4098471E79C8A8ED6 /* DecisionButton.swift in Sources */,
 				59CCC257D2DD48C105CC11CF /* DecisionStamp.swift in Sources */,
+				21B1CFE707A94303BB3D618A /* EmptyScreenshotsView.swift in Sources */,
 				5C4CEEEBC7D3D181EC02F929 /* ScreenshotViewerView.swift in Sources */,
 				F452C01B70A591D455040A6E /* SwipeHintsView.swift in Sources */,
 				37B46D3C99C0A61FECDCC33F /* TriageCardView.swift in Sources */,

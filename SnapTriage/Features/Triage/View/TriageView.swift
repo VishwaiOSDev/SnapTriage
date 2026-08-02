@@ -474,17 +474,6 @@ struct TriageView: View {
     }
 }
 
-
-private struct EmptyScreenshotsView: View {
-    var body: some View {
-        ContentUnavailableView {
-            Label(Strings.Triage.emptyTitle, systemImage: "photo.on.rectangle.angled")
-        } description: {
-            Text(Strings.Triage.emptyMessage)
-        }
-    }
-}
-
 #if DEBUG
 @MainActor
 private struct TriageView_Previews: PreviewProvider {
