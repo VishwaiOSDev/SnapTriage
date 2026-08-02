@@ -663,6 +663,7 @@
 		DE4595F09D6FA0646D97A0BE /* UseCase */ = {
 			isa = PBXGroup;
 			children = (
+				0A0A1E001200000000000000 /* ApplyBulkTriageUseCase.swift */,
 				1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */,
 				3AD0EDD7D4F0994CBE38961B /* LoadTriageProgressUseCase.swift */,
 				1EE77130537C36EAB490A9E5 /* RecordTriageDecisionUseCase.swift */,
@@ -775,7 +776,6 @@
 		0A0A1D000F00000000000000 /* UseCase */ = {
 			isa = PBXGroup;
 			children = (
-				0A0A1E001200000000000000 /* ApplyBulkTriageUseCase.swift */,
 				0A0A1E001000000000000000 /* LoadCategoryBreakdownUseCase.swift */,
 			);
 			path = UseCase;
