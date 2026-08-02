@@ -9,6 +9,13 @@ import SwiftUI
 
 struct ReviewView: View {
     @State private var viewModel: ReviewViewModel
+    /// Whether the full-screen viewer is up, and which screenshot it opened on.
+    /// Deliberately *not* updated as the user pages: `fullScreenCover(item:)`
+    /// re-presents whenever the item's identity changes, so paging through it
+    /// would tear the cover down on every swipe. The page lives in `viewingID`.
+    @State private var viewing: ViewerPresentation?
+    @State private var viewingID: Screenshot.ID = ""
+    @Environment(\.dismiss) private var dismiss
 
     init(viewModel: ReviewViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -26,6 +33,17 @@ struct ReviewView: View {
         .navigationTitle(viewModel.scope.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbar }
+        .fullScreenCover(item: $viewing) { _ in
+            ReviewGalleryView(
+                items: viewModel.state.items,
+                currentID: $viewingID,
+                isSelected: { viewModel.state.selectedIDs.contains($0) },
+                loadImage: { id, longEdge in
+                    await viewModel.fullImage(for: id, longEdge: longEdge)
+                },
+                onToggle: { viewModel.send(.toggle($0)) }
+            )
+        }
         .task { viewModel.send(.onAppear) }
     }
 
@@ -214,7 +232,11 @@ struct ReviewView: View {
                     loadThumbnail: { id, size in
                         await viewModel.thumbnail(for: id, targetSize: size)
                     },
-                    onToggle: { viewModel.send(.toggle(item.id)) }
+                    onToggle: { viewModel.send(.toggle(item.id)) },
+                    onOpen: {
+                        viewingID = item.id
+                        viewing = ViewerPresentation(id: item.id)
+                    }
                 )
             }
         }
@@ -306,6 +328,13 @@ struct ReviewView: View {
     }
 }
 
+// MARK: - Viewer presentation
+
+/// `fullScreenCover(item:)` needs an `Identifiable`; a screenshot id is a bare
+/// string, so this wraps it and doubles as "the viewer is open on this one".
+private struct ViewerPresentation: Identifiable, Hashable {
+    let id: Screenshot.ID
+}
 
 // MARK: - Deletion summary
 
