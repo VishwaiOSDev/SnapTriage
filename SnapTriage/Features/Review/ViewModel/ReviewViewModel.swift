@@ -133,6 +133,14 @@ final class ReviewViewModel {
         await imageLoader.thumbnail(for: id, targetSize: targetSize, mode: .fill)
     }
 
+    /// A screenshot at reading size, for the full-screen viewer. Screenshots are
+    /// mostly text, so the point of opening one is to read it — a grid-sized
+    /// thumbnail blown up would defeat the purpose.
+    func fullImage(for id: Screenshot.ID, longEdge: CGFloat) async -> UIImage? {
+        guard let cgImage = await imageLoader.cgImage(for: id, longEdge: longEdge) else { return nil }
+        return UIImage(cgImage: cgImage)
+    }
+
     private func loadFlow() {
         loadGeneration &+= 1
         let generation = loadGeneration
