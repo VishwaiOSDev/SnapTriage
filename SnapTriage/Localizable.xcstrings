@@ -92,7 +92,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You confirm every deletion, and iOS asks once more after that."
+            "value": "Nothing is deleted until you review and confirm it."
           }
         }
       }
@@ -104,7 +104,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nothing is deleted without you"
+            "value": "You're always in control"
           }
         }
       }
