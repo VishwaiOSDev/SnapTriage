@@ -1021,6 +1021,18 @@
         }
       }
     },
+    "Review.keptAll": {
+      "comment": "Undo bar after a bulk keep; first %@ is a count, second %@ a category name",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kept %@ %@ screenshots"
+          }
+        }
+      }
+    },
     "Review.markedSectionSubtitle": {
       "comment": "Subtitle under the marked section; %@ is a count",
       "extractionState": "manual",
