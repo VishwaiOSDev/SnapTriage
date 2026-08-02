@@ -93,6 +93,20 @@ struct ReviewView: View {
                 }
             }
         }
+        ToolbarItem(placement: .topBarTrailing) {
+            if hasContent {
+                Button {
+                    viewModel.send(.toggleSelectAll)
+                } label: {
+                    Text(
+                        viewModel.state.areAllSelected
+                            ? Strings.Review.deselectAll
+                            : Strings.Review.selectAll
+                    )
+                    .font(.subheadline.weight(.semibold))
+                }
+            }
+        }
     }
 
     private var hasContent: Bool {
