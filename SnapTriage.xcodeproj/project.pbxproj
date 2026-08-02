@@ -28,6 +28,7 @@
 		43F5EEBE45DADFD12F8533F7 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC3867CA58A176131910DA2 /* LiquidGlass.swift */; };
 		44D48983B05E1B7731430801 /* OverviewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEAC4D33849613118BBC3BA5 /* OverviewRouter.swift */; };
 		45CB7AA6892BF69752BF0812 /* ReviewComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6694FA44F818F4A5BFC09BE6 /* ReviewComposition.swift */; };
+		45E616B97D8767EE867E0EDB /* TextFeatures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606B45D51BB7D47077EAD38C /* TextFeatures.swift */; };
 		46120DF08C8A73A429C85DA7 /* ObservePhotoLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B08EE910513A4B3243B49E6 /* ObservePhotoLibraryUseCase.swift */; };
 		497D8C688D7BBA8486CB996B /* PersistedDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 899BB95130A4C602309B513C /* PersistedDictionary.swift */; };
 		49898DDCB78FAB6772125DAE /* AppComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A773D22AF59C4D017172A44 /* AppComposition.swift */; };
@@ -40,7 +41,6 @@
 		68970EA1B9CF8C5CFCE4E679 /* ForegroundNotificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C98138EE952E9EF94F5297A /* ForegroundNotificationPresenter.swift */; };
 		6F1938468F03A0883785E572 /* PhotoLibraryAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02D877FB727176AC4C601194 /* PhotoLibraryAuthorization.swift */; };
 		705E49EE93E9B6C860CEEDAD /* RecognizeScreenshotTextUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9005F6A2C35E410DC9DF5F21 /* RecognizeScreenshotTextUseCase.swift */; };
-		7752619F3835D5DEE2130E40 /* ScreenshotCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340DA96341670B69CF08F72E /* ScreenshotCategorizer.swift */; };
 		7E7B0C76B5B9B5B58F6C6530 /* ClearTriageDecisionsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4ADC120FD90F3552B0B53A /* ClearTriageDecisionsUseCase.swift */; };
 		7F4E179BDAACE9ADA2D39003 /* DeleteScreenshotsUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 722C73933C870FC12D3102C9 /* DeleteScreenshotsUseCaseTests.swift */; };
 		80CC41A5E77B95CD2E32B60D /* ScreenshotThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7763160A48CDF1789B81AA93 /* ScreenshotThumbnailView.swift */; };
@@ -118,7 +118,6 @@
 		2A8CC5A0C8AB224F76FC172B /* Palette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Palette.swift; sourceTree = "<group>"; };
 		2B08EE910513A4B3243B49E6 /* ObservePhotoLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservePhotoLibraryUseCase.swift; sourceTree = "<group>"; };
 		301C2D7FF30FDFF6B5635AB4 /* ReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModel.swift; sourceTree = "<group>"; };
-		340DA96341670B69CF08F72E /* ScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		351A2941BED148CD1B825572 /* LoadReviewItemsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCaseTests.swift; sourceTree = "<group>"; };
 		35A2648E2DA86DB49D085F0F /* TriageStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageStat.swift; sourceTree = "<group>"; };
 		36B194757255571A816E3539 /* HeroMetricText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroMetricText.swift; sourceTree = "<group>"; };
@@ -129,6 +128,7 @@
 		484A0E7258BAFB2C7FF25EE9 /* FallbackScreenshotCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallbackScreenshotCategorizer.swift; sourceTree = "<group>"; };
 		4CF1CBF61E0168CD873C9B27 /* MetricFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricFormatter.swift; sourceTree = "<group>"; };
 		52E39FF5BFB289E60A382602 /* HeuristicCategoryRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeuristicCategoryRules.swift; sourceTree = "<group>"; };
+		606B45D51BB7D47077EAD38C /* TextFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFeatures.swift; sourceTree = "<group>"; };
 		61A8E75279720F0E0B36139D /* CategorizerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizerTestDoubles.swift; sourceTree = "<group>"; };
 		63C12DFFCC365439E7F0F01C /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
 		6694FA44F818F4A5BFC09BE6 /* ReviewComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewComposition.swift; sourceTree = "<group>"; };
@@ -328,8 +328,8 @@
 				52E39FF5BFB289E60A382602 /* HeuristicCategoryRules.swift */,
 				7AB498CC90C432BE917779D4 /* HeuristicScreenshotCategorizer.swift */,
 				B506758E1E05349E9AD13F2A /* ImageContentClassifier.swift */,
-				340DA96341670B69CF08F72E /* ScreenshotCategorizer.swift */,
 				FA61B02CB7E0A671BC89B8A6 /* ScreenshotModelClassifier.swift */,
+				606B45D51BB7D47077EAD38C /* TextFeatures.swift */,
 				A1981206E7343DAFAA48A51D /* TextRecognitionService.swift */,
 			);
 			path = Service;
@@ -789,8 +789,8 @@
 				99BD21E73ED1FB3E22810934 /* HeuristicCategoryRules.swift in Sources */,
 				8D3C71A7DCB88E959DADBB87 /* HeuristicScreenshotCategorizer.swift in Sources */,
 				C78858364F0C0FD16DE0D89C /* ImageContentClassifier.swift in Sources */,
-				7752619F3835D5DEE2130E40 /* ScreenshotCategorizer.swift in Sources */,
 				11820A39D10DD7F46DEE36DA /* ScreenshotModelClassifier.swift in Sources */,
+				45E616B97D8767EE867E0EDB /* TextFeatures.swift in Sources */,
 				EEF24A043F3CAC27FAFDD11C /* TextRecognitionService.swift in Sources */,
 				F5E96A5F4AB376DC5AF46D97 /* CategoryStore.swift in Sources */,
 				254EC2F902C4E69B7B273EBE /* OCRStore.swift in Sources */,
