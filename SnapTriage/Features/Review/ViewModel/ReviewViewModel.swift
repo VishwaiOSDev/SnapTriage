@@ -282,6 +282,9 @@ final class ReviewViewModel {
                 let deleted = Set(ids)
                 self.state.items.removeAll { deleted.contains($0.id) }
                 self.state.selectedIDs.subtract(deleted)
+                // The assets are gone; restoring a verdict for them would restore
+                // nothing, so the bulk undo does not outlive a deletion.
+                self.state.lastReceipt = nil
             } catch TriageError.deletionCancelled {
                 // User backed out of the system sheet — leave the selection intact.
             } catch is CancellationError {
