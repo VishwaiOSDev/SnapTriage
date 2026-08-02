@@ -16,12 +16,21 @@ enum MetricFormatter {
     }
 
     static func size(_ bytes: Int) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+        bytesFormatter.string(fromByteCount: Int64(bytes))
     }
 
     private static let counter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
+        return formatter
+    }()
+
+    // The class method spells zero as "Zero KB", which read as a bug on the
+    // Review screen the moment the user deselected everything.
+    private static let bytesFormatter: ByteCountFormatter = {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        formatter.allowsNonnumericFormatting = false
         return formatter
     }()
 }
