@@ -27,6 +27,7 @@ struct ReviewItemView: View {
             thumbnail
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .clipShape(shape)
+                .overlay(alignment: .bottom) { timestamp }
                 .overlay { shape.strokeBorder(Palette.cardStroke, lineWidth: 1) }
                 // Unselected is the resting state for a whole section, not the
                 // exception, so the dim has to read as "not chosen" rather than
@@ -36,7 +37,6 @@ struct ReviewItemView: View {
                 // Layered above the image so the circle wins the tap, and outside
                 // the dimming so the control never reads as disabled.
                 .overlay(alignment: .topTrailing) { selectionToggle }
-                .overlay(alignment: .bottom) { footer }
                 .onTapGesture(perform: onToggle)
                 .animation(.easeInOut(duration: 0.15), value: isSelected)
                 .task(id: item.id) {
@@ -101,26 +101,30 @@ struct ReviewItemView: View {
         .padding(7)
     }
 
-    private var footer: some View {
-        HStack {
-            Spacer()
-            Text(sizeText)
+    @ViewBuilder
+    private var timestamp: some View {
+        if let text = timestampText {
+            Text(text)
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.black.opacity(0.55), in: Capsule())
+                .padding(.bottom, 8)
+                .padding(.horizontal, 6)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity)
-        .background(
-            LinearGradient(
-                colors: [.black.opacity(0.55), .clear],
-                startPoint: .bottom,
-                endPoint: .top
-            )
-        )
     }
 
-    private var sizeText: String {
-        MetricFormatter.size(item.byteSize)
+    private var timestampText: String? {
+        item.creationDate.map(MetricFormatter.timestamp)
+    }
+
+    // The tile shows the date, not the size it replaced, so VoiceOver carries both.
+    private var accessibilityValue: String {
+        [timestampText, MetricFormatter.size(item.byteSize)]
+            .compactMap(\.self)
+            .joined(separator: ", ")
     }
 }
