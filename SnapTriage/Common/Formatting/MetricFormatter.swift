@@ -19,6 +19,19 @@ enum MetricFormatter {
         bytesFormatter.string(fromByteCount: Int64(bytes))
     }
 
+    /// Short "when was this taken" label for a grid tile: the time for today,
+    /// the word for yesterday, an abbreviated date for anything older.
+    static func timestamp(_ date: Date) -> String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            return date.formatted(date: .omitted, time: .shortened)
+        }
+        if calendar.isDateInYesterday(date) {
+            return Strings.Review.yesterday
+        }
+        return date.formatted(date: .abbreviated, time: .omitted)
+    }
+
     private static let counter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
