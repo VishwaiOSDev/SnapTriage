@@ -15,6 +15,7 @@
 		0DCAED9359AD488A5F712C08 /* ReviewTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43B6867EFF6F4B3D1161353 /* ReviewTestDoubles.swift */; };
 		0ED33408917B0F1CF34CCFC2 /* TestTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1E65353EF6F88FC859E0D7 /* TestTags.swift */; };
 		11820A39D10DD7F46DEE36DA /* ScreenshotModelClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA61B02CB7E0A671BC89B8A6 /* ScreenshotModelClassifier.swift */; };
+		11E2E7CCA6C89D205A4FB6EE /* OverviewStatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5975932CE2082454937780 /* OverviewStatCard.swift */; };
 		17E477066152AA1BD17A99C1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A43FE831A4BC8426E6689C03 /* Assets.xcassets */; };
 		1A4605BF2552D13C3DC7BB88 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2F267ADC28E3E38EC40280 /* GlassCard.swift */; };
 		1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0244570B34CFD4B7380757C0 /* TriageView.swift */; };
@@ -132,6 +133,7 @@
 		25B057086ACB7F19B5C83E3A /* Screenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screenshot.swift; sourceTree = "<group>"; };
 		2A8CC5A0C8AB224F76FC172B /* Palette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Palette.swift; sourceTree = "<group>"; };
 		2B08EE910513A4B3243B49E6 /* ObservePhotoLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservePhotoLibraryUseCase.swift; sourceTree = "<group>"; };
+		2F5975932CE2082454937780 /* OverviewStatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewStatCard.swift; sourceTree = "<group>"; };
 		301C2D7FF30FDFF6B5635AB4 /* ReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewModel.swift; sourceTree = "<group>"; };
 		351A2941BED148CD1B825572 /* LoadReviewItemsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadReviewItemsUseCaseTests.swift; sourceTree = "<group>"; };
 		35A2648E2DA86DB49D085F0F /* TriageStat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageStat.swift; sourceTree = "<group>"; };
@@ -493,6 +495,7 @@
 			isa = PBXGroup;
 			children = (
 				BE8AF7BC3513839933E6E4AD /* AppMarkView.swift */,
+				2F5975932CE2082454937780 /* OverviewStatCard.swift */,
 				220465D7F97BBEADA5E478A0 /* PrimaryActionButton.swift */,
 				B444307A16769A44879DA4CA /* PrivacyPillView.swift */,
 			);
@@ -861,6 +864,7 @@
 				44D48983B05E1B7731430801 /* OverviewRouter.swift in Sources */,
 				502A7245217F5EC25D2B383D /* OverviewView.swift in Sources */,
 				85F8D09096B8C06EE76C3FA5 /* AppMarkView.swift in Sources */,
+				11E2E7CCA6C89D205A4FB6EE /* OverviewStatCard.swift in Sources */,
 				0C3414CA965B458948A7B9BE /* PrimaryActionButton.swift in Sources */,
 				22845A54C464E1E41AEB7704 /* PrivacyPillView.swift in Sources */,
 				A06C5B3815DEE901B5E59BF4 /* OverviewViewModel.swift in Sources */,
