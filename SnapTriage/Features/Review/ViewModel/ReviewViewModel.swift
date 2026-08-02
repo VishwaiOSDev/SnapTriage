@@ -32,12 +32,28 @@ final class ReviewViewModel {
         }
 
         var hasSelection: Bool { !selectedIDs.isEmpty }
+
+        /// Screenshots the user swiped left. These arrive selected.
+        var markedItems: [ReviewItem] { items.filter { $0.source == .userMarked } }
+
+        /// Screenshots only the classifier judged disposable. These arrive
+        /// unselected: the user has never seen them, so deleting them cannot be
+        /// the default.
+        var suggestedItems: [ReviewItem] { items.filter { $0.source == .suggested } }
+
+        var suggestedBytes: Int { suggestedItems.reduce(0) { $0 + $1.byteSize } }
+
+        var areAllSuggestionsSelected: Bool {
+            let suggested = suggestedItems
+            return !suggested.isEmpty && suggested.allSatisfy { selectedIDs.contains($0.id) }
+        }
     }
 
     enum Input {
         case onAppear
         case retry
         case toggle(Screenshot.ID)
+        case toggleAllSuggestions
         case deleteSelected
         case openSettings
         case clearError
@@ -81,6 +97,8 @@ final class ReviewViewModel {
             loadFlow()
         case .toggle(let id):
             toggle(id)
+        case .toggleAllSuggestions:
+            toggleAllSuggestions()
         case .deleteSelected:
             deleteFlow()
         case .openSettings:
@@ -114,14 +132,24 @@ final class ReviewViewModel {
             do {
                 let items = try await self.loadItems.execute()
                 try Task.checkCancellation()
-                // Pre-select only items new since the last load; items already
-                // on screen keep their selection, so a manual deselection
-                // survives tab switches instead of being silently re-armed.
+                // Two rules compose here. Only verdicts the user actually gave
+                // are ever armed for deletion — a classifier suggestion has to
+                // be opted into, so one heuristic false positive can never be
+                // deleted by a user who just taps the red button. And only
+                // items new since the last load get their default selection;
+                // anything already on screen keeps whatever the user chose, so
+                // a manual deselection survives a revisit instead of being
+                // silently re-armed.
                 let knownIDs = Set(self.state.items.map(\.id))
                 let currentIDs = Set(items.map(\.id))
+                let newlyMarkedIDs = Set(
+                    items.lazy
+                        .filter { $0.source == .userMarked && !knownIDs.contains($0.id) }
+                        .map(\.id)
+                )
                 self.state.selectedIDs = self.state.selectedIDs
                     .intersection(currentIDs)
-                    .union(currentIDs.subtracting(knownIDs))
+                    .union(newlyMarkedIDs)
                 self.state.items = items
                 self.state.phase = .loaded
             } catch is CancellationError {
@@ -138,6 +166,18 @@ final class ReviewViewModel {
             state.selectedIDs.remove(id)
         } else {
             state.selectedIDs.insert(id)
+        }
+    }
+
+    /// One control for the whole suggestion section: arms every suggestion, or
+    /// clears them all if they are already armed.
+    private func toggleAllSuggestions() {
+        let ids = state.suggestedItems.map(\.id)
+        guard !ids.isEmpty else { return }
+        if state.areAllSuggestionsSelected {
+            state.selectedIDs.subtract(ids)
+        } else {
+            state.selectedIDs.formUnion(ids)
         }
     }
 
@@ -197,7 +237,7 @@ final class ReviewViewModel {
         state.phase = .loaded
         state.authorization = .authorized
         state.items = items
-        state.selectedIDs = Set(items.map(\.id))
+        state.selectedIDs = Set(items.filter { $0.source == .userMarked }.map(\.id))
     }
     #endif
 }

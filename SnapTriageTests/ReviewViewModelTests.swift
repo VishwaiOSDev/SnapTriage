@@ -58,17 +58,51 @@ struct ReviewViewModelTests {
         }
     }
 
-    @Test("Load surfaces only safe-to-delete items, all pre-selected")
-    func loadPreSelectsAll() async {
+    @Test("A classifier suggestion the user has never seen is never pre-selected")
+    func suggestionsAreNotPreSelected() async {
         let (vm, _, _) = makeSUT()
 
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
 
+        // This is the safety property: with no swipes recorded, everything on
+        // screen is a guess, so tapping delete straight away deletes nothing.
         #expect(vm.state.items.map(\.id) == ["1", "2", "3"])
+        #expect(vm.state.suggestedItems.map(\.id) == ["1", "2", "3"])
+        #expect(vm.state.selectedIDs.isEmpty)
+        #expect(!vm.state.hasSelection)
+        #expect(vm.state.reclaimableBytes == 0)
+    }
+
+    @Test("Only the user's own swipes arrive pre-selected")
+    func userMarkedItemsArePreSelected() async {
+        let decisions = SeededTriageDecisionStore(["4": .markForDeletion])
+        let (vm, _, _) = makeSUT(decisions: decisions)
+
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        // "4" is a receipt the classifier calls useful; the swipe outranks it.
+        #expect(vm.state.markedItems.map(\.id) == ["4"])
+        #expect(vm.state.suggestedItems.map(\.id) == ["1", "2", "3"])
+        #expect(vm.state.selectedIDs == ["4"])
+        #expect(vm.state.reclaimableBytes == 400)
+    }
+
+    @Test("Select-all arms every suggestion, and toggles back off")
+    func selectAllSuggestions() async {
+        let (vm, _, _) = makeSUT()
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        vm.send(.toggleAllSuggestions)
+
         #expect(vm.state.selectedIDs == ["1", "2", "3"])
-        #expect(vm.state.selectedCount == 3)
+        #expect(vm.state.areAllSuggestionsSelected)
         #expect(vm.state.reclaimableBytes == 600)
+
+        vm.send(.toggleAllSuggestions)
+        #expect(vm.state.selectedIDs.isEmpty)
     }
 
     @Test("Toggling deselects and updates reclaimable bytes")
@@ -76,15 +110,32 @@ struct ReviewViewModelTests {
         let (vm, _, _) = makeSUT()
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
+        vm.send(.toggleAllSuggestions)
 
         vm.send(.toggle("2"))
 
         #expect(vm.state.selectedIDs == ["1", "3"])
         #expect(vm.state.reclaimableBytes == 400)
         #expect(vm.state.hasSelection)
+        #expect(!vm.state.areAllSuggestionsSelected)
 
         vm.send(.toggle("2"))   // re-select
         #expect(vm.state.selectedIDs == ["1", "2", "3"])
+    }
+
+    @Test("A manual deselection survives a reload instead of being re-armed")
+    func deselectionSurvivesReload() async {
+        let decisions = SeededTriageDecisionStore(["4": .markForDeletion])
+        let (vm, _, _) = makeSUT(decisions: decisions)
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+        #expect(vm.state.selectedIDs == ["4"])
+
+        vm.send(.toggle("4"))
+        vm.send(.onAppear)
+        await waitUntil { vm.state.phase == .loaded }
+
+        #expect(vm.state.selectedIDs.isEmpty)
     }
 
     @Test("Delete removes the selected items and forwards them to the library")
@@ -92,6 +143,7 @@ struct ReviewViewModelTests {
         let (vm, service, _) = makeSUT()
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
+        vm.send(.toggleAllSuggestions)
 
         vm.send(.toggle("2"))   // keep "2", delete "1" and "3"
         vm.send(.deleteSelected)
@@ -108,6 +160,7 @@ struct ReviewViewModelTests {
         let (vm, service, _) = makeSUT(deleteError: TriageError.deletionCancelled)
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
+        vm.send(.toggleAllSuggestions)
 
         vm.send(.deleteSelected)
         await waitUntil { vm.state.isDeleting == false && service.deleteCallCount == 1 }
@@ -122,6 +175,7 @@ struct ReviewViewModelTests {
         let (vm, _, _) = makeSUT(deleteError: TriageError.deletionFailed)
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
+        vm.send(.toggleAllSuggestions)
 
         vm.send(.deleteSelected)
         await waitUntil { vm.state.errorMessage != nil }
@@ -138,6 +192,7 @@ struct ReviewViewModelTests {
         await waitUntil { vm.state.phase == .loaded }
 
         // "2" was swiped keep, so the loaded set is "1" and "3"; delete both.
+        vm.send(.toggleAllSuggestions)
         vm.send(.deleteSelected)
         await waitUntil { vm.state.items.isEmpty }
 
