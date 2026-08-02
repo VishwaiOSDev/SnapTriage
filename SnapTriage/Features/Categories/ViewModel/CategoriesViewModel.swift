@@ -41,7 +41,8 @@ final class CategoriesViewModel {
         switch input {
         case .onAppear:
             // Reload every visit: swipes made in the deck since the last look
-            // shrink these groups, and the classifier keeps filling them in.
+            // shrink these groups, verdicts applied inside a category retire
+            // them, and the classifier keeps filling them in.
             loadFlow()
         case .retry:
             loadFlow()
