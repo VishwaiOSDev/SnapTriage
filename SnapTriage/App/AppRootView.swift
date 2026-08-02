@@ -1,14 +1,15 @@
 //
-//  ContentView.swift
+//  AppRootView.swift
 //  SnapTriage
 //
 //  Created by Vishweshwaran on 07/06/26.
 //
 
 import SwiftUI
-import Observation
 
-struct ContentView: View {
+/// The app's single screen graph: Overview at the root, Review pushed on top of
+/// it, and Triage presented over everything as a focused session.
+struct AppRootView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var composition: AppComposition
     @State private var overviewModel: OverviewViewModel
@@ -41,10 +42,7 @@ struct ContentView: View {
             .navigationDestination(for: AppNavigation.Route.self) { route in
                 switch route {
                 case .review:
-                    // Review carries its own header and back control, so the
-                    // system bar would only double the chrome.
                     ReviewView(viewModel: reviewModel)
-                        .toolbar(.hidden, for: .navigationBar)
                 }
             }
         }
@@ -54,7 +52,7 @@ struct ContentView: View {
                 onReview: { navigation.finishToReview() }
             )
         }
-        .tint(Color("AccentColor"))
+        .tint(Palette.accent)
         .preferredColorScheme(.dark)
         .onChange(of: overviewModel.state.isClassifying, initial: true) { _, isClassifying in
             // Only prompt after the user granted Photos access and actual work
@@ -87,7 +85,7 @@ struct ContentView: View {
 
 #if DEBUG
 @MainActor
-private struct ContentView_Previews: PreviewProvider {
+private struct AppRootView_Previews: PreviewProvider {
     static var previews: some View {
         makePreview()
     }
@@ -95,7 +93,7 @@ private struct ContentView_Previews: PreviewProvider {
     private static func makePreview() -> some View {
         let composition = AppComposition()
         let navigation = AppNavigation()
-        return ContentView(
+        return AppRootView(
             composition: composition,
             navigation: navigation,
             backgroundCoordinator: composition.makeBackgroundClassificationCoordinator(navigation: navigation)

@@ -28,7 +28,7 @@ struct SnapTriageApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(
+            AppRootView(
                 composition: composition,
                 navigation: navigation,
                 backgroundCoordinator: backgroundCoordinator
