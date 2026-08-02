@@ -23,6 +23,7 @@
 		29C40DBC8A8F14AF0B63CBB0 /* HeroMetricText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B194757255571A816E3539 /* HeroMetricText.swift */; };
 		29C5AE1A9C12F9AD15172F72 /* Screenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B057086ACB7F19B5C83E3A /* Screenshot.swift */; };
 		2F06B76ABD683C492B0BE03F /* SnapTriageIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = BE49DB378D23F6F4068E3669 /* SnapTriageIcon.icon */; };
+		37B46D3C99C0A61FECDCC33F /* TriageCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF48FB0EB67FB6E0DD5B5AAC /* TriageCardView.swift */; };
 		38B05C10CE1E18802E9BEFE6 /* FallbackScreenshotCategorizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACE2D732C581FF9719CAC9A /* FallbackScreenshotCategorizerTests.swift */; };
 		3AD3D3E71E8C607430D45A00 /* LoadReviewItemsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962E03B3AE75031762EB31C2 /* LoadReviewItemsUseCase.swift */; };
 		3BF4EE2424CDED6BE72972FE /* RecordTriageDecisionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE77130537C36EAB490A9E5 /* RecordTriageDecisionUseCase.swift */; };
@@ -177,6 +178,7 @@
 		D534FF42E8CAB9050CAB5D3A /* ScreenshotDisposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDisposition.swift; sourceTree = "<group>"; };
 		DA69FE98F7842167D0BA4A03 /* TriageComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageComposition.swift; sourceTree = "<group>"; };
 		DBC3867CA58A176131910DA2 /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
+		DF48FB0EB67FB6E0DD5B5AAC /* TriageCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageCardView.swift; sourceTree = "<group>"; };
 		E3ADB887A54D35398A90D951 /* TriageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageViewModelTests.swift; sourceTree = "<group>"; };
 		E6669EDDC2D35CF2FFB7C7A1 /* CategorizeScreenshotUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizeScreenshotUseCase.swift; sourceTree = "<group>"; };
 		E77CDBB4B3C1A8AF3E061A8F /* LoadScreenshotsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadScreenshotsUseCase.swift; sourceTree = "<group>"; };
@@ -611,8 +613,17 @@
 			children = (
 				CAE3BB6860383788EE07322D /* TriageMetrics.swift */,
 				0244570B34CFD4B7380757C0 /* TriageView.swift */,
+				54F76E523E34F4728060D535 /* Components */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		54F76E523E34F4728060D535 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DF48FB0EB67FB6E0DD5B5AAC /* TriageCardView.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		CA14D7D9E1B3AA220A42298F /* ViewModel */ = {
@@ -834,6 +845,7 @@
 				3BF4EE2424CDED6BE72972FE /* RecordTriageDecisionUseCase.swift in Sources */,
 				0AAE0843FBC0FDBEB7E43374 /* TriageMetrics.swift in Sources */,
 				1B27251B6AD00C04DC64A5FD /* TriageView.swift in Sources */,
+				37B46D3C99C0A61FECDCC33F /* TriageCardView.swift in Sources */,
 				40864CDCCFFE7166B0FC175F /* TriageViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
