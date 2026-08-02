@@ -154,6 +154,32 @@ extension Fixture {
         )
     }
 
+    /// A `ReviewViewModel` wired to pre-seeded stores, so the whole Review flow
+    /// runs without PhotoKit and without re-classifying anything.
+    @MainActor
+    static func reviewViewModel(
+        scope: ReviewScope = .triage,
+        service: FakePhotoLibraryService,
+        store: CategoryStore,
+        decisions: TriageDecisionStore = SeededTriageDecisionStore()
+    ) -> ReviewViewModel {
+        ReviewViewModel(
+            scope: scope,
+            requestAccess: RequestPhotoAccessUseCase(service: service),
+            loadItems: loadReviewItems(service: service, store: store, decisions: decisions),
+            deleteScreenshots: DeleteScreenshotsUseCase(service: service),
+            pruneRecords: PruneScreenshotRecordsUseCase(
+                decisions: decisions,
+                categories: store,
+                ocr: InMemoryOCRStore()
+            ),
+            applyBulk: ApplyBulkTriageUseCase(store: decisions),
+            revertBulk: RevertBulkTriageUseCase(store: decisions),
+            imageLoader: service,
+            router: StubReviewRouter()
+        )
+    }
+
     /// A `LoadReviewItemsUseCase` whose categories are all cache hits, so OCR /
     /// classification are never invoked (their dependencies are inert).
     static func loadReviewItems(
