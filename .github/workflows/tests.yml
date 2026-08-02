@@ -53,6 +53,8 @@ jobs:
             -project SnapTriage.xcodeproj \
             -scheme SnapTriage \
             -configuration Debug \
+            -parallel-testing-enabled NO \
+            -collect-test-diagnostics never \
             -destination "platform=iOS Simulator,id=${{ steps.destination.outputs.udid }}" \
             -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO \
