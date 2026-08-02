@@ -360,35 +360,6 @@ final class BackgroundClassificationCoordinator {
 }
 
 
-@MainActor
-protocol ClassificationCompletionStoring {
-    var pendingCount: Int? { get }
-    func savePendingCount(_ count: Int)
-    func clearPendingCount()
-}
-
-@MainActor
-final class UserDefaultsClassificationCompletionStore: ClassificationCompletionStoring {
-    private static let key = "classification.pendingNotificationCount"
-    private let defaults: UserDefaults
-
-    init(defaults: UserDefaults = .standard) {
-        self.defaults = defaults
-    }
-
-    var pendingCount: Int? {
-        guard defaults.object(forKey: Self.key) != nil else { return nil }
-        return defaults.integer(forKey: Self.key)
-    }
-
-    func savePendingCount(_ count: Int) {
-        defaults.set(count, forKey: Self.key)
-    }
-
-    func clearPendingCount() {
-        defaults.removeObject(forKey: Self.key)
-    }
-}
 
 /// Presents the completion banner in the foreground and routes notification
 /// taps directly to the Triage tab.
