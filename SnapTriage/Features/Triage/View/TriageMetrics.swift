@@ -17,6 +17,13 @@ enum TriageMetrics {
     static let cardCornerRadius: CGFloat = 32
     /// How far a card must travel before the swipe commits to a verdict.
     static let decisionThreshold: CGFloat = 120
+    /// The card tracks the finger from the first touch, so a stationary press
+    /// still opens a drag. Travel under this reads as a tap, not a swipe.
+    static let tapSlop: CGFloat = 10
+    /// How long the fly-off plays before the deck advances. Gestures are ignored
+    /// for this window, so it stays only as long as the card needs to clear the
+    /// screen edge.
+    static let flyOffDuration = Duration.milliseconds(200)
 
     static let actionButtonSize: CGFloat = 64
     static let actionButtonHaloPadding: CGFloat = 12
