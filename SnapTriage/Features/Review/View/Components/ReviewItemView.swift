@@ -18,25 +18,24 @@ struct ReviewItemView: View {
     @Environment(\.displayScale) private var displayScale
     @State private var image: UIImage?
 
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: Spacing.reviewTileCornerRadius, style: .continuous)
+    }
+
     var body: some View {
         GeometryReader { proxy in
             thumbnail
                 .frame(width: proxy.size.width, height: proxy.size.height)
-                .clipShape(RoundedRectangle(cornerRadius: Spacing.thumbnailCornerRadius))
+                .clipShape(shape)
+                .overlay { shape.strokeBorder(Palette.cardStroke, lineWidth: 1) }
+                // Unselected is the resting state for a whole section, not the
+                // exception, so the dim has to read as "not chosen" rather than
+                // "disabled" — the checkmark carries selection.
+                .opacity(isSelected ? 1 : 0.55)
+                .contentShape(shape)
                 .overlay(alignment: .bottom) { footer }
                 .overlay(alignment: .topLeading) { categoryBadge }
                 .overlay(alignment: .topTrailing) { selectionMark }
-                .overlay {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: Spacing.thumbnailCornerRadius)
-                            .strokeBorder(Palette.accent, lineWidth: 2.5)
-                    }
-                }
-                // Unselected is now the resting state for a whole section, not
-                // the exception, so the dim has to read as "not chosen" rather
-                // than "disabled" — the checkmark and border carry selection.
-                .opacity(isSelected ? 1 : 0.72)
-                .contentShape(Rectangle())
                 .onTapGesture(perform: onToggle)
                 .animation(.easeInOut(duration: 0.15), value: isSelected)
                 .task(id: item.id) {
@@ -48,7 +47,7 @@ struct ReviewItemView: View {
                     image = await loadThumbnail(item.id, target)
                 }
         }
-        .aspectRatio(Spacing.thumbnailAspectRatio, contentMode: .fit)
+        .aspectRatio(Spacing.reviewTileAspectRatio, contentMode: .fit)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(item.category.title)
         .accessibilityValue(sizeText)
