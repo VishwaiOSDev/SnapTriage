@@ -41,7 +41,10 @@ struct OverviewViewModelTests {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: timeout)
         while !condition() && clock.now < deadline {
-            try? await Task.sleep(for: .milliseconds(10))
+            // Classification deliberately runs at utility priority. Polling the
+            // main actor too aggressively can starve that work on a constrained
+            // CI runner even though the production state machine is progressing.
+            try? await Task.sleep(for: .milliseconds(100))
         }
         #expect(condition(), "Timed out waiting for asynchronous state")
     }
