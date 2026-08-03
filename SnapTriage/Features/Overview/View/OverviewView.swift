@@ -88,6 +88,7 @@ struct OverviewView: View {
                 }
                 hero
                 summaryCard
+                categoryActionCard
                 featureCard
             }
             .glassContainer()
@@ -103,43 +104,48 @@ struct OverviewView: View {
     private var hero: some View {
         let summary = viewModel.progress.summary
         let hasReclaimable = summary.safeCount > 0
-        return Button(action: onOpenReview) {
-            VStack(spacing: 6) {
-                VStack(spacing: 2) {
-                    HeroMetricText(MetricFormatter.size(summary.reclaimableBytes), size: 72)
-                    Text(Strings.Overview.reclaimableHeadline)
-                        .font(.system(size: 46, weight: .bold))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                }
-                .multilineTextAlignment(.center)
-                // Scoped to the figure that actually changes during a pass. A
-                // blanket animation on the whole card re-ran the glass container
-                // and its blurred glow on every classification result.
-                .animation(.default, value: summary.reclaimableBytes)
+        return VStack(spacing: 6) {
+            Button(action: onOpenReview) {
+                VStack(spacing: 6) {
+                    VStack(spacing: 2) {
+                        HeroMetricText(MetricFormatter.size(summary.reclaimableBytes), size: 72)
+                        Text(Strings.Overview.reclaimableHeadline)
+                            .font(.system(size: 46, weight: .bold))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                    }
+                    .multilineTextAlignment(.center)
+                    // Scoped to the figure that actually changes during a pass. A
+                    // blanket animation on the whole card re-ran the glass container
+                    // and its blurred glow on every classification result.
+                    .animation(.default, value: summary.reclaimableBytes)
 
-                HStack(spacing: 4) {
-                    Text(Strings.Overview.heroCaption(MetricFormatter.count(summary.totalCount)))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    if hasReclaimable {
-                        Image(systemName: "chevron.right")
-                            .font(.caption.weight(.semibold))
+                    HStack(spacing: 4) {
+                        Text(Strings.Overview.heroCaption(MetricFormatter.count(summary.totalCount)))
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .accessibilityHidden(true)
+                        if hasReclaimable {
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .accessibilityHidden(true)
+                        }
                     }
                 }
-
-                if viewModel.isClassifying {
-                    analyzingStatus
-                }
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .contentShape(Rectangle())
+            .buttonStyle(.plain)
+
+            if viewModel.isClassifying {
+                analyzingStatus
+            } else if viewModel.hasIncompleteAnalysis {
+                incompleteStatus
+            }
         }
-        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
     }
 
     // "Analyzing 42 of 1,204" is honest but says nothing about how long, and
@@ -154,6 +160,26 @@ struct OverviewView: View {
                 .foregroundStyle(.quaternary)
                 .multilineTextAlignment(.center)
         }
+    }
+
+    private var incompleteStatus: some View {
+        Button {
+            viewModel.send(.retryAnalysis)
+        } label: {
+            VStack(spacing: 3) {
+                Label(
+                    Strings.Overview.analysisIncomplete(
+                        MetricFormatter.count(viewModel.progress.failedCount)
+                    ),
+                    systemImage: "exclamationmark.arrow.trianglehead.2.clockwise.rotate.90"
+                )
+                .font(.caption)
+                Text(Strings.Overview.retryAnalysis)
+                    .font(.caption2.weight(.semibold))
+            }
+            .foregroundStyle(.tertiary)
+        }
+        .buttonStyle(.plain)
     }
 
     private var analyzingText: String {
@@ -195,20 +221,22 @@ struct OverviewView: View {
                     Text(Strings.Overview.startTriageHelper)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-
-                    // Swiping is not the only way through a large library, and
-                    // the alternative belongs next to the primary action rather
-                    // than buried a menu deep.
-                    Button(action: onOpenCategories) {
-                        Label(Strings.Categories.title, systemImage: "square.stack.3d.up")
-                            .font(.subheadline.weight(.semibold))
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Palette.accent)
                 }
                 .padding(Spacing.cardPadding)
             }
         }
+    }
+
+    /// Category review is an alternative path through the library, not part of
+    /// the one-by-one triage action. Giving it its own navigation surface keeps
+    /// that relationship clear without competing with the primary button.
+    private var categoryActionCard: some View {
+        OverviewNavigationCard(
+            title: Strings.Overview.reviewByCategory,
+            subtitle: Strings.Overview.reviewByCategoryHelper,
+            systemImage: "square.stack.3d.up",
+            action: onOpenCategories
+        )
     }
 
     // Give the neutral glass a real blue light source to sample. Keeping this
@@ -297,6 +325,77 @@ struct OverviewView: View {
                 indicator: .progress(summary.reclaimableRatio)
             )
         ]
+    }
+}
+
+// MARK: - Secondary navigation
+
+/// A compact destination card for a secondary workflow on Overview. The whole
+/// surface is interactive, so its visible affordance and tap target agree.
+private struct OverviewNavigationCard: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let action: () -> Void
+
+    private let cornerRadius: CGFloat = 22
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Palette.accent)
+                    .frame(width: 38, height: 38)
+                    .background(
+                        Palette.surfaceFill,
+                        in: RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    )
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            .padding(.horizontal, Spacing.cardPadding)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
+            .contentShape(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+            .liquidGlass(
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+        }
+        .buttonStyle(OverviewNavigationCardButtonStyle())
+        .accessibilityLabel(title)
+        .accessibilityHint(subtitle)
+    }
+}
+
+private struct OverviewNavigationCardButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .opacity(configuration.isPressed ? 0.82 : 1)
+            .animation(
+                reduceMotion ? nil : .easeOut(duration: 0.12),
+                value: configuration.isPressed
+            )
     }
 }
 

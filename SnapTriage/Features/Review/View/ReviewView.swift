@@ -31,7 +31,7 @@ struct ReviewView: View {
             content
         }
         .navigationTitle(viewModel.scope.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(viewModel.scope.isCategory ? .large : .inline)
         .toolbar { toolbar }
         .safeAreaInset(edge: .bottom) { undoBar }
         .fullScreenCover(item: $viewing) { _ in
@@ -84,8 +84,7 @@ struct ReviewView: View {
         ScrollView {
             VStack(spacing: Spacing.sectionSpacing) {
                 DeletionSummaryCard(
-                    selectedCount: viewModel.state.selectedCount,
-                    reclaimableBytes: viewModel.state.reclaimableBytes
+                    selectedCount: viewModel.state.selectedCount
                 )
                 markedSection
                 suggestedSection
@@ -103,33 +102,21 @@ struct ReviewView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            VStack(spacing: 1) {
-                Text(viewModel.scope.title)
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                HStack(spacing: 6) {
-                    if viewModel.state.isRefreshing {
-                        ProgressView().controlSize(.mini)
+        if !viewModel.scope.isCategory {
+            ToolbarItem(placement: .principal) {
+                VStack(spacing: 1) {
+                    Text(viewModel.scope.title)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    HStack(spacing: 6) {
+                        if viewModel.state.isRefreshing {
+                            ProgressView().controlSize(.mini)
+                        }
+                        Text(navSubtitle)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .contentTransition(.numericText())
                     }
-                    Text(navSubtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .contentTransition(.numericText())
-                }
-            }
-        }
-        ToolbarItem(placement: .topBarTrailing) {
-            if hasContent {
-                Button {
-                    viewModel.send(.toggleSelectAll)
-                } label: {
-                    Text(
-                        viewModel.state.areAllSelected
-                            ? Strings.Review.deselectAll
-                            : Strings.Review.selectAll
-                    )
-                    .font(.subheadline.weight(.semibold))
                 }
             }
         }
@@ -159,12 +146,7 @@ struct ReviewView: View {
     }
 
     private var navSubtitle: String {
-        let selected = MetricFormatter.count(viewModel.state.selectedCount)
-        guard viewModel.scope.isCategory else { return Strings.Review.navSubtitle(selected) }
-        return Strings.Review.scopedNavSubtitle(
-            selected,
-            MetricFormatter.count(viewModel.state.items.count)
-        )
+        Strings.Review.navSubtitle(MetricFormatter.count(viewModel.state.selectedCount))
     }
 
     // MARK: - Sections
@@ -297,15 +279,9 @@ struct ReviewView: View {
             .opacity(viewModel.state.hasSelection ? 1 : 0.4)
             .disabled(!viewModel.state.hasSelection || viewModel.state.isDeleting)
             .animation(.default, value: viewModel.state.selectedIDs)
-
-            Label(Strings.Review.deleteFooter, systemImage: "lock.fill")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .labelStyle(.titleAndIcon)
         }
         .padding(.horizontal, Spacing.screenPadding)
         .padding(.top, 12)
-        .padding(.bottom, 6)
         .background(.ultraThinMaterial)
     }
 
@@ -315,8 +291,8 @@ struct ReviewView: View {
             HStack(spacing: 12) {
                 Text(
                     Strings.Review.keptAll(
-                        MetricFormatter.count(receipt.count),
-                        receipt.category.title
+                        receipt.category.title,
+                        MetricFormatter.count(receipt.count)
                     )
                 )
                 .font(.footnote)
@@ -372,11 +348,11 @@ private struct ViewerPresentation: Identifiable, Hashable {
 
 // MARK: - Deletion summary
 
-/// The one card that states the consequence in full before the user commits:
-/// how many, how much space, and that the deletion is recoverable for 30 days.
+/// Persistent selection guidance and the deletion consequence. The instruction
+/// and recovery rows deliberately stay mounted as selection changes, keeping
+/// the grid's vertical position stable while the count updates in place.
 private struct DeletionSummaryCard: View {
     let selectedCount: Int
-    let reclaimableBytes: Int
 
     var body: some View {
         GlassCard(cornerRadius: 24) {
@@ -420,7 +396,6 @@ private struct DeletionSummaryCard: View {
             }
             .padding(Spacing.cardPadding)
         }
-        .animation(.default, value: selectedCount)
     }
 
     private var hasSelection: Bool { selectedCount > 0 }
@@ -432,9 +407,7 @@ private struct DeletionSummaryCard: View {
     }
 
     private var detail: String {
-        hasSelection
-            ? Strings.Review.summaryFreeUp(MetricFormatter.size(reclaimableBytes))
-            : Strings.Review.summaryEmptyDetail
+        Strings.Review.summaryInstruction
     }
 }
 

@@ -137,24 +137,6 @@ struct ReviewViewModelTests {
         #expect(vm.state.selectedIDs.isEmpty)
     }
 
-    @Test("Select-all arms the whole screen, and toggles back off")
-    func selectAllEverything() async {
-        let decisions = SeededTriageDecisionStore(["4": .markForDeletion])
-        let (vm, _, _) = makeSUT(decisions: decisions)
-        vm.send(.onAppear)
-        await waitUntil { vm.state.phase == .loaded }
-        #expect(!vm.state.areAllSelected)
-
-        vm.send(.toggleSelectAll)
-
-        #expect(vm.state.selectedIDs == ["1", "2", "3", "4"])
-        #expect(vm.state.areAllSelected)
-
-        vm.send(.toggleSelectAll)
-        #expect(vm.state.selectedIDs.isEmpty)
-        #expect(!vm.state.areAllSelected)
-    }
-
     @Test("A reload over existing items refreshes in place instead of blanking the grid")
     func reloadKeepsContentOnScreen() async {
         let (vm, _, _) = makeSUT()

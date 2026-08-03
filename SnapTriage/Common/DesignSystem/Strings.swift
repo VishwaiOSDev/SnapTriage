@@ -20,6 +20,12 @@ enum Strings {
         static let reclaimableTitle = String(localized: .overviewReclaimableTitle)
         static let startTriage = String(localized: .overviewStartTriage)
         static let startTriageHelper = String(localized: .overviewStartTriageHelper)
+        static let reviewByCategory = String(localized: .overviewReviewByCategory)
+        static let reviewByCategoryHelper = String(localized: .overviewReviewByCategoryHelper)
+        static func analysisIncomplete(_ count: String) -> String {
+            String(localized: .overviewAnalysisIncomplete(count))
+        }
+        static let retryAnalysis = String(localized: .overviewRetryAnalysis)
         static func analyzing(_ current: String, _ total: String) -> String { String(localized: .overviewAnalyzing(current, total)) }
         static func analyzingWithEstimate(_ current: String, _ total: String, _ remaining: String) -> String {
             String(localized: .overviewAnalyzingWithEstimate(current, total, remaining))
@@ -83,11 +89,9 @@ enum Strings {
         static func navSubtitle(_ count: String) -> String { String(localized: .reviewNavSubtitle(count)) }
         static let summaryLead = String(localized: .reviewSummaryLead)
         static func summaryCount(_ count: String) -> String { String(localized: .reviewSummaryCount(count)) }
-        static func summaryFreeUp(_ size: String) -> String { String(localized: .reviewSummaryFreeUp(size)) }
         static let summaryEmptyTitle = String(localized: .reviewSummaryEmptyTitle)
-        static let summaryEmptyDetail = String(localized: .reviewSummaryEmptyDetail)
+        static let summaryInstruction = String(localized: .reviewSummaryInstruction)
         static let recoveryNote = String(localized: .reviewRecoveryNote)
-        static let deleteFooter = String(localized: .reviewDeleteFooter)
         static func deleteSubtitle(_ size: String) -> String { String(localized: .reviewDeleteSubtitle(size)) }
         static func itemCount(_ count: String) -> String { String(localized: .reviewItemCount(count)) }
         static let yesterday = String(localized: .reviewYesterday)
@@ -95,16 +99,13 @@ enum Strings {
         static func scopedSectionSubtitle(_ count: String, _ size: String) -> String {
             String(localized: .reviewScopedSectionSubtitle(count, size))
         }
-        static func scopedNavSubtitle(_ selected: String, _ total: String) -> String {
-            String(localized: .reviewScopedNavSubtitle(selected, total))
-        }
         static let scopedEmptyTitle = String(localized: .reviewScopedEmptyTitle)
         static func scopedEmptyMessage(_ category: String) -> String {
             String(localized: .reviewScopedEmptyMessage(category))
         }
         static func keepAll(_ count: String) -> String { String(localized: .reviewKeepAll(count)) }
-        static func keptAll(_ count: String, _ category: String) -> String {
-            String(localized: .reviewKeptAll(count, category))
+        static func keptAll(_ category: String, _ count: String) -> String {
+            String(localized: .reviewKeptAll(category, count))
         }
         static let openHint = String(localized: .reviewOpenHint)
         static let select = String(localized: .reviewSelect)
@@ -119,11 +120,10 @@ enum Strings {
 
     enum Categories {
         static let title = String(localized: .categoriesTitle)
-        static func headline(_ count: String) -> String { String(localized: .categoriesHeadline(count)) }
-        static let subheadline = String(localized: .categoriesSubheadline)
+        static let headline = String(localized: .categoriesHeadline)
+        static func subheadline(_ count: String) -> String { String(localized: .categoriesSubheadline(count)) }
         static func rowDetail(_ count: String, _ size: String) -> String { String(localized: .categoriesRowDetail(count, size)) }
         static func stillAnalyzing(_ count: String) -> String { String(localized: .categoriesStillAnalyzing(count)) }
-        static let safetyNote = String(localized: .categoriesSafetyNote)
         static let emptyTitle = String(localized: .categoriesEmptyTitle)
         static let emptyMessage = String(localized: .categoriesEmptyMessage)
     }
