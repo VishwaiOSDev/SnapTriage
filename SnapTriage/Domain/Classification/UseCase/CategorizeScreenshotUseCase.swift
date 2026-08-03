@@ -60,6 +60,12 @@ struct CategorizeScreenshotUseCase: Sendable {
         model.prewarm()
     }
 
+    /// Records failures that happen before the cascade receives OCR, without
+    /// exposing screenshot identifiers or recognized content.
+    func recordFailure() {
+        metrics.recordFailure()
+    }
+
     func execute(
         _ ocr: OCRResult,
         sourceImage: CGImage? = nil

@@ -86,16 +86,20 @@ struct CategoriesView: View {
     }
 
     private var intro: some View {
-        VStack(spacing: 4) {
-            Text(Strings.Categories.headline(countText(viewModel.state.breakdown.undecidedCount)))
+        VStack(alignment: .leading, spacing: 4) {
+            Text(Strings.Categories.headline)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white)
-            Text(Strings.Categories.subheadline)
+            Text(
+                Strings.Categories.subheadline(
+                    countText(viewModel.state.breakdown.undecidedCount)
+                )
+            )
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
+        .multilineTextAlignment(.leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, 4)
     }
 
@@ -112,10 +116,6 @@ struct CategoriesView: View {
                 .font(.caption)
                 .foregroundStyle(.tertiary)
             }
-            Text(Strings.Categories.safetyNote)
-                .font(.caption2)
-                .foregroundStyle(.quaternary)
-                .multilineTextAlignment(.center)
         }
         .padding(.top, 6)
     }

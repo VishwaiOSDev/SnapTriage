@@ -57,10 +57,6 @@ final class ReviewViewModel {
             let suggested = suggestedItems
             return !suggested.isEmpty && suggested.allSatisfy { selectedIDs.contains($0.id) }
         }
-
-        var areAllSelected: Bool {
-            !items.isEmpty && selectedIDs.count == items.count
-        }
     }
 
     enum Input {
@@ -68,7 +64,6 @@ final class ReviewViewModel {
         case retry
         case toggle(Screenshot.ID)
         case toggleAllSuggestions
-        case toggleSelectAll
         case deleteSelected
         case keepAll
         case undoBulk
@@ -129,8 +124,6 @@ final class ReviewViewModel {
             toggle(id)
         case .toggleAllSuggestions:
             toggleAllSuggestions()
-        case .toggleSelectAll:
-            toggleSelectAll()
         case .deleteSelected:
             deleteFlow()
         case .keepAll:
@@ -233,18 +226,6 @@ final class ReviewViewModel {
             state.selectedIDs.subtract(ids)
         } else {
             state.selectedIDs.formUnion(ids)
-        }
-    }
-
-    /// The screen-level control: arms everything, or clears the whole selection
-    /// if it is already armed. Suggestions are only ever included by this kind
-    /// of explicit tap, never by a default.
-    private func toggleSelectAll() {
-        guard !state.items.isEmpty else { return }
-        if state.areAllSelected {
-            state.selectedIDs.removeAll()
-        } else {
-            state.selectedIDs = Set(state.items.map(\.id))
         }
     }
 

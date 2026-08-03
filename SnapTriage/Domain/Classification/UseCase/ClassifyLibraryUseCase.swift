@@ -17,6 +17,7 @@ struct ClassifyLibraryUseCase: Sendable {
     enum Resolution: Sendable, Equatable {
         case cached
         case classified
+        case cancelled
         case failed
     }
 
