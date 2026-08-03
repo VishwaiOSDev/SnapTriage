@@ -113,7 +113,7 @@ actor LibraryClassificationEngine {
         store: CategoryStore
     ) async -> Attempt {
         guard !Task.isCancelled else {
-            return Attempt(id: screenshot.id, classification: nil, resolution: .failed)
+            return Attempt(id: screenshot.id, classification: nil, resolution: .cancelled)
         }
 
         if let cached = await store.classification(for: screenshot.id) {
@@ -134,7 +134,10 @@ actor LibraryClassificationEngine {
             try Task.checkCancellation()
             await store.save(classification, for: screenshot.id)
             return Attempt(id: screenshot.id, classification: classification, resolution: .classified)
+        } catch is CancellationError {
+            return Attempt(id: screenshot.id, classification: nil, resolution: .cancelled)
         } catch {
+            categorize.recordFailure()
             return Attempt(id: screenshot.id, classification: nil, resolution: .failed)
         }
     }

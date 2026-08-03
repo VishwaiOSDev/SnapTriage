@@ -15,7 +15,7 @@ struct OverviewViewModelTests {
 
     private func makeSUT(
         cached: [Screenshot.ID: ScreenshotCategory]
-    ) -> (OverviewViewModel, FakePhotoLibraryService) {
+    ) -> (OverviewViewModel, FakePhotoLibraryService, SeededCategoryStore) {
         let shots = [
             Fixture.screenshot(id: "1", byteSize: 100),
             Fixture.screenshot(id: "2", byteSize: 200),
@@ -23,14 +23,15 @@ struct OverviewViewModelTests {
             Fixture.screenshot(id: "4", byteSize: 400)
         ]
         let service = FakePhotoLibraryService(screenshots: shots)
+        let store = SeededCategoryStore(cached)
         let vm = OverviewViewModel(
             requestAccess: RequestPhotoAccessUseCase(service: service),
             loadScreenshots: LoadScreenshotsUseCase(service: service),
-            classifyLibrary: Fixture.classifyLibrary(service: service, store: SeededCategoryStore(cached)),
+            classifyLibrary: Fixture.classifyLibrary(service: service, store: store),
             observeLibrary: ObservePhotoLibraryUseCase(service: service),
             router: StubOverviewRouter()
         )
-        return (vm, service)
+        return (vm, service, store)
     }
 
     private func waitUntil(
@@ -47,7 +48,7 @@ struct OverviewViewModelTests {
 
     @Test("A fully cached library renders the summary complete at first load")
     func warmCacheRendersSummaryFullyFormed() async {
-        let (vm, _) = makeSUT(cached: [
+        let (vm, _, _) = makeSUT(cached: [
             "1": .social,          // safe, 100
             "2": .article,         // safe, 200
             "3": .receipt,         // useful, 300
@@ -66,9 +67,9 @@ struct OverviewViewModelTests {
         #expect(vm.isClassifying == false)
     }
 
-    @Test("A partially cached library folds the hits and streams the rest")
-    func partialCacheStreamsOnlyRemainder() async {
-        let (vm, _) = makeSUT(cached: ["1": .social, "2": .receipt])
+    @Test("Failed attempts remain incomplete instead of masquerading as classifications")
+    func failedAttemptsRemainIncomplete() async {
+        let (vm, _, _) = makeSUT(cached: ["1": .social, "2": .receipt])
 
         vm.send(.onAppear)
         await waitUntil { vm.state.phase == .loaded }
@@ -78,15 +79,18 @@ struct OverviewViewModelTests {
         #expect(vm.progress.summary.usefulBytes == 200)
         #expect(vm.progress.classifiedCount >= 2)
 
-        // Uncached "3"/"4" run the inert pipeline and finish as unknown.
-        await waitUntil { vm.progress.classifiedCount == 4 }
-        #expect(vm.progress.summary.unknownCount == 2)
+        // Uncached "3"/"4" run the inert pipeline and fail. They remain
+        // pending because no verdict was written to the category store.
+        await waitUntil { vm.progress.analysisPhase == .incomplete }
+        #expect(vm.progress.classifiedCount == 2)
+        #expect(vm.progress.failedCount == 2)
         #expect(vm.isClassifying == false)
+        #expect(vm.hasIncompleteAnalysis)
     }
 
     @Test("A library change refreshes the summary without a loading flash")
     func libraryChangeRefreshesInPlace() async {
-        let (vm, service) = makeSUT(cached: [
+        let (vm, service, _) = makeSUT(cached: [
             "1": .social, "2": .article, "3": .conversation, "4": .receipt
         ])
         vm.send(.onAppear)
@@ -100,11 +104,37 @@ struct OverviewViewModelTests {
 
         #expect(vm.state.phase == .loaded)
         // Known categories folded straight back in; the new shot runs the
-        // (inert) pipeline and lands as unknown.
+        // (inert) pipeline and remains explicitly incomplete.
         #expect(vm.progress.summary.safeBytes == 600)
         #expect(vm.progress.summary.usefulBytes == 400)
-        await waitUntil { vm.progress.classifiedCount == 5 }
-        #expect(vm.progress.summary.unknownCount == 1)
+        await waitUntil { vm.progress.analysisPhase == .incomplete }
+        #expect(vm.progress.classifiedCount == 4)
+        #expect(vm.progress.failedCount == 1)
+    }
+
+    @Test("Foregrounding reconciles classifications completed by background work")
+    func foregroundReconcilesBackgroundClassifications() async {
+        let (vm, _, store) = makeSUT(cached: ["1": .social, "2": .receipt])
+        vm.send(.onAppear)
+        await waitUntil { vm.progress.analysisPhase == .incomplete }
+
+        await store.save(
+            ScreenshotClassification(category: .article, confidence: .high, source: .heuristic),
+            for: "3"
+        )
+        await store.save(
+            ScreenshotClassification(category: .conversation, confidence: .high, source: .heuristic),
+            for: "4"
+        )
+
+        vm.send(.sceneBecameActive)
+        await waitUntil { vm.progress.analysisPhase == .complete }
+
+        #expect(vm.progress.classifiedCount == 4)
+        #expect(vm.progress.failedCount == 0)
+        #expect(vm.progress.summary.safeBytes == 800)
+        #expect(vm.progress.summary.usefulBytes == 200)
+        #expect(vm.isClassifying == false)
     }
 }
 
@@ -188,6 +218,52 @@ struct ClassificationExecutionTests {
         #expect(await recognizer.callCount == 1)
     }
 
+    @Test("Cancellation is distinct from a classification failure")
+    func cancellationHasItsOwnResolution() async {
+        let screenshot = Fixture.screenshot(id: "cancelled")
+        let service = StubPhotoLibraryService(image: Fixture.image())
+        let metrics = RecordingClassificationMetrics()
+        let classify = ClassifyLibraryUseCase(
+            recognizeText: RecognizeScreenshotTextUseCase(
+                imageLoader: service,
+                recognizer: CancelledTextRecognitionService(),
+                store: InMemoryOCRStore()
+            ),
+            categorize: Fixture.categorize(loader: service, metrics: metrics),
+            store: InMemoryCategoryStore()
+        )
+
+        let results = await collect(classify.execute([screenshot]))
+
+        #expect(results.count == 1)
+        #expect(results.first?.resolution == .cancelled)
+        #expect(results.first?.classification == nil)
+        #expect(metrics.failureCount == 0)
+    }
+
+    @Test("OCR failures are measured and remain uncached")
+    func ocrFailureIsMeasured() async {
+        let screenshot = Fixture.screenshot(id: "failed")
+        let service = StubPhotoLibraryService(image: nil)
+        let metrics = RecordingClassificationMetrics()
+        let classify = ClassifyLibraryUseCase(
+            recognizeText: RecognizeScreenshotTextUseCase(
+                imageLoader: service,
+                recognizer: CountingTextRecognitionService(),
+                store: InMemoryOCRStore()
+            ),
+            categorize: Fixture.categorize(loader: service, metrics: metrics),
+            store: InMemoryCategoryStore()
+        )
+
+        let results = await collect(classify.execute([screenshot]))
+
+        #expect(results.first?.resolution == .failed)
+        #expect(results.first?.classification == nil)
+        #expect(metrics.failureCount == 1)
+        #expect(await classify.cachedClassifications().isEmpty)
+    }
+
     @MainActor
     @Test("A completion notification is sent only after OCR and categories are durable")
     func coordinatorFlushesBeforeNotifying() async {
@@ -249,6 +325,12 @@ private actor CountingTextRecognitionService: TextRecognitionService {
             OCRLine(text: "Total $42.00", confidence: 1, boundingBox: .zero),
             OCRLine(text: "Paid", confidence: 1, boundingBox: .zero)
         ]
+    }
+}
+
+private struct CancelledTextRecognitionService: TextRecognitionService {
+    func recognize(_ image: CGImage) async throws -> [OCRLine] {
+        throw CancellationError()
     }
 }
 

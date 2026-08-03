@@ -93,6 +93,7 @@ struct AppRootView: View {
             case .active:
                 navigation.sceneDidBecomeActive()
                 backgroundCoordinator.handleAppWillEnterForeground()
+                overviewModel.send(.sceneBecameActive)
             case .inactive:
                 navigation.sceneDidLeaveActive()
             @unknown default:

@@ -35,6 +35,10 @@ final class PersistedDictionary<Value: Codable & Sendable>: Sendable {
     private let fileURL: URL
     private let debounce: Duration
     private let state: Mutex<Guarded>
+    /// Atomic replacement protects readers from a half-written file, but it does
+    /// not order two concurrent replacements. Serializing writers prevents an
+    /// older debounced snapshot from landing after a newer explicit flush.
+    private let writeLock = Mutex(())
 
     init(name: String, directory: URL, debounce: Duration = .milliseconds(500)) {
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -88,16 +92,26 @@ final class PersistedDictionary<Value: Codable & Sendable>: Sendable {
     }
 
     private func performWrite() {
-        let entries: [String: Value]? = state.withLock { guarded in
-            guarded.pendingWrite = nil
-            guard guarded.dirty else { return nil }
-            guarded.dirty = false
-            return guarded.entries
+        writeLock.withLock { _ in
+            let entries: [String: Value]? = state.withLock { guarded in
+                guarded.pendingWrite = nil
+                guard guarded.dirty else { return nil }
+                guarded.dirty = false
+                return guarded.entries
+            }
+            guard let entries else { return }
+
+            do {
+                let data = try JSONEncoder().encode(
+                    Envelope(version: Self.formatVersion, entries: entries)
+                )
+                try data.write(to: fileURL, options: .atomic)
+            } catch {
+                // A later mutation or lifecycle flush must retry the snapshot;
+                // never report a failed disk write as clean.
+                state.withLock { $0.dirty = true }
+            }
         }
-        guard let entries,
-              let data = try? JSONEncoder().encode(Envelope(version: Self.formatVersion, entries: entries))
-        else { return }
-        try? data.write(to: fileURL, options: .atomic)
     }
 
     private static func load(from url: URL) -> [String: Value] {

@@ -40,8 +40,20 @@ final class OverviewViewModel {
 
     /// Everything a running classification pass moves.
     struct Progress: Equatable {
+        enum AnalysisPhase: Equatable {
+            case idle
+            case running
+            case complete
+            case incomplete
+        }
+
         var summary: OverviewSummary = .empty
+        /// Verdicts that exist in the shared category store. An attempted but
+        /// failed screenshot is deliberately not included: relaunch restoration
+        /// uses the same persisted truth, so both paths now agree on completion.
         var classifiedCount = 0
+        var failedCount = 0
+        var analysisPhase: AnalysisPhase = .idle
         /// When the current classification run started, and how much of the
         /// library it had already covered. Together these give an observed
         /// throughput to project the remainder against.
@@ -70,8 +82,10 @@ final class OverviewViewModel {
 
     enum Input {
         case onAppear
+        case sceneBecameActive
         case grantAccess
         case retry
+        case retryAnalysis
         case openSystemSettings
         case addMorePhotos
     }
@@ -83,7 +97,11 @@ final class OverviewViewModel {
     /// A pass is under way: the library is loaded, non-empty, and not yet fully
     /// classified. Spans both properties, so it lives on the view model.
     var isClassifying: Bool {
-        state.phase == .loaded && progress.summary.totalCount > 0 && !progress.isComplete
+        state.phase == .loaded && progress.analysisPhase == .running
+    }
+
+    var hasIncompleteAnalysis: Bool {
+        state.phase == .loaded && progress.analysisPhase == .incomplete && progress.failedCount > 0
     }
 
     var estimatedSecondsRemaining: Int? {
@@ -99,6 +117,10 @@ final class OverviewViewModel {
     private enum TaskKind { case load, classify, observe }
     @ObservationIgnored private var tasks: [TaskKind: Task<Void, Never>] = [:]
     @ObservationIgnored private var sizes: [Screenshot.ID: Int] = [:]
+    /// Invalidates UI publications from a superseded classification pass. Task
+    /// cancellation is cooperative, so cancellation alone cannot prevent a batch
+    /// already hopping back to the main actor from landing on a newer snapshot.
+    @ObservationIgnored private var classificationGeneration = 0
 
     init(
         requestAccess: RequestPhotoAccessUseCase,
@@ -126,11 +148,20 @@ final class OverviewViewModel {
             } else {
                 loadFlow()
             }
+        case .sceneBecameActive:
+            // Background classification mutates the shared category store, not
+            // this view model. Rebuild from that durable truth whenever the scene
+            // returns instead of waiting for a PhotoKit library-change event.
+            guard state.phase == .loaded else { return }
+            refreshFlow()
         case .grantAccess:
             guard state.phase == .primingAccess else { return }
             loadFlow()
         case .retry:
             loadFlow()
+        case .retryAnalysis:
+            guard state.phase == .loaded else { return }
+            refreshFlow()
         case .openSystemSettings:
             router.openSystemSettings()
         case .addMorePhotos:
@@ -141,7 +172,7 @@ final class OverviewViewModel {
     private func loadFlow() {
         run(.load) { [weak self] in
             guard let self else { return }
-            self.tasks[.classify]?.cancel()
+            self.invalidateClassificationPass()
             self.state.phase = .loading
             self.state.errorMessage = nil
             self.progress = Progress()
@@ -181,6 +212,7 @@ final class OverviewViewModel {
     // would spin the hero metric up from zero — and only genuinely
     // unclassified screenshots go to the pipeline.
     private func applySnapshot(_ screenshots: [Screenshot]) async {
+        let generation = invalidateClassificationPass()
         sizes = Dictionary(
             screenshots.map { ($0.id, $0.byteSize) },
             uniquingKeysWith: { first, _ in first }
@@ -200,7 +232,12 @@ final class OverviewViewModel {
         }
         progress.summary = summary
         progress.classifiedCount = screenshots.count - pending.count
-        classifyFlow(pending, startingFrom: progress.classifiedCount)
+        progress.failedCount = 0
+        classifyFlow(
+            pending,
+            startingFrom: progress.classifiedCount,
+            generation: generation
+        )
     }
 
     // Silent re-sync after the library changed underneath us — a screenshot
@@ -228,72 +265,138 @@ final class OverviewViewModel {
         }
     }
 
-    // `base` is how many screenshots the cache already covered; the stream's
-    // progress counts are relative to the pending slice handed to it.
+    // `base` is how many screenshots the cache already covered. Only successful
+    // verdicts advance the count; failed attempts stay pending across retries.
     //
     // The stream is consumed off the main actor and published on a fixed tick.
     // Applying every result as it lands put one `@Observable` mutation — and so
     // one full re-render of the hero metric and the glass summary card — on the
     // main thread per screenshot, for the length of a cold pass. That is what
     // made the toolbar and Start Triage feel unresponsive on first launch.
-    private func classifyFlow(_ screenshots: [Screenshot], startingFrom base: Int) {
+    private func classifyFlow(
+        _ screenshots: [Screenshot],
+        startingFrom base: Int,
+        generation: Int
+    ) {
         guard !screenshots.isEmpty else {
             progress.startedAt = nil
+            progress.analysisPhase = .complete
             return
         }
         progress.startedAt = .now
         progress.startedFrom = base
+        progress.analysisPhase = .running
+        progress.failedCount = 0
 
         let classifyLibrary = classifyLibrary
         let sizes = sizes
         let interval = Self.progressPublishInterval
-        tasks[.classify]?.cancel()
+        let retryDelays = Self.retryDelays
+        let maximumAttempts = Self.maximumClassificationAttempts
         tasks[.classify] = Task.detached(priority: .utility) { [weak self] in
-            var batch = OverviewSummary()
-            var completed = 0
-            var lastPublish = ContinuousClock.now
+            var pending = screenshots
+            var resolved = 0
 
-            for await progress in classifyLibrary.execute(screenshots) {
-                if Task.isCancelled { break }
-                completed = progress.completed
-                if let id = progress.id {
-                    if let classification = progress.classification {
+            for attemptIndex in 0..<maximumAttempts {
+                var unresolvedIDs = Set(pending.map(\.id))
+                var batch = OverviewSummary()
+                var lastPublish = ContinuousClock.now
+
+                for await item in classifyLibrary.execute(pending) {
+                    guard !Task.isCancelled else { return }
+                    if let id = item.id, let classification = item.classification {
+                        unresolvedIDs.remove(id)
+                        resolved += 1
                         batch.add(bytes: sizes[id] ?? 0, disposition: classification.disposition)
-                    } else {
-                        batch.unknownCount += 1
                     }
+
+                    let now = ContinuousClock.now
+                    guard now - lastPublish >= interval else { continue }
+                    lastPublish = now
+                    let published = batch
+                    batch = OverviewSummary()
+                    await self?.publish(
+                        published,
+                        classifiedCount: base + resolved,
+                        generation: generation
+                    )
                 }
 
-                let now = ContinuousClock.now
-                guard now - lastPublish >= interval else { continue }
-                lastPublish = now
-                let published = batch
-                batch = OverviewSummary()
-                await self?.publish(published, classifiedCount: base + completed)
+                await self?.publish(
+                    batch,
+                    classifiedCount: base + resolved,
+                    generation: generation
+                )
+
+                // Failed, cancelled, or non-yielding work remains pending.
+                // Counting it as classified is the bug that made Overview hide
+                // its analyzing state with only a partial MB total.
+                let retry = pending.filter { unresolvedIDs.contains($0.id) }
+                guard !retry.isEmpty else {
+                    await self?.finishClassifying(
+                        failedCount: 0,
+                        classifiedCount: base + resolved,
+                        generation: generation
+                    )
+                    return
+                }
+
+                pending = retry
+                guard attemptIndex < retryDelays.count else { break }
+                do {
+                    try await Task.sleep(for: retryDelays[attemptIndex])
+                } catch {
+                    return
+                }
             }
 
-            // A cancelled pass was superseded by a newer load, which has already
-            // reset the summary; its residual batch must not land on top.
-            guard !Task.isCancelled else { return }
-            await self?.finishClassifying(batch, classifiedCount: base + completed)
+            await self?.finishClassifying(
+                failedCount: pending.count,
+                classifiedCount: base + resolved,
+                generation: generation
+            )
         }
     }
 
     /// Folds one tick's worth of results into the screen's state.
-    private func publish(_ batch: OverviewSummary, classifiedCount: Int) {
+    private func publish(
+        _ batch: OverviewSummary,
+        classifiedCount: Int,
+        generation: Int
+    ) {
+        guard classificationGeneration == generation else { return }
         progress.summary.merge(batch)
         progress.classifiedCount = classifiedCount
     }
 
-    private func finishClassifying(_ batch: OverviewSummary, classifiedCount: Int) {
-        publish(batch, classifiedCount: classifiedCount)
+    private func finishClassifying(
+        failedCount: Int,
+        classifiedCount: Int,
+        generation: Int
+    ) {
+        guard classificationGeneration == generation else { return }
+        progress.classifiedCount = classifiedCount
+        progress.failedCount = failedCount
         progress.startedAt = nil
+        progress.analysisPhase = failedCount == 0 ? .complete : .incomplete
     }
 
     /// How often a running pass is allowed to move the screen. Slow enough that
     /// the summary card is not re-rendered per screenshot, fast enough that the
     /// hero figure still reads as live.
     private static let progressPublishInterval: Duration = .milliseconds(250)
+    private static let retryDelays: [Duration] = [.milliseconds(250), .seconds(1)]
+    private static let maximumClassificationAttempts = retryDelays.count + 1
+
+    /// Cancels the consumer and retires every publication already queued by it.
+    /// Returns the token the replacement pass must use.
+    @discardableResult
+    private func invalidateClassificationPass() -> Int {
+        tasks[.classify]?.cancel()
+        tasks[.classify] = nil
+        classificationGeneration += 1
+        return classificationGeneration
+    }
 
     // Replaces any in-flight task of the same kind: cancel stale, no reentrancy race.
     private func run(_ kind: TaskKind, _ operation: @escaping () async -> Void) {
@@ -326,6 +429,7 @@ final class OverviewViewModel {
         state.phase = .loaded
         progress.summary = summary
         progress.classifiedCount = summary.totalCount
+        progress.analysisPhase = .complete
     }
     #endif
 }
